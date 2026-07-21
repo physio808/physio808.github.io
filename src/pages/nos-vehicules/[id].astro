@@ -1,0 +1,454 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VehicleCard from '../../components/VehicleCard.astro';
+import { vehicles } from '../../data/data';
+
+export function getStaticPaths() {
+  return vehicles.map((v) => ({
+    params: { id: v.id },
+    props: { vehicle: v },
+  }));
+}
+
+const { vehicle } = Astro.props;
+const related = vehicles.filter((v) => v.id !== vehicle.id).slice(0, 3);
+
+const specs = [
+  { label: 'Places', value: `${vehicle.seats} places`, icon: 'seats' },
+  { label: 'Transmission', value: vehicle.transmission, icon: 'gear' },
+  { label: 'Carburant', value: vehicle.fuel, icon: 'fuel' },
+  { label: 'Portes', value: `${vehicle.doors} portes`, icon: 'doors' },
+  { label: 'Climatisation', value: vehicle.ac ? 'Oui' : 'Non', icon: 'ac' },
+];
+
+const jsonLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: `Location ${vehicle.name} en Guadeloupe`,
+  description: vehicle.metaDescription,
+  image: new URL(vehicle.image, Astro.site).href,
+  brand: { '@type': 'Brand', name: vehicle.brand },
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'EUR',
+    lowPrice: vehicle.priceLow,
+    highPrice: vehicle.priceHigh,
+    availability: 'https://schema.org/InStock',
+    url: new URL(`/nos-vehicules/${vehicle.id}`, Astro.site).href,
+  },
+});
+---
+
+<BaseLayout title={`Location ${vehicle.name} en Guadeloupe`} description={vehicle.metaDescription} image={vehicle.image}>
+  <script type="application/ld+json" set:html={jsonLd}></script>
+  <section class="vd-hero">
+    <div class="container vd-hero-grid">
+      <div class="vd-gallery animate-on-scroll">
+        <img src={vehicle.image} alt={vehicle.name} />
+        {vehicle.badge && <span class="vd-badge">{vehicle.badge}</span>}
+      </div>
+
+      <div class="vd-info animate-on-scroll" style="animation-delay:0.1s">
+        <a href="/nos-vehicules" class="vd-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Retour à la flotte
+        </a>
+        <span class="vd-category">{vehicle.category}</span>
+        <h1 class="vd-title">{vehicle.name}</h1>
+        <p class="vd-desc">{vehicle.description}</p>
+
+        <div class="vd-specs">
+          {specs.map((s) => (
+            <div class="vd-spec">
+              <span class="vd-spec-label">{s.label}</span>
+              <span class="vd-spec-value">{s.value}</span>
+            </div>
+          ))}
+        </div>
+
+        <div class="vd-features">
+          {vehicle.features.map((f) => (
+            <span class="vd-feature">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              {f}
+            </span>
+          ))}
+        </div>
+
+        <div class="vd-seo-desc">
+          <p>{vehicle.seoDescription}</p>
+        </div>
+
+        <div class="vd-tech">
+          <h2 class="vd-tech-title">Caractéristiques techniques</h2>
+          <dl class="vd-tech-grid">
+            {vehicle.techSpecs.map((t) => (
+              <div class="vd-tech-row">
+                <dt>{t.label}</dt>
+                <dd>{t.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <div class="vd-booking-card" id="vd-booking-card" data-price-low={vehicle.priceLow} data-price-high={vehicle.priceHigh}>
+          <div class="vd-price-row">
+            <div class="vd-price-seasons">
+              <div class="vd-price-season">
+                <span class="vd-price">{vehicle.priceLow}€<span>/jour</span></span>
+                <span class="vd-price-season-label">Basse saison · mai → nov.</span>
+              </div>
+              <div class="vd-price-season-divider"></div>
+              <div class="vd-price-season">
+                <span class="vd-price">{vehicle.priceHigh}€<span>/jour</span></span>
+                <span class="vd-price-season-label">Haute saison · 20 déc. → 20 avr.</span>
+              </div>
+            </div>
+            <span class="badge badge-turquoise">Kilométrage illimité</span>
+          </div>
+          <p class="vd-context-total" id="vd-context-total" hidden></p>
+          <a href={`/reservation?vehicule=${vehicle.id}`} class="btn btn-primary btn-lg vd-cta">
+            Réserver ce véhicule
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <p class="vd-discount-note">−20% appliqué automatiquement dès 7 jours de location.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {related.length > 0 && (
+    <section class="vd-related section">
+      <div class="container">
+        <div class="section-header centered animate-on-scroll">
+          <span class="section-badge">Vous aimerez aussi</span>
+          <h2 class="section-title">Véhicules <span>similaires</span></h2>
+        </div>
+        <div class="vd-related-grid">
+          {related.map((v, i) => <VehicleCard vehicle={v} index={i} />)}
+        </div>
+      </div>
+    </section>
+  )}
+</BaseLayout>
+
+<style>
+  .vd-hero {
+    padding: calc(var(--nav-height) + var(--spacing-xl)) 0 var(--spacing-2xl);
+  }
+
+  .vd-hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: start;
+  }
+
+  .vd-gallery {
+    position: relative;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    position: sticky;
+    top: calc(var(--nav-height) + var(--spacing-lg));
+  }
+
+  .vd-gallery img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .vd-badge {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    background: var(--gradient-primary);
+    color: white;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 4px 12px rgba(227,24,55,0.4);
+  }
+
+  .vd-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
+    transition: color var(--transition-fast), gap var(--transition-fast);
+  }
+
+  .vd-back:hover {
+    color: var(--color-primary);
+    gap: 10px;
+  }
+
+  .vd-category {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-primary);
+  }
+
+  .vd-title {
+    margin: 4px 0 var(--spacing-sm);
+  }
+
+  .vd-desc {
+    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .vd-specs {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .vd-spec {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 14px;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+  }
+
+  .vd-spec-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-subtle);
+  }
+
+  .vd-spec-value {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  .vd-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .vd-feature {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    background: rgba(0,169,143,0.07);
+    border: 1px solid rgba(0,169,143,0.2);
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+  }
+
+  .vd-feature svg {
+    color: var(--color-turquoise);
+  }
+
+  .vd-seo-desc {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .vd-seo-desc p {
+    font-size: 0.92rem;
+    line-height: 1.75;
+  }
+
+  .vd-tech {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .vd-tech-title {
+    font-size: 1.1rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .vd-tech-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .vd-tech-row {
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+  }
+
+  .vd-tech-row dt {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-subtle);
+  }
+
+  .vd-tech-row dd {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    margin: 2px 0 0;
+  }
+
+  .vd-booking-card {
+    background: var(--gradient-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+  }
+
+  .vd-context-total {
+    background: var(--color-rose);
+    border: 1px solid rgba(227,24,55,0.2);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .vd-context-total strong {
+    color: var(--color-primary);
+    font-family: var(--font-display);
+  }
+
+  .vd-context-total s {
+    color: var(--color-text-subtle);
+  }
+
+  .vd-discount-note {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    text-align: center;
+  }
+
+  .vd-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .vd-price {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--color-text);
+  }
+
+  .vd-price span {
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+
+  .vd-price-seasons {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
+
+  .vd-price-season {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .vd-price-season-label {
+    font-size: 0.72rem;
+    color: var(--color-text-subtle);
+  }
+
+  .vd-price-season-divider {
+    width: 1px;
+    align-self: stretch;
+    background: var(--color-border);
+  }
+
+  .vd-cta {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .vd-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  @media (max-width: 1024px) {
+    .vd-hero-grid { grid-template-columns: 1fr; }
+    .vd-gallery { position: static; }
+    .vd-related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .vd-specs { grid-template-columns: repeat(2, 1fr); }
+    .vd-related-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script>
+  // Transfère le contexte de recherche (dates, agences) vers le CTA de réservation
+  const search = new URLSearchParams(window.location.search);
+  search.delete('categorie');
+  const qs = search.toString();
+  if (qs) {
+    const cta = document.querySelector('.vd-cta');
+    const href = cta?.getAttribute('href');
+    if (cta && href) cta.setAttribute('href', `${href}&${qs}`);
+  }
+
+  // Total pour les dates choisies, remise −20% incluse dès 7 jours
+  const ds = search.get('date-start');
+  const de = search.get('date-end');
+  const card = document.getElementById('vd-booking-card');
+  if (ds && de && card) {
+    const isHigh = (d: Date) => {
+      const m = d.getMonth() + 1;
+      const day = d.getDate();
+      if (m === 12) return day >= 20;
+      if (m < 4) return true;
+      if (m === 4) return day <= 20;
+      return false;
+    };
+    const days = Math.max(1, Math.round((new Date(de).getTime() - new Date(ds).getTime()) / 86400000));
+    const low = Number(card.getAttribute('data-price-low'));
+    const high = Number(card.getAttribute('data-price-high'));
+    let gross = 0;
+    const start = new Date(ds + 'T12:00:00');
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      gross += isHigh(d) ? high : low;
+    }
+    const discounted = days >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
+    const fmtEUR = (n: number) =>
+      (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ',')) + '€';
+    const box = document.getElementById('vd-context-total');
+    if (box) {
+      box.innerHTML = days >= 7
+        ? `Pour vos dates (${days} j) : <strong>${fmtEUR(discounted)}</strong> au lieu de <s>${fmtEUR(gross)}</s> — remise −20% incluse`
+        : `Pour vos dates (${days} j) : <strong>${fmtEUR(discounted)}</strong>`;
+      box.hidden = false;
+    }
+  }
+</script>

@@ -1,0 +1,236 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import TrustBadges from '../components/TrustBadges.astro';
+import CTASection from '../components/CTASection.astro';
+
+const values = [
+  { title: 'Transparence totale', text: 'Le prix affiché est le prix payé. Aucun frais de dernière minute, aucune surprise à la restitution.', icon: 'eye' },
+  { title: 'Ancrage local', text: 'Une équipe basée en Guadeloupe, qui connaît l\'île, ses routes et ses meilleures adresses.', icon: 'pin' },
+  { title: 'Flotte entretenue', text: 'Chaque véhicule est révisé, contrôlé et désinfecté avant chaque départ, sans exception.', icon: 'wrench' },
+  { title: 'Réactivité', text: 'Une assistance joignable 7j/7 par téléphone et WhatsApp, où que vous soyez sur l\'archipel.', icon: 'bolt' },
+];
+
+const icons: Record<string, string> = {
+  eye: '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>',
+  pin: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+  wrench: '<path d="M14.7 6.3a4 4 0 1 1-5.4 5.4L2 19l3 3 7.3-7.3a4 4 0 1 1 5.4-5.4l3.6-3.6-3-3z"/>',
+  bolt: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+};
+
+const timeline = [
+  { year: '2019', text: 'Adventura est fondée à Pointe-à-Pitre avec une ambition simple : la location sans mauvaises surprises.' },
+  { year: '2021', text: 'Lancement de la livraison à l\'aéroport Pôle Caraïbes, 24h/24 et 7j/7.' },
+  { year: '2023', text: 'Extension des points de retrait entre Grande-Terre et Basse-Terre.' },
+  { year: '2026', text: 'Une flotte récente et régulièrement renouvelée, des voyageurs accompagnés toute l\'année.' },
+];
+---
+
+<BaseLayout
+  title="À Propos"
+  description="Adventura, loueur de voitures indépendant en Guadeloupe depuis 2019. Découvrez notre histoire, nos valeurs et notre engagement local."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">À propos</span>
+      <h1 class="page-hero-title animate-on-scroll" style="animation-delay:0.1s">
+        Le road-trip guadeloupéen, <span>réinventé</span>
+      </h1>
+      <p class="page-hero-subtitle animate-on-scroll" style="animation-delay:0.2s">
+        Depuis 2019, Adventura connecte voyageurs et locaux à une flotte de véhicules premium, sans les mauvaises surprises des grands loueurs.
+      </p>
+    </div>
+  </section>
+
+  <section class="about-story section">
+    <div class="container about-story-grid">
+      <div class="about-story-image animate-on-scroll">
+        <img src="/images/guadeloupe-aerial.jpg" alt="Vue aérienne de la Guadeloupe" />
+      </div>
+      <div class="about-story-text animate-on-scroll" style="animation-delay:0.1s">
+        <span class="section-badge">Notre histoire</span>
+        <h2 class="section-title">Née d'une frustration, <span>devenue une mission</span></h2>
+        <p>Adventura est née d'un constat simple : louer une voiture en Guadeloupe rimait trop souvent avec frais cachés, files d'attente interminables et flottes vieillissantes.</p>
+        <p>Nous avons construit l'agence que nous aurions voulu trouver : réservation en ligne en 2 minutes, kilométrage illimité par défaut, livraison gratuite à l'aéroport et une flotte renouvelée chaque année.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-values section">
+    <div class="container">
+      <div class="section-header centered animate-on-scroll">
+        <span class="section-badge">Nos valeurs</span>
+        <h2 class="section-title">Ce qui nous <span>guide</span></h2>
+      </div>
+      <div class="about-values-grid">
+        {values.map((v, i) => (
+          <div class="about-value animate-on-scroll" style={`animation-delay:${i * 0.1}s`}>
+            <div class="about-value-icon" set:html={`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[v.icon]}</svg>`} />
+            <h3>{v.title}</h3>
+            <p>{v.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="about-timeline section">
+    <div class="container">
+      <div class="section-header centered animate-on-scroll">
+        <span class="section-badge">Notre parcours</span>
+        <h2 class="section-title">Cinq ans de <span>croissance</span></h2>
+      </div>
+      <div class="timeline">
+        {timeline.map((t, i) => (
+          <div class="timeline-item animate-on-scroll" style={`animation-delay:${i * 0.1}s`}>
+            <span class="timeline-year">{t.year}</span>
+            <p class="timeline-text">{t.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <TrustBadges />
+  <CTASection />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .page-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .page-hero-title span {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-hero-subtitle {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .about-story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: center;
+  }
+
+  .about-story-image {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    aspect-ratio: 4/3;
+  }
+
+  .about-story-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .about-story-text p {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .about-values-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .about-value {
+    padding: var(--spacing-lg);
+    background: white;
+    box-shadow: var(--shadow-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all var(--transition-normal);
+  }
+
+  .about-value:hover {
+    border-color: rgba(227,24,55,0.3);
+    transform: translateY(-4px);
+  }
+
+  .about-value-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-primary);
+    color: white;
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .about-value h3 {
+    font-size: 1.05rem;
+    margin-bottom: 6px;
+  }
+
+  .about-value p {
+    font-size: 0.85rem;
+  }
+
+  .timeline {
+    max-width: 700px;
+    margin: 0 auto;
+    position: relative;
+    padding-left: var(--spacing-lg);
+    border-left: 2px solid var(--color-border);
+  }
+
+  .timeline-item {
+    position: relative;
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--spacing-lg) - 6px);
+    top: 4px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 0 4px rgba(227,24,55,0.15);
+  }
+
+  .timeline-year {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
+
+  .timeline-text {
+    max-width: 500px;
+  }
+
+  @media (max-width: 1024px) {
+    .about-story-grid { grid-template-columns: 1fr; }
+    .about-values-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .about-values-grid { grid-template-columns: 1fr; }
+  }
+</style>

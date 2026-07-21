@@ -1,0 +1,123 @@
+---
+import { testimonials } from '../data/data';
+---
+
+<section class="testi section">
+  <div class="container">
+    <div class="section-header centered animate-on-scroll">
+      <span class="section-badge">Avis clients</span>
+      <h2 class="section-title">Ils ont roulé <span>avec nous</span></h2>
+      <p class="section-subtitle">Des voyageurs qui ont exploré l'archipel avec nos véhicules — et qui reviennent.</p>
+    </div>
+
+    <div class="testi-track-wrap animate-on-scroll">
+      <div class="testi-track">
+        {[...testimonials, ...testimonials].map((t) => (
+          <article class="testi-card">
+            <div class="testi-stars">
+              {Array.from({ length: t.rating }).map(() => (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
+              ))}
+            </div>
+            <p class="testi-text">"{t.text}"</p>
+            <div class="testi-author">
+              <img src={t.avatar} alt={t.name} loading="lazy" />
+              <div>
+                <span class="testi-name">{t.name}</span>
+                <span class="testi-location">{t.location} {t.vehicle && `· ${t.vehicle}`}</span>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .testi-track-wrap {
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 6%, black 94%, transparent);
+  }
+
+  .testi-track {
+    display: flex;
+    gap: var(--spacing-md);
+    width: max-content;
+    animation: testi-scroll 40s linear infinite;
+    padding-block: 8px;
+  }
+
+  .testi-track-wrap:hover .testi-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes testi-scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(calc(-50% - var(--spacing-md) / 2)); }
+  }
+
+  .testi-card {
+    width: 340px;
+    flex-shrink: 0;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-normal);
+  }
+
+  .testi-card:hover {
+    border-color: rgba(232,164,19,0.4);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .testi-stars {
+    display: flex;
+    gap: 3px;
+    color: var(--color-gold);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .testi-text {
+    font-size: 0.9rem;
+    color: var(--color-text-body);
+    line-height: 1.7;
+    margin-bottom: var(--spacing-md);
+    min-height: 95px;
+  }
+
+  .testi-author {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .testi-author img {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--color-border);
+  }
+
+  .testi-author div {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .testi-name {
+    font-family: var(--font-display);
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .testi-location {
+    font-size: 0.76rem;
+    color: var(--color-text-subtle);
+  }
+</style>

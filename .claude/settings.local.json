@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx astro *)",
+      "Bash(node scripts/test-booking.mjs \"C:\\\\Users\\\\Business\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-Business-Documents-location-voiture-samuel\\\\fbadc621-9b7b-4b08-a8fc-67a7c9dadfe0\\\\scratchpad\")"
+    ]
+  }
+}

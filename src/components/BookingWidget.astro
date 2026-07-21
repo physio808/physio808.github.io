@@ -1,0 +1,309 @@
+---
+import { agences } from '../data/data';
+
+const today = new Date().toISOString().split('T')[0];
+
+const timeSlots: string[] = [];
+for (let h = 7; h <= 19; h++) {
+  timeSlots.push(`${String(h).padStart(2, '0')}:00`);
+  if (h < 19) timeSlots.push(`${String(h).padStart(2, '0')}:30`);
+}
+---
+
+<section class="booking-band" id="booking-widget" aria-label="Recherche de véhicule">
+  <div class="booking-band-deco" aria-hidden="true"></div>
+  <div class="container">
+    <form class="bw-form" action="/nos-vehicules" method="get">
+      <div class="bw-fields">
+        <div class="bw-field animate-in" style="--d:0">
+          <label>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lieu de départ
+          </label>
+          <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="pickup" aria-haspopup="dialog">
+            <span data-pk-label>{agences[0].name}</span>
+            <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <input type="hidden" id="pickup" name="pickup" value={agences[0].id} />
+        </div>
+
+        <div class="bw-field animate-in" style="--d:1">
+          <label>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Départ — date & heure
+          </label>
+          <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="date-start" data-pk-time="time-start" data-pk-default-time="09:00" data-pk-chain="date-end" aria-haspopup="dialog">
+            <span data-pk-label>Choisir date & heure</span>
+            <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <input type="hidden" id="date-start" name="date-start" value={today} />
+          <input type="hidden" id="time-start" name="time-start" value="09:00" />
+        </div>
+
+        <div class="bw-field animate-in" style="--d:2">
+          <label>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Lieu de retour
+          </label>
+          <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="dropoff" aria-haspopup="dialog">
+            <span data-pk-label>{agences[0].name}</span>
+            <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <input type="hidden" id="dropoff" name="dropoff" value={agences[0].id} />
+        </div>
+
+        <div class="bw-field animate-in" style="--d:3">
+          <label>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Retour — date & heure
+          </label>
+          <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="date-end" data-pk-time="time-end" data-pk-default-time="17:00" data-pk-min-from="date-start" aria-haspopup="dialog">
+            <span data-pk-label>Choisir date & heure</span>
+            <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <input type="hidden" id="date-end" name="date-end" value="" />
+          <input type="hidden" id="time-end" name="time-end" value="17:00" />
+        </div>
+
+        <button type="submit" class="bw-submit animate-in" style="--d:4">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Rechercher
+        </button>
+      </div>
+
+      <div class="bw-trust animate-in" style="--d:5">
+        <span>
+          <i class="bw-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></i>
+          Meilleur prix garanti — remboursement de la différence
+        </span>
+        <span>
+          <i class="bw-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></i>
+          Annulation gratuite jusqu'à 48h avant le départ
+        </span>
+        <span>
+          <i class="bw-check"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></i>
+          Kilométrage illimité et assurance incluse
+        </span>
+      </div>
+    </form>
+  </div>
+
+  <!-- Overlay + popups -->
+  <div class="pk-overlay" data-pk-overlay hidden></div>
+
+  <div class="pk-popup" data-pk-popup="loc" role="dialog" aria-label="Choisir une agence" hidden>
+    <div class="pk-popup-head">
+      <span>Choisir une agence</span>
+      <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="pk-loc-list">
+      {agences.map((a) => (
+        <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name}>
+          <span class="pk-loc-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </span>
+          <span class="pk-loc-body">
+            <span class="pk-loc-name">{a.name}</span>
+            <span class="pk-loc-meta">{a.address}</span>
+            <span class="pk-loc-hours">{a.hours}</span>
+          </span>
+          <span class="pk-loc-check">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+        </button>
+      ))}
+    </div>
+  </div>
+
+  <div class="pk-popup" data-pk-popup="dt" role="dialog" aria-label="Choisir date et heure" hidden>
+    <div class="pk-popup-head">
+      <div class="pk-cal-nav">
+        <button type="button" class="pk-nav" data-pk-prev aria-label="Mois précédent">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <span class="pk-cal-title" data-pk-cal-title></span>
+        <button type="button" class="pk-nav" data-pk-next aria-label="Mois suivant">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="pk-cal-grid" data-pk-cal></div>
+    <div class="pk-times-label">Heure</div>
+    <div class="pk-times" data-pk-times>
+      {timeSlots.map((t) => (
+        <button type="button" class="pk-time" data-time={t}>{t}</button>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .booking-band {
+    position: relative;
+    background: var(--gradient-band);
+    padding: var(--spacing-lg) 0;
+  }
+
+  .booking-band-deco {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.09) 2px, transparent 2px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(100deg, black 0%, transparent 45%);
+    -webkit-mask-image: linear-gradient(100deg, black 0%, transparent 45%);
+    pointer-events: none;
+  }
+
+  .bw-form {
+    position: relative;
+  }
+
+  .animate-in {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: bw-reveal 0.55s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: calc(var(--d) * 0.07s);
+  }
+
+  @keyframes bw-reveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .bw-fields {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr) auto;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .bw-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    background: white;
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.12);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    min-width: 0;
+  }
+
+  .bw-field:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+  }
+
+  .bw-field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .bw-field label svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .bw-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--color-ink);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    padding: 0 30px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal), background var(--transition-normal);
+    white-space: nowrap;
+  }
+
+  .bw-submit:hover {
+    transform: translateY(-2px) scale(1.02);
+    background: #0C1420;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.3);
+  }
+
+  .bw-submit:active {
+    transform: translateY(0) scale(0.98);
+  }
+
+  .bw-trust {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px var(--spacing-lg);
+    margin-top: var(--spacing-md);
+  }
+
+  .bw-trust span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.95);
+    font-weight: 500;
+  }
+
+  .bw-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: white;
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .bw-fields {
+      grid-template-columns: 1fr 1fr;
+    }
+    .bw-submit {
+      grid-column: 1 / -1;
+      padding: 15px 30px;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .bw-fields {
+      grid-template-columns: 1fr;
+    }
+    .bw-trust {
+      flex-direction: column;
+      gap: 8px;
+    }
+  }
+</style>
+
+<script>
+  import { setupPickers } from '../scripts/pickers';
+
+  setupPickers('booking-widget');
+
+  const bwForm = document.querySelector('#booking-widget .bw-form') as HTMLFormElement | null;
+  bwForm?.addEventListener('submit', (e) => {
+    const dateEnd = document.getElementById('date-end') as HTMLInputElement | null;
+    if (dateEnd && !dateEnd.value) {
+      e.preventDefault();
+      const endTrigger = document.querySelector<HTMLElement>('#booking-widget [data-pk-date="date-end"]');
+      endTrigger?.click();
+    }
+  });
+</script>

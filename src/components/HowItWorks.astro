@@ -1,0 +1,115 @@
+---
+import { bookingSteps } from '../data/data';
+
+const icons: Record<string, string> = {
+  calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>',
+  car: '<path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/>',
+  card: '<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>',
+  key: '<circle cx="8" cy="15" r="4"/><path d="M10.5 12.5L20 3M17 6l3 3M14 9l3 3"/>',
+};
+---
+
+<section class="how section" id="comment-ca-marche">
+  <div class="container">
+    <div class="section-header centered animate-on-scroll">
+      <span class="section-badge">Simple & rapide</span>
+      <h2 class="section-title">Comment ça <span>marche</span></h2>
+      <p class="section-subtitle">De la réservation aux clés en main, en quatre étapes sans friction.</p>
+    </div>
+
+    <div class="how-steps">
+      <div class="how-line" aria-hidden="true"></div>
+      {bookingSteps.map((s, i) => (
+        <div class="how-step animate-on-scroll" style={`transition-delay:${i * 0.12}s`}>
+          <div class="how-step-number">{s.step}</div>
+          <div class="how-step-icon" set:html={`<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[s.icon]}</svg>`} />
+          <h3 class="how-step-title">{s.title}</h3>
+          <p class="how-step-text">{s.description}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .how-steps {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .how-line {
+    position: absolute;
+    top: 62px;
+    left: 12%;
+    right: 12%;
+    height: 2px;
+    background: repeating-linear-gradient(90deg, var(--color-border-light) 0 8px, transparent 8px 16px);
+  }
+
+  .how-step {
+    position: relative;
+    text-align: center;
+    padding: var(--spacing-lg) var(--spacing-sm);
+  }
+
+  .how-step-number {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+    border-radius: 50%;
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-weight: 700;
+    z-index: 1;
+  }
+
+  .how-step-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 84px;
+    height: 84px;
+    margin: var(--spacing-md) auto var(--spacing-sm);
+    border-radius: 50%;
+    background: white;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    color: var(--color-primary);
+    transition: all var(--transition-normal);
+  }
+
+  .how-step:hover .how-step-icon {
+    border-color: var(--color-primary);
+    transform: scale(1.05);
+    box-shadow: 0 0 0 8px var(--color-rose);
+  }
+
+  .how-step-title {
+    font-size: 1.02rem;
+    margin-bottom: 8px;
+  }
+
+  .how-step-text {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 1024px) {
+    .how-steps { grid-template-columns: repeat(2, 1fr); }
+    .how-line { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    .how-steps { grid-template-columns: 1fr; }
+  }
+</style>

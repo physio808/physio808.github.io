@@ -1,0 +1,83 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+  {
+    title: 'Éditeur du site',
+    content: 'Adventura Guadeloupe SARL, société de location de véhicules au capital de 20 000€, immatriculée au RCS de Pointe-à-Pitre. Siège social : Aéroport Pôle Caraïbes, 97139 Les Abymes, Guadeloupe.',
+  },
+  {
+    title: 'Directeur de publication',
+    content: 'Le directeur de publication du site est le représentant légal de la société Adventura Guadeloupe SARL.',
+  },
+  {
+    title: 'Hébergement',
+    content: 'Le site est hébergé par un prestataire d\'hébergement web basé dans l\'Union Européenne, garantissant la disponibilité et la sécurité des données.',
+  },
+  {
+    title: 'Propriété intellectuelle',
+    content: 'L\'ensemble des contenus présents sur ce site (textes, images, logos, éléments graphiques) est la propriété exclusive d\'Adventura Guadeloupe, sauf mention contraire, et ne peut être reproduit sans autorisation préalable.',
+  },
+  {
+    title: 'Responsabilité',
+    content: 'Adventura Guadeloupe s\'efforce d\'assurer l\'exactitude des informations diffusées sur ce site, mais ne saurait être tenue responsable des erreurs ou omissions, ni de l\'indisponibilité temporaire du service.',
+  },
+  {
+    title: 'Crédits photographiques',
+    content: 'Photo Suzuki Swift : Calreyn88, licence CC BY-SA 4.0, via Wikimedia Commons. Photo Kia Stonic : Alexander Migl, licence CC BY-SA 4.0, via Wikimedia Commons. Photo Fiat 500 : domaine public (CC0), via Wikimedia Commons. Les photographies des véhicules sont non contractuelles.',
+  },
+];
+---
+
+<BaseLayout title="Mentions Légales" description="Mentions légales du site Adventura Guadeloupe.">
+  <section class="legal-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">Informations légales</span>
+      <h1 class="legal-hero-title animate-on-scroll" style="animation-delay:0.1s">Mentions Légales</h1>
+    </div>
+  </section>
+
+  <section class="legal section">
+    <div class="container legal-container">
+      {sections.map((s, i) => (
+        <div class="legal-section animate-on-scroll" style={`animation-delay:${(i % 4) * 0.05}s`}>
+          <h2>{s.title}</h2>
+          <p>{s.content}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .legal-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .legal-container {
+    max-width: 760px;
+  }
+
+  .legal-section {
+    padding-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .legal-section:last-child {
+    border-bottom: none;
+  }
+
+  .legal-section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    color: var(--color-text);
+  }
+</style>

@@ -1,0 +1,146 @@
+---
+import { faqs } from '../data/data';
+
+export interface Props {
+  limit?: number;
+}
+
+const { limit } = Astro.props;
+const items = limit ? faqs.slice(0, limit) : faqs;
+---
+
+<div class="faq-list">
+  {items.map((f, i) => (
+    <div class="faq-item animate-on-scroll" style={`transition-delay:${i * 0.05}s`}>
+      <button class="faq-question" aria-expanded="false">
+        <span class="faq-plus" aria-hidden="true">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19" class="faq-plus-v"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </span>
+        <span class="faq-question-text">{f.question}</span>
+        <span class="faq-category">{f.category}</span>
+      </button>
+      <div class="faq-answer">
+        <p>{f.answer}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+<style>
+  .faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .faq-item {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-card);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .faq-item.open {
+    border-color: rgba(227,24,55,0.3);
+    box-shadow: var(--shadow-md);
+  }
+
+  .faq-question {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-family: var(--font-body);
+  }
+
+  .faq-plus {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--color-rose);
+    color: var(--color-primary);
+    flex-shrink: 0;
+    transition: all var(--transition-normal);
+  }
+
+  .faq-item.open .faq-plus {
+    background: var(--gradient-primary);
+    color: white;
+    transform: rotate(180deg);
+  }
+
+  .faq-item.open .faq-plus-v {
+    opacity: 0;
+  }
+
+  .faq-plus-v {
+    transition: opacity var(--transition-fast);
+  }
+
+  .faq-question-text {
+    flex: 1;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-ink);
+  }
+
+  .faq-category {
+    flex-shrink: 0;
+    font-family: var(--font-display);
+    font-size: 0.66rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-subtle);
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    padding: 4px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .faq-answer p {
+    padding: 0 var(--spacing-lg) var(--spacing-md) calc(var(--spacing-lg) + 28px + var(--spacing-sm));
+    font-size: 0.88rem;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 640px) {
+    .faq-category { display: none; }
+    .faq-answer p { padding-left: var(--spacing-lg); }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    const btn = item.querySelector('.faq-question');
+    const answer = item.querySelector('.faq-answer') as HTMLElement | null;
+    btn?.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+      if (isOpen) {
+        item.classList.remove('open');
+        btn.setAttribute('aria-expanded', 'false');
+        if (answer) answer.style.maxHeight = '0px';
+      } else {
+        item.classList.add('open');
+        btn.setAttribute('aria-expanded', 'true');
+        if (answer) answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    });
+  });
+</script>

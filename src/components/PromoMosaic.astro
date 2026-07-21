@@ -1,0 +1,255 @@
+---
+---
+
+<section class="mosaic section-sm">
+  <div class="container">
+    <div class="mosaic-grid">
+      <!-- Carte image : offre saison -->
+      <a href="/reservation" class="mosaic-card mosaic-img-card mosaic-wide animate-on-scroll">
+        <img src="/images/hero-beach.jpg" alt="Plage de Guadeloupe" loading="lazy" />
+        <div class="mosaic-img-overlay"></div>
+        <div class="mosaic-img-content">
+          <span class="badge mosaic-badge-gold">Offre saison</span>
+          <h3>Été créole, prix doux</h3>
+          <p>Jusqu'à -20% sur les locations longue durée</p>
+          <span class="mosaic-cta">Réserver <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        </div>
+      </a>
+
+      <!-- Carte avis : rouge -->
+      <div class="mosaic-card mosaic-review animate-on-scroll" style="transition-delay:0.1s">
+        <span class="mosaic-review-stars">★★★★★</span>
+        <p class="mosaic-review-text">
+          « Voiture impeccable livrée à l'aéroport en 10 minutes, aucun frais surprise à la restitution.
+          De loin le meilleur loueur de l'île. »
+        </p>
+        <span class="mosaic-review-author">Camille R. — Paris</span>
+      </div>
+
+      <!-- Carte tinted : petits prix -->
+      <div class="mosaic-card mosaic-tinted animate-on-scroll" style="transition-delay:0.15s">
+        <a href="/nos-vehicules?categorie=citadine" class="mosaic-stretch-link" aria-label="Voir les citadines"></a>
+        <span class="mosaic-tinted-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
+        </span>
+        <h3>Petits prix.<br />Grande liberté.</h3>
+        <p>Citadines dès 28€/jour, kilométrage illimité inclus</p>
+        <span class="mosaic-cta">Voir les citadines <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+        <a href="/blog/citadine-ou-suv-guadeloupe" class="mosaic-article-link">Vous hésitez ? Lire notre comparatif</a>
+      </div>
+
+      <!-- Carte image : SUV confort -->
+      <div class="mosaic-card mosaic-img-card mosaic-wide animate-on-scroll" style="transition-delay:0.2s">
+        <a href="/nos-vehicules?categorie=suv" class="mosaic-stretch-link" aria-label="Voir les SUV"></a>
+        <img src="/images/guadeloupe-aerial.jpg" alt="Explorer Basse-Terre en SUV" loading="lazy" />
+        <div class="mosaic-img-overlay"></div>
+        <div class="mosaic-img-content">
+          <span class="badge mosaic-badge-white">Confort</span>
+          <h3>L'île entière en SUV</h3>
+          <p>Position surélevée et grand coffre pour explorer Basse-Terre</p>
+          <span class="mosaic-cta">Voir les SUV <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+          <a href="/blog/citadine-ou-suv-guadeloupe" class="mosaic-article-link mosaic-article-link-light">Vous hésitez ? Citadine ou SUV : notre comparatif</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .mosaic-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: var(--spacing-md);
+  }
+
+  .mosaic-card {
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    min-height: 250px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+  }
+
+  .mosaic-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Image cards */
+  .mosaic-img-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mosaic-img-card:hover img {
+    transform: scale(1.06);
+  }
+
+  .mosaic-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, transparent 30%, rgba(20, 26, 40, 0.75) 100%);
+  }
+
+  .mosaic-img-content {
+    position: relative;
+    padding: var(--spacing-lg);
+    color: white;
+  }
+
+  .mosaic-img-content h3 {
+    color: white;
+    margin: 8px 0 4px;
+    font-size: 1.4rem;
+  }
+
+  .mosaic-img-content p {
+    color: rgba(255,255,255,0.85);
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+
+  .mosaic-badge-gold {
+    background: var(--color-gold);
+    color: #2E2104;
+    border: none;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  .mosaic-badge-white {
+    background: white;
+    color: var(--color-ink);
+    border: none;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  .mosaic-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    font-weight: 700;
+    transition: gap var(--transition-fast);
+  }
+
+  .mosaic-card:hover .mosaic-cta {
+    gap: 10px;
+  }
+
+  /* Lien principal couvrant toute la carte */
+  .mosaic-stretch-link {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Lien secondaire vers l'article comparatif */
+  .mosaic-article-link {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color var(--transition-fast);
+    align-self: flex-start;
+  }
+
+  .mosaic-article-link:hover {
+    color: var(--color-primary);
+  }
+
+  .mosaic-article-link-light {
+    color: rgba(255,255,255,0.85);
+  }
+
+  .mosaic-article-link-light:hover {
+    color: white;
+  }
+
+  /* Review card */
+  .mosaic-review {
+    background: var(--gradient-band);
+    padding: var(--spacing-lg);
+    justify-content: center;
+    color: white;
+  }
+
+  .mosaic-review-stars {
+    color: #FFD76A;
+    font-size: 1.1rem;
+    letter-spacing: 3px;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .mosaic-review-text {
+    color: rgba(255,255,255,0.95);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .mosaic-review-author {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.8);
+  }
+
+  /* Tinted card */
+  .mosaic-tinted {
+    background: var(--color-rose);
+    padding: var(--spacing-lg);
+    justify-content: center;
+    color: var(--color-ink);
+  }
+
+  .mosaic-tinted-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-primary);
+    color: white;
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .mosaic-tinted h3 {
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+
+  .mosaic-tinted p {
+    font-size: 0.88rem;
+    margin-bottom: 12px;
+  }
+
+  .mosaic-tinted .mosaic-cta {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 900px) {
+    .mosaic-grid {
+      grid-template-columns: 1fr;
+    }
+    .mosaic-card {
+      min-height: 220px;
+    }
+  }
+</style>

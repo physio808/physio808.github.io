@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqAccordion from '../components/FaqAccordion.astro';
+import CTASection from '../components/CTASection.astro';
+---
+
+<BaseLayout
+  title="Questions Fréquentes"
+  description="Toutes les réponses à vos questions sur la location de voiture en Guadeloupe avec Adventura : documents, tarifs, assurance, livraison."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">FAQ</span>
+      <h1 class="page-hero-title animate-on-scroll" style="animation-delay:0.1s">
+        Questions <span>fréquentes</span>
+      </h1>
+      <p class="page-hero-subtitle animate-on-scroll" style="animation-delay:0.2s">
+        Vous ne trouvez pas votre réponse ? <a href="/contact">Contactez-nous</a>, nous répondons sous 24h.
+      </p>
+    </div>
+  </section>
+
+  <section class="faq-page section">
+    <div class="container faq-page-container">
+      <FaqAccordion />
+    </div>
+  </section>
+
+  <CTASection />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .page-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .page-hero-title span {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-hero-subtitle {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+
+  .page-hero-subtitle a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .faq-page-container {
+    max-width: 760px;
+  }
+</style>

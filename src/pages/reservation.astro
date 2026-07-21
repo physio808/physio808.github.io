@@ -1,0 +1,1322 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { agences, vehicles } from '../data/data';
+
+const today = new Date().toISOString().split('T')[0];
+
+const timeSlots: string[] = [];
+for (let h = 7; h <= 19; h++) {
+  timeSlots.push(`${String(h).padStart(2, '0')}:00`);
+  if (h < 19) timeSlots.push(`${String(h).padStart(2, '0')}:30`);
+}
+
+const extras = [
+  { id: 'gps', label: 'GPS connecté', desc: 'Navigation temps réel avec zones touristiques', price: 5, icon: 'map' },
+  { id: 'siege-bebe', label: 'Siège bébé / rehausseur', desc: 'Homologué, installation incluse', price: 4, icon: 'baby' },
+  { id: 'conducteur', label: 'Conducteur additionnel', desc: 'Ajoutez un second conducteur assuré', price: 6, icon: 'user' },
+  { id: 'assurance-plus', label: 'Assurance tous risques', desc: 'Franchise réduite à 0€', price: 9, icon: 'shield' },
+  { id: 'wifi', label: 'Wifi portable 4G', desc: 'Internet illimité pendant tout le séjour', price: 3, icon: 'wifi' },
+];
+
+const extraIcons: Record<string, string> = {
+  map: '<path d="M9 20l-6-3V4l6 3 6-3 6 3v13l-6-3-6 3z"/><line x1="9" y1="7" x2="9" y2="20"/><line x1="15" y1="4" x2="15" y2="17"/>',
+  baby: '<circle cx="12" cy="6" r="3"/><path d="M6 21v-4a6 6 0 0 1 12 0v4"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>',
+  shield: '<path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  wifi: '<path d="M5 12.5a11 11 0 0 1 14 0"/><path d="M8.5 16a6 6 0 0 1 7 0"/><circle cx="12" cy="19.5" r="1"/>',
+};
+
+const vehiclesJson = JSON.stringify(
+  vehicles.map((v) => ({ id: v.id, name: v.name, image: v.image, priceLow: v.priceLow, priceHigh: v.priceHigh, category: v.category, categorySlug: v.categorySlug, seats: v.seats, transmission: v.transmission }))
+);
+const extrasJson = JSON.stringify(extras.map((e) => ({ id: e.id, label: e.label, price: e.price })));
+const agencesJson = JSON.stringify(agences.map((a) => ({ id: a.id, name: a.name })));
+---
+
+<BaseLayout
+  title="Réservation"
+  description="Réservez votre véhicule en Guadeloupe en quelques clics : trajet, véhicule, options et confirmation immédiate."
+>
+  <section class="res-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">Réservation en ligne</span>
+      <h1 class="res-hero-title animate-on-scroll" style="animation-delay:0.1s">
+        Votre voiture vous attend <span>en 4 étapes</span>
+      </h1>
+    </div>
+  </section>
+
+  <section class="res section" id="res-app">
+    <div class="container">
+      <!-- Stepper -->
+      <div class="res-stepper" id="res-stepper">
+        <div class="res-stepper-line">
+          <div class="res-stepper-fill" id="res-stepper-fill"></div>
+        </div>
+        <div class="res-stepper-items">
+          {['Trajet', 'Véhicule', 'Options', 'Confirmation'].map((label, i) => (
+            <div class={`res-stepper-item ${i === 0 ? 'is-active' : ''}`} data-step-indicator={i + 1}>
+              <span class="res-stepper-dot">{i + 1}</span>
+              <span class="res-stepper-label">{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="res-layout">
+        <!-- Main column -->
+        <div class="res-main">
+
+          <!-- STEP 1: Trajet -->
+          <div class="res-step is-active" data-step="1">
+            <h2 class="res-step-title">Où et quand ?</h2>
+            <p class="res-step-desc">Choisissez votre agence de départ et vos dates de location.</p>
+
+            <div class="res-toggle-row">
+              <span class="res-toggle-label">Trajet</span>
+              <div class="bw-switch" id="res-same-location" role="switch" aria-checked="true" tabindex="0">
+                <span class="bw-switch-track"><span class="bw-switch-thumb"></span></span>
+                <span class="bw-switch-text" id="res-same-location-text">Même lieu de retour</span>
+              </div>
+            </div>
+
+            <div class="res-fields">
+              <div class="res-field">
+                <label>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Lieu de prise en charge
+                </label>
+                <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="res-pickup" aria-haspopup="dialog">
+                  <span data-pk-label>{agences[0].name}</span>
+                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <input type="hidden" id="res-pickup" value={agences[0].id} />
+              </div>
+
+              <div class="res-field" id="res-dropoff-field">
+                <label>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                  Lieu de retour
+                </label>
+                <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="res-dropoff" aria-haspopup="dialog">
+                  <span data-pk-label>{agences[0].name}</span>
+                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <input type="hidden" id="res-dropoff" value={agences[0].id} />
+              </div>
+
+              <div class="res-field">
+                <label>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Départ — date & heure
+                </label>
+                <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="res-date-start" data-pk-time="res-time-start" data-pk-default-time="09:00" data-pk-chain="res-date-end" aria-haspopup="dialog">
+                  <span data-pk-label>Choisir date & heure</span>
+                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <input type="hidden" id="res-date-start" value={today} />
+                <input type="hidden" id="res-time-start" value="09:00" />
+              </div>
+
+              <div class="res-field">
+                <label>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  Retour — date & heure
+                </label>
+                <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="res-date-end" data-pk-time="res-time-end" data-pk-default-time="17:00" data-pk-min-from="res-date-start" aria-haspopup="dialog">
+                  <span data-pk-label>Choisir date & heure</span>
+                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <input type="hidden" id="res-date-end" value="" />
+                <input type="hidden" id="res-time-end" value="17:00" />
+              </div>
+            </div>
+          </div>
+
+          <!-- STEP 2: Vehicule -->
+          <div class="res-step" data-step="2">
+            <h2 class="res-step-title">Choisissez votre véhicule</h2>
+            <p class="res-step-desc">Sélectionnez le modèle qui correspond à votre séjour.</p>
+
+            <div class="res-veh-grid" id="res-veh-grid"></div>
+          </div>
+
+          <!-- STEP 3: Options -->
+          <div class="res-step" data-step="3">
+            <h2 class="res-step-title">Personnalisez votre location</h2>
+            <p class="res-step-desc">Ajoutez des options à la carte, modifiables à tout moment.</p>
+
+            <div class="res-extras">
+              {extras.map((e) => (
+                <label class="res-extra" data-extra={e.id} data-price={e.price}>
+                  <input type="checkbox" class="res-extra-checkbox" data-extra-input={e.id} />
+                  <span class="res-extra-icon" set:html={`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${extraIcons[e.icon]}</svg>`} />
+                  <span class="res-extra-body">
+                    <span class="res-extra-label">{e.label}</span>
+                    <span class="res-extra-desc">{e.desc}</span>
+                  </span>
+                  <span class="res-extra-price">+{e.price}€<small>/jour</small></span>
+                  <span class="res-extra-check">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <!-- STEP 4: Confirmation -->
+          <div class="res-step" data-step="4">
+            <h2 class="res-step-title">Vos coordonnées</h2>
+            <p class="res-step-desc">Dernière étape avant de prendre la route.</p>
+
+            <div class="res-contact-fields">
+              <div class="res-field">
+                <label for="res-name">Nom complet</label>
+                <input type="text" id="res-name" placeholder="Jean Dupont" />
+              </div>
+              <div class="res-field">
+                <label for="res-email">Email</label>
+                <input type="email" id="res-email" placeholder="jean.dupont@email.com" />
+              </div>
+              <div class="res-field">
+                <label for="res-phone">Téléphone</label>
+                <input type="tel" id="res-phone" placeholder="+33 6 12 34 56 78" />
+              </div>
+              <div class="res-field">
+                <label for="res-message">Message (optionnel)</label>
+                <input type="text" id="res-message" placeholder="Vol de nuit, besoin d'un siège bébé..." />
+              </div>
+            </div>
+
+            <label class="res-terms">
+              <input type="checkbox" id="res-terms-check" />
+              <span>J'accepte les <a href="/conditions">conditions générales de location</a></span>
+            </label>
+          </div>
+
+          <!-- Nav buttons -->
+          <div class="res-nav">
+            <button class="btn btn-secondary" id="res-prev" hidden>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+              Précédent
+            </button>
+            <button class="btn btn-primary" id="res-next">
+              Continuer
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+          </div>
+
+          <!-- SUCCESS -->
+          <div class="res-success" id="res-success" hidden>
+            <div class="res-success-check">
+              <svg viewBox="0 0 52 52">
+                <circle class="res-success-circle" cx="26" cy="26" r="24" fill="none"/>
+                <path class="res-success-tick" fill="none" d="M14 27l7 7 17-17"/>
+              </svg>
+            </div>
+            <h2 class="res-success-title">Réservation confirmée !</h2>
+            <p class="res-success-text">Un email de confirmation a été envoyé avec votre numéro de dossier <strong id="res-ref"></strong>. Notre équipe vous contacte sous 24h.</p>
+            <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+            <div class="res-confetti" aria-hidden="true"></div>
+          </div>
+        </div>
+
+        <!-- Summary sidebar -->
+        <aside class="res-summary" id="res-summary">
+          <div class="res-summary-card">
+            <h3 class="res-summary-title">Récapitulatif</h3>
+
+            <div class="res-summary-vehicle" id="res-summary-vehicle">
+              <div class="res-summary-vehicle-placeholder">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
+                <span>Aucun véhicule sélectionné</span>
+              </div>
+            </div>
+
+            <div class="res-summary-row">
+              <span>Durée</span>
+              <span id="res-summary-duration">1 jour</span>
+            </div>
+            <div class="res-summary-row">
+              <span>Agence</span>
+              <span id="res-summary-agence">—</span>
+            </div>
+            <div class="res-summary-row">
+              <span>Prix véhicule</span>
+              <span id="res-summary-veh-price">0€</span>
+            </div>
+            <div class="res-summary-row res-summary-discount" id="res-summary-discount-row" hidden>
+              <span>Remise −20% (7 j et +)</span>
+              <span id="res-summary-discount">0€</span>
+            </div>
+            <div class="res-summary-extras" id="res-summary-extras"></div>
+
+            <div class="res-summary-total">
+              <span>Total estimé</span>
+              <span id="res-summary-total">0€</span>
+            </div>
+
+            <div class="res-summary-trust">
+              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Annulation gratuite 48h</span>
+              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Sans frais cachés</span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- Overlay + popups de sélection -->
+    <div class="pk-overlay" data-pk-overlay hidden></div>
+
+    <div class="pk-popup" data-pk-popup="loc" role="dialog" aria-label="Choisir une agence" hidden>
+      <div class="pk-popup-head">
+        <span>Choisir une agence</span>
+        <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="pk-loc-list">
+        {agences.map((a) => (
+          <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name}>
+            <span class="pk-loc-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <span class="pk-loc-body">
+              <span class="pk-loc-name">{a.name}</span>
+              <span class="pk-loc-meta">{a.address}</span>
+              <span class="pk-loc-hours">{a.hours}</span>
+            </span>
+            <span class="pk-loc-check">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
+
+    <div class="pk-popup" data-pk-popup="dt" role="dialog" aria-label="Choisir date et heure" hidden>
+      <div class="pk-popup-head">
+        <div class="pk-cal-nav">
+          <button type="button" class="pk-nav" data-pk-prev aria-label="Mois précédent">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <span class="pk-cal-title" data-pk-cal-title></span>
+          <button type="button" class="pk-nav" data-pk-next aria-label="Mois suivant">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="pk-cal-grid" data-pk-cal></div>
+      <div class="pk-times-label">Heure</div>
+      <div class="pk-times" data-pk-times>
+        {timeSlots.map((t) => (
+          <button type="button" class="pk-time" data-time={t}>{t}</button>
+        ))}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<script type="application/json" id="res-vehicles-data" set:html={vehiclesJson}></script>
+<script type="application/json" id="res-extras-data" set:html={extrasJson}></script>
+<script type="application/json" id="res-agences-data" set:html={agencesJson}></script>
+
+<style is:global>
+  .res-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-lg);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .res-hero-title span {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Stepper */
+  .res-stepper {
+    position: relative;
+    margin-bottom: var(--spacing-2xl);
+  }
+
+  .res-stepper-line {
+    position: absolute;
+    top: 17px;
+    left: 6%;
+    right: 6%;
+    height: 2px;
+    background: var(--color-border);
+    z-index: 0;
+  }
+
+  .res-stepper-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--gradient-primary);
+    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .res-stepper-items {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .res-stepper-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .res-stepper-dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--color-bg-card);
+    border: 2px solid var(--color-border-light);
+    color: var(--color-text-muted);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all var(--transition-normal);
+  }
+
+  .res-stepper-item.is-active .res-stepper-dot {
+    border-color: var(--color-primary);
+    color: white;
+    background: var(--gradient-primary);
+    box-shadow: 0 0 0 6px rgba(227,24,55,0.12);
+  }
+
+  .res-stepper-item.is-done .res-stepper-dot {
+    border-color: var(--color-turquoise);
+    background: var(--color-turquoise);
+    color: var(--color-bg);
+  }
+
+  .res-stepper-label {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  .res-stepper-item.is-active .res-stepper-label {
+    color: var(--color-text);
+  }
+
+  /* Layout */
+  .res-layout {
+    display: grid;
+    grid-template-columns: 1fr 360px;
+    gap: var(--spacing-xl);
+    align-items: start;
+  }
+
+  .res-main {
+    background: var(--gradient-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    min-height: 480px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .res-step {
+    display: none;
+    animation: res-step-in 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .res-step.is-active {
+    display: block;
+  }
+
+  @keyframes res-step-in {
+    from { opacity: 0; transform: translateX(24px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .res-step-title {
+    font-size: 1.5rem;
+    margin-bottom: 6px;
+  }
+
+  .res-step-desc {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .res-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .res-toggle-label {
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  .bw-switch { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .bw-switch-track { width: 40px; height: 22px; border-radius: var(--radius-full); background: var(--color-primary); position: relative; transition: background var(--transition-normal); flex-shrink: 0; }
+  .bw-switch[aria-checked="false"] .bw-switch-track { background: #D5DAE3; }
+  .bw-switch-thumb { position: absolute; top: 3px; left: 20px; width: 16px; height: 16px; border-radius: 50%; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.3); transition: left var(--transition-normal) cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .bw-switch[aria-checked="false"] .bw-switch-thumb { left: 3px; }
+  .bw-switch-text { font-size: 0.85rem; color: var(--color-text); font-weight: 500; }
+
+  .res-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .res-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+
+  .res-field:focus-within {
+    border-color: var(--color-primary);
+    background: var(--color-rose);
+  }
+
+  .res-field label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+  }
+
+  .res-field label svg { color: var(--color-primary); flex-shrink: 0; }
+
+  .res-field select,
+  .res-field input {
+    background: transparent;
+    border: none;
+    color: var(--color-text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    width: 100%;
+    color-scheme: light;
+  }
+
+  .res-datetime {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .res-datetime input[type="date"] {
+    flex: 1.4;
+    min-width: 0;
+  }
+
+  .res-datetime select {
+    flex: 1;
+    min-width: 0;
+    border-left: 1px solid var(--color-border);
+    padding-left: 10px;
+    cursor: pointer;
+  }
+
+  #res-dropoff-field {
+    max-height: 66px;
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease, border-width 0.4s ease, margin 0.4s ease;
+  }
+
+  #res-dropoff-field.is-hidden {
+    max-height: 0;
+    opacity: 0;
+    padding: 0;
+    border-width: 0;
+    margin: 0;
+  }
+
+  /* Vehicle grid (step 2) */
+  .res-veh-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .res-veh-card {
+    position: relative;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    padding: 12px;
+    background: white;
+    box-shadow: var(--shadow-card);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+  }
+
+  .res-veh-card:hover {
+    border-color: var(--color-border-light);
+    transform: translateY(-2px);
+  }
+
+  .res-veh-card.is-selected {
+    border-color: var(--color-primary);
+    background: rgba(227,24,55,0.06);
+    box-shadow: 0 0 0 3px rgba(227,24,55,0.1);
+  }
+
+  .res-veh-card img {
+    width: 76px;
+    height: 76px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  .res-veh-card-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .res-veh-card-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .res-veh-card-meta {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .res-veh-card-price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--color-primary);
+    white-space: nowrap;
+  }
+
+  .res-veh-card-check {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all var(--transition-fast);
+  }
+
+  .res-veh-card.is-selected .res-veh-card-check {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Extras (step 3) */
+  .res-extras {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .res-extra {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: white;
+    box-shadow: var(--shadow-card);
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-normal);
+  }
+
+  .res-extra:hover {
+    border-color: var(--color-border-light);
+  }
+
+  .res-extra:has(.res-extra-checkbox:checked) {
+    border-color: var(--color-turquoise);
+    background: rgba(0,169,143,0.06);
+  }
+
+  .res-extra-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .res-extra-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-sm);
+    background: var(--color-bg-soft);
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    transition: all var(--transition-normal);
+  }
+
+  .res-extra:has(.res-extra-checkbox:checked) .res-extra-icon {
+    background: var(--color-turquoise);
+    color: var(--color-bg);
+  }
+
+  .res-extra-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .res-extra-label {
+    font-weight: 600;
+    font-size: 0.92rem;
+    color: var(--color-text);
+  }
+
+  .res-extra-desc {
+    font-size: 0.78rem;
+    color: var(--color-text-subtle);
+  }
+
+  .res-extra-price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--color-text);
+    white-space: nowrap;
+  }
+
+  .res-extra-price small {
+    font-weight: 400;
+    color: var(--color-text-subtle);
+  }
+
+  .res-extra-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 1.5px solid var(--color-border-light);
+    color: transparent;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+  }
+
+  .res-extra:has(.res-extra-checkbox:checked) .res-extra-check {
+    background: var(--color-turquoise);
+    border-color: var(--color-turquoise);
+    color: var(--color-bg);
+  }
+
+  /* Contact fields (step 4) */
+  .res-contact-fields {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .res-contact-fields .res-field label {
+    text-transform: none;
+    font-size: 0.78rem;
+  }
+
+  .res-terms {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+  }
+
+  .res-terms a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  /* Nav */
+  .res-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  /* Success */
+  .res-success {
+    text-align: center;
+    padding: var(--spacing-xl) 0;
+    position: relative;
+  }
+
+  .res-success-check {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto var(--spacing-md);
+  }
+
+  .res-success-circle {
+    stroke: var(--color-turquoise);
+    stroke-width: 2;
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    animation: res-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+
+  .res-success-tick {
+    stroke: var(--color-turquoise);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: res-tick 0.4s 0.5s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+
+  @keyframes res-circle { to { stroke-dashoffset: 0; } }
+  @keyframes res-tick { to { stroke-dashoffset: 0; } }
+
+  .res-success-title {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .res-success-text {
+    max-width: 440px;
+    margin: 0 auto var(--spacing-lg);
+  }
+
+  .res-success-text strong {
+    color: var(--color-primary);
+  }
+
+  .res-confetti {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .res-confetti span {
+    position: absolute;
+    top: -10px;
+    width: 8px;
+    height: 8px;
+    opacity: 0.9;
+    animation: confetti-fall 2.4s ease-in forwards;
+  }
+
+  @keyframes confetti-fall {
+    to { transform: translateY(420px) rotate(400deg); opacity: 0; }
+  }
+
+  /* Summary sidebar */
+  .res-summary-card {
+    position: sticky;
+    top: calc(var(--nav-height) + var(--spacing-lg));
+    background: var(--gradient-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-lg);
+  }
+
+  .res-summary-title {
+    font-size: 1.05rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .res-summary-vehicle {
+    margin-bottom: var(--spacing-md);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 1px solid var(--color-border);
+    min-height: 40px;
+  }
+
+  .res-summary-vehicle-placeholder {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--color-text-subtle);
+    font-size: 0.82rem;
+  }
+
+  .res-summary-vehicle-selected {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: fadeIn 0.4s ease;
+  }
+
+  .res-summary-vehicle-selected img {
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+  }
+
+  .res-summary-vehicle-selected-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  .res-summary-vehicle-selected-meta {
+    font-size: 0.75rem;
+    color: var(--color-text-subtle);
+  }
+
+  .res-summary-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    margin-bottom: 8px;
+  }
+
+  .res-summary-extras {
+    margin-bottom: 8px;
+  }
+
+  .res-summary-discount span {
+    color: var(--color-turquoise);
+    font-weight: 600;
+  }
+
+  .res-summary-extras .res-summary-row {
+    font-size: 0.8rem;
+  }
+
+  .res-summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: var(--spacing-sm);
+    margin-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--color-text);
+  }
+
+  .res-summary-total span:last-child {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: transform 0.3s ease;
+  }
+
+  .res-summary-trust {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: var(--spacing-md);
+    padding-top: var(--spacing-md);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .res-summary-trust span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: var(--color-text-subtle);
+  }
+
+  .res-summary-trust svg {
+    color: var(--color-turquoise);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .res-layout { grid-template-columns: 1fr; }
+    .res-summary-card { position: static; }
+    .res-veh-grid { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 640px) {
+    .res-fields, .res-contact-fields { grid-template-columns: 1fr; }
+    .res-stepper-label { display: none; }
+    .res-main { padding: var(--spacing-md); }
+  }
+</style>
+
+<script>
+  import { setupPickers } from '../scripts/pickers';
+
+  // Pré-remplissage depuis le contexte de recherche (accueil / liste véhicules)
+  const urlParams = new URLSearchParams(window.location.search);
+  const paramToInput: Record<string, string> = {
+    'pickup': 'res-pickup',
+    'dropoff': 'res-dropoff',
+    'date-start': 'res-date-start',
+    'time-start': 'res-time-start',
+    'date-end': 'res-date-end',
+    'time-end': 'res-time-end',
+  };
+  Object.entries(paramToInput).forEach(([qp, id]) => {
+    const v = urlParams.get(qp);
+    if (v) {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) el.value = v;
+    }
+  });
+
+  setupPickers('res-app');
+
+  type SimpleVehicle = { id: string; name: string; image: string; priceLow: number; priceHigh: number; category: string; categorySlug: string; seats: number; transmission: string };
+  type SimpleAgence = { id: string; name: string };
+
+  // Haute saison : 20 décembre -> 20 avril
+  function isHighSeason(d: Date): boolean {
+    const month = d.getMonth() + 1;
+    const day = d.getDate();
+    if (month === 12) return day >= 20;
+    if (month < 4) return true;
+    if (month === 4) return day <= 20;
+    return false;
+  }
+
+  // Décompte jour par jour : chaque journée entamée est facturée au tarif de sa saison
+  function seasonBreakdown(startISO: string, days: number): { high: number; low: number } {
+    let high = 0;
+    let low = 0;
+    const start = new Date(startISO + 'T12:00:00');
+    for (let i = 0; i < days; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      if (isHighSeason(d)) high++;
+      else low++;
+    }
+    return { high, low };
+  }
+  type SimpleExtra = { id: string; label: string; price: number };
+
+  const vehiclesData: SimpleVehicle[] = JSON.parse(document.getElementById('res-vehicles-data')?.textContent || '[]');
+  const extrasData: SimpleExtra[] = JSON.parse(document.getElementById('res-extras-data')?.textContent || '[]');
+  const agencesData: SimpleAgence[] = JSON.parse(document.getElementById('res-agences-data')?.textContent || '[]');
+
+  // Libellés des agences pré-sélectionnées
+  function syncLocLabel(inputId: string): void {
+    const input = document.getElementById(inputId) as HTMLInputElement | null;
+    const label = document.querySelector(`#res-app [data-pk-input="${inputId}"] [data-pk-label]`);
+    const ag = agencesData.find((a) => a.id === input?.value);
+    if (label && ag) label.textContent = ag.name;
+  }
+  syncLocLabel('res-pickup');
+  syncLocLabel('res-dropoff');
+
+  let currentStep = 1;
+  const totalSteps = 4;
+  let selectedVehicleId: string | null = new URLSearchParams(window.location.search).get('vehicule');
+
+  const stepEls = Array.from(document.querySelectorAll('.res-step')) as HTMLElement[];
+  const stepperItems = Array.from(document.querySelectorAll('.res-stepper-item')) as HTMLElement[];
+  const stepperFill = document.getElementById('res-stepper-fill');
+  const prevBtn = document.getElementById('res-prev') as HTMLButtonElement | null;
+  const nextBtn = document.getElementById('res-next') as HTMLButtonElement | null;
+  const resMain = document.querySelector('.res-main');
+  const successEl = document.getElementById('res-success');
+
+  const dateStart = document.getElementById('res-date-start') as HTMLInputElement | null;
+  const dateEnd = document.getElementById('res-date-end') as HTMLInputElement | null;
+
+  function getDuration(): number {
+    if (!dateStart?.value || !dateEnd?.value) return 1;
+    const start = new Date(dateStart.value).getTime();
+    const end = new Date(dateEnd.value).getTime();
+    const diff = Math.round((end - start) / 86400000);
+    return diff > 0 ? diff : 1;
+  }
+
+  function renderVehicleGrid() {
+    const grid = document.getElementById('res-veh-grid');
+    if (!grid) return;
+    grid.innerHTML = vehiclesData.map((v) => `
+      <div class="res-veh-card ${v.id === selectedVehicleId ? 'is-selected' : ''}" data-veh-id="${v.id}">
+        <img src="${v.image}" alt="${v.name}" />
+        <div class="res-veh-card-body">
+          <div class="res-veh-card-name">${v.name}</div>
+          <div class="res-veh-card-meta">${v.category} · ${v.seats} places · ${v.transmission}</div>
+        </div>
+        <div class="res-veh-card-price">dès ${v.priceLow}€<br /><small style="font-weight:400;color:var(--color-text-subtle)">/jour</small></div>
+        <div class="res-veh-card-check">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('.res-veh-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        selectedVehicleId = card.getAttribute('data-veh-id');
+        grid.querySelectorAll('.res-veh-card').forEach((c) => c.classList.remove('is-selected'));
+        card.classList.add('is-selected');
+        updateSummary();
+      });
+    });
+  }
+
+  function updateSummary() {
+    const duration = getDuration();
+    const vehicle = vehiclesData.find((v) => v.id === selectedVehicleId) || null;
+
+    const durationEl = document.getElementById('res-summary-duration');
+    if (durationEl) {
+      const timeStart = (document.getElementById('res-time-start') as HTMLInputElement | null)?.value;
+      const timeEnd = (document.getElementById('res-time-end') as HTMLInputElement | null)?.value;
+      const times = timeStart && timeEnd ? ` · ${timeStart} → ${timeEnd}` : '';
+      durationEl.textContent = `${duration} jour${duration > 1 ? 's' : ''}${times}`;
+    }
+
+    const agenceEl = document.getElementById('res-summary-agence');
+    if (agenceEl) {
+      const puVal = (document.getElementById('res-pickup') as HTMLInputElement | null)?.value;
+      const doInput = document.getElementById('res-dropoff') as HTMLInputElement | null;
+      const doVal = doInput && !doInput.disabled && doInput.value ? doInput.value : puVal;
+      const puName = agencesData.find((a) => a.id === puVal)?.name || '—';
+      const doName = agencesData.find((a) => a.id === doVal)?.name || puName;
+      agenceEl.textContent = doName !== puName ? `${puName} → ${doName}` : puName;
+    }
+
+    const vehContainer = document.getElementById('res-summary-vehicle');
+    const vehPriceEl = document.getElementById('res-summary-veh-price');
+    let vehTotal = 0;
+
+    const breakdown = dateStart?.value ? seasonBreakdown(dateStart.value, duration) : { high: 0, low: duration };
+
+    if (vehicle && vehContainer) {
+      vehTotal = breakdown.low * vehicle.priceLow + breakdown.high * vehicle.priceHigh;
+      const metaParts: string[] = [];
+      if (breakdown.low > 0) metaParts.push(`${breakdown.low} j × ${vehicle.priceLow}€ basse saison`);
+      if (breakdown.high > 0) metaParts.push(`${breakdown.high} j × ${vehicle.priceHigh}€ haute saison`);
+      vehContainer.innerHTML = `
+        <div class="res-summary-vehicle-selected">
+          <img src="${vehicle.image}" alt="${vehicle.name}" />
+          <div>
+            <div class="res-summary-vehicle-selected-name">${vehicle.name}</div>
+            <div class="res-summary-vehicle-selected-meta">${metaParts.join(' + ')}</div>
+          </div>
+        </div>
+      `;
+    } else if (vehContainer) {
+      vehContainer.innerHTML = `
+        <div class="res-summary-vehicle-placeholder">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
+          <span>Aucun véhicule sélectionné</span>
+        </div>
+      `;
+    }
+    if (vehPriceEl) vehPriceEl.textContent = `${vehTotal}€`;
+
+    // Remise longue durée : −20% dès 7 jours, appliquée sur le véhicule
+    const fmtEUR = (n: number) =>
+      (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ',')) + '€';
+    const discountRow = document.getElementById('res-summary-discount-row');
+    const discountEl = document.getElementById('res-summary-discount');
+    let discount = 0;
+    if (duration >= 7 && vehTotal > 0) {
+      discount = Math.round(vehTotal * 0.2 * 100) / 100;
+    }
+    if (discountRow) discountRow.hidden = discount === 0;
+    if (discountEl) discountEl.textContent = discount > 0 ? `−${fmtEUR(discount)}` : '0€';
+
+    const extrasContainer = document.getElementById('res-summary-extras');
+    let extrasTotal = 0;
+    if (extrasContainer) {
+      const rows: string[] = [];
+      extrasData.forEach((e) => {
+        const input = document.querySelector(`[data-extra-input="${e.id}"]`) as HTMLInputElement | null;
+        if (input?.checked) {
+          const lineTotal = e.price * duration;
+          extrasTotal += lineTotal;
+          rows.push(`<div class="res-summary-row"><span>${e.label}</span><span>${lineTotal}€</span></div>`);
+        }
+      });
+      extrasContainer.innerHTML = rows.join('');
+    }
+
+    const totalEl = document.getElementById('res-summary-total');
+    if (totalEl) {
+      const grandTotal = Math.round((vehTotal - discount + extrasTotal) * 100) / 100;
+      totalEl.textContent = fmtEUR(grandTotal);
+      totalEl.animate([{ transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
+    }
+  }
+
+  function goToStep(step: number) {
+    currentStep = Math.max(1, Math.min(totalSteps, step));
+
+    stepEls.forEach((el) => el.classList.toggle('is-active', Number(el.getAttribute('data-step')) === currentStep));
+    stepperItems.forEach((item) => {
+      const idx = Number(item.getAttribute('data-step-indicator'));
+      item.classList.toggle('is-active', idx === currentStep);
+      item.classList.toggle('is-done', idx < currentStep);
+    });
+    if (stepperFill) stepperFill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
+
+    if (prevBtn) prevBtn.hidden = currentStep === 1;
+    if (nextBtn) nextBtn.textContent = currentStep === totalSteps ? '' : 'Continuer';
+    if (nextBtn && currentStep === totalSteps) {
+      nextBtn.innerHTML = 'Confirmer la réservation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    } else if (nextBtn) {
+      nextBtn.innerHTML = 'Continuer <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    }
+
+    updateSummary();
+  }
+
+  function spawnConfetti() {
+    const container = document.querySelector('.res-confetti');
+    if (!container) return;
+    const colors = ['#E31837', '#FF6B35', '#00D4AA', '#F5C842'];
+    for (let i = 0; i < 40; i++) {
+      const piece = document.createElement('span');
+      piece.style.left = `${Math.random() * 100}%`;
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDelay = `${Math.random() * 0.5}s`;
+      piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      container.appendChild(piece);
+    }
+  }
+
+  nextBtn?.addEventListener('click', () => {
+    if (currentStep === 1) {
+      const endDate = document.getElementById('res-date-end') as HTMLInputElement | null;
+      if (endDate && !endDate.value) {
+        document.querySelector<HTMLElement>('#res-app [data-pk-date="res-date-end"]')?.click();
+        return;
+      }
+    }
+    if (currentStep === 2 && !selectedVehicleId) {
+      const grid = document.getElementById('res-veh-grid');
+      grid?.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 });
+      return;
+    }
+    if (currentStep === totalSteps) {
+      const termsCheck = document.getElementById('res-terms-check') as HTMLInputElement | null;
+      if (!termsCheck?.checked) {
+        termsCheck?.parentElement?.animate([{ transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(0)' }], { duration: 250 });
+        return;
+      }
+      const ref = 'ADV-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const refEl = document.getElementById('res-ref');
+      if (refEl) refEl.textContent = ref;
+      if (resMain) (resMain.querySelector('.res-step.is-active') as HTMLElement).style.display = 'none';
+      document.querySelector('.res-stepper')?.setAttribute('hidden', 'true');
+      document.querySelector('.res-nav')?.setAttribute('hidden', 'true');
+      document.querySelector('.res-summary')?.setAttribute('hidden', 'true');
+      if (successEl) {
+        successEl.hidden = false;
+        spawnConfetti();
+      }
+      return;
+    }
+    goToStep(currentStep + 1);
+  });
+
+  prevBtn?.addEventListener('click', () => goToStep(currentStep - 1));
+
+  document.querySelectorAll('.res-extra-checkbox').forEach((input) => {
+    input.addEventListener('change', updateSummary);
+  });
+
+  dateStart?.addEventListener('change', () => {
+    if (dateEnd) {
+      dateEnd.min = dateStart.value;
+      if (dateEnd.value && dateEnd.value < dateStart.value) dateEnd.value = dateStart.value;
+    }
+    updateSummary();
+  });
+  dateEnd?.addEventListener('change', updateSummary);
+  document.getElementById('res-time-start')?.addEventListener('change', updateSummary);
+  document.getElementById('res-time-end')?.addEventListener('change', updateSummary);
+
+  const resSwitch = document.getElementById('res-same-location');
+  const resSwitchText = document.getElementById('res-same-location-text');
+  const dropoffField = document.getElementById('res-dropoff-field');
+  const dropoffSelect = document.getElementById('res-dropoff') as HTMLSelectElement | null;
+
+  function toggleSameLocation() {
+    if (!resSwitch || !resSwitchText || !dropoffField || !dropoffSelect) return;
+    const checked = resSwitch.getAttribute('aria-checked') === 'true';
+    resSwitch.setAttribute('aria-checked', String(!checked));
+    if (checked) {
+      dropoffField.classList.remove('is-hidden');
+      dropoffSelect.disabled = false;
+      resSwitchText.textContent = 'Lieu de retour différent';
+    } else {
+      dropoffField.classList.add('is-hidden');
+      dropoffSelect.disabled = true;
+      resSwitchText.textContent = 'Même lieu de retour';
+    }
+  }
+  resSwitch?.addEventListener('click', toggleSameLocation);
+  resSwitch?.addEventListener('keydown', (e) => {
+    if ((e as KeyboardEvent).key === 'Enter' || (e as KeyboardEvent).key === ' ') {
+      e.preventDefault();
+      toggleSameLocation();
+    }
+  });
+
+  // Retour dans une agence différente pré-sélectionné via l'URL
+  const pParamPickup = urlParams.get('pickup');
+  const pParamDrop = urlParams.get('dropoff');
+  if (pParamPickup && pParamDrop && pParamDrop !== pParamPickup) {
+    toggleSameLocation();
+  }
+
+  document.getElementById('res-pickup')?.addEventListener('change', updateSummary);
+  document.getElementById('res-dropoff')?.addEventListener('change', updateSummary);
+
+  renderVehicleGrid();
+
+  // Entonnoir rapide : on saute les étapes déjà remplies via le contexte de recherche
+  const hasDatesFromSearch = Boolean(urlParams.get('date-start') && urlParams.get('date-end'));
+  let initialStep = 1;
+  if (hasDatesFromSearch && selectedVehicleId) initialStep = 3;
+  else if (hasDatesFromSearch) initialStep = 2;
+  goToStep(initialStep);
+</script>

@@ -1,0 +1,126 @@
+---
+import { agences } from '../data/data';
+---
+
+<section class="dest section" id="agences">
+  <div class="container">
+    <div class="section-header centered animate-on-scroll">
+      <span class="section-badge">Nos agences</span>
+      <h2 class="section-title">Récupérez votre véhicule <span>partout sur l'île</span></h2>
+      <p class="section-subtitle">Six points de retrait entre Grande-Terre et Basse-Terre, ouverts toute l'année.</p>
+    </div>
+
+    <div class="dest-grid">
+      {agences.map((a, i) => (
+        <div class="dest-card animate-on-scroll" style={`transition-delay:${(i % 3) * 0.08}s`}>
+          {a.badge && <span class="dest-badge">{a.badge}</span>}
+          <div class="dest-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          </div>
+          <h3 class="dest-name">{a.name}</h3>
+          <p class="dest-address">{a.address}</p>
+          <div class="dest-meta">
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg> {a.hours}</span>
+            <span><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.4 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6.29 6.29l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg> {a.phone}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .dest {
+    background:
+      radial-gradient(ellipse 50% 80% at 90% 10%, rgba(227,24,55,0.05), transparent),
+      var(--color-rose);
+  }
+
+  .dest-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .dest-card {
+    position: relative;
+    padding: var(--spacing-lg);
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-normal);
+  }
+
+  .dest-card:hover {
+    border-color: rgba(227,24,55,0.25);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .dest-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: rgba(0,169,143,0.1);
+    color: var(--color-turquoise);
+    border: 1px solid rgba(0,169,143,0.25);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+  }
+
+  .dest-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: var(--color-rose);
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .dest-name {
+    font-size: 1.02rem;
+    margin-bottom: 6px;
+  }
+
+  .dest-address {
+    font-size: 0.84rem;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .dest-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-top: var(--spacing-sm);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .dest-meta span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+  }
+
+  .dest-meta svg {
+    color: var(--color-text-subtle);
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 1024px) {
+    .dest-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .dest-grid { grid-template-columns: 1fr; }
+  }
+</style>

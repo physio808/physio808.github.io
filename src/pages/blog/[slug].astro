@@ -1,0 +1,324 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { blogPosts } from '../../data/data';
+
+export function getStaticPaths() {
+  return blogPosts.map((p) => ({
+    params: { slug: p.slug },
+    props: { post: p },
+  }));
+}
+
+const { post } = Astro.props;
+const others = blogPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
+
+const formatDate = (d: string) =>
+  new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const articleLd = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.title,
+  description: post.metaDescription,
+  image: post.image.startsWith('http') ? post.image : new URL(post.image, Astro.site).href,
+  datePublished: post.date,
+  author: {
+    '@type': 'Organization',
+    name: 'Adventura Guadeloupe',
+    url: new URL('/a-propos', Astro.site).href,
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Adventura Guadeloupe',
+  },
+  mainEntityOfPage: new URL(`/blog/${post.slug}`, Astro.site).href,
+});
+---
+
+<BaseLayout title={post.title} description={post.metaDescription} image={post.image}>
+  <script type="application/ld+json" set:html={articleLd}></script>
+  <article class="post">
+    <header class="post-header">
+      <div class="post-hero-image">
+        <img src={post.image} alt={post.title} />
+        <div class="post-hero-overlay"></div>
+      </div>
+      <div class="container post-header-content">
+        <a href="/blog" class="post-back">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Retour au blog
+        </a>
+        <span class="badge badge-primary">{post.category}</span>
+        <h1 class="post-title">{post.title}</h1>
+        <div class="post-meta">
+          <span>Par {post.author}</span>
+          <span>·</span>
+          <span>{formatDate(post.date)}</span>
+          <span>·</span>
+          <span>{post.readTime} min de lecture</span>
+        </div>
+      </div>
+    </header>
+
+    <div class="container post-body-wrap">
+      <div class="post-body animate-on-scroll">
+        <p class="post-lead">{post.excerpt}</p>
+        {post.content.map((section) => (
+          <>
+            {section.heading && <h2>{section.heading}</h2>}
+            {section.paragraphs.map((p) => <p>{p}</p>)}
+          </>
+        ))}
+        <div class="post-author-box">
+          <div class="post-author-avatar">
+            <img src="/images/adventura-icon.png" alt="Adventura" />
+          </div>
+          <div>
+            <span class="post-author-name">{post.author}</span>
+            <p class="post-author-bio">Loueur de voitures indépendant basé en Guadeloupe. Nos articles s'appuient sur ce que nous vivons à l'agence et sur les retours de nos clients, pas sur des généralités.</p>
+          </div>
+        </div>
+      </div>
+
+      <aside class="post-sidebar animate-on-scroll" style="animation-delay:0.1s">
+        <div class="post-cta-card">
+          <h3>Prêt à explorer ?</h3>
+          <p>Réservez votre véhicule et prenez la route dès aujourd'hui.</p>
+          <a href="/reservation" class="btn btn-primary">Réserver maintenant</a>
+        </div>
+      </aside>
+    </div>
+
+    {others.length > 0 && (
+      <section class="post-related section">
+        <div class="container">
+          <div class="section-header centered animate-on-scroll">
+            <span class="section-badge">À lire aussi</span>
+            <h2 class="section-title">D'autres <span>articles</span></h2>
+          </div>
+          <div class="post-related-grid">
+            {others.map((p) => (
+              <a href={`/blog/${p.slug}`} class="post-related-card">
+                <img src={p.image} alt={p.title} loading="lazy" />
+                <div class="post-related-body">
+                  <span>{p.category}</span>
+                  <h3>{p.title}</h3>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .post-header {
+    position: relative;
+  }
+
+  .post-hero-image {
+    height: 50vh;
+    min-height: 380px;
+    position: relative;
+  }
+
+  .post-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .post-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.55) 60%, #FFFFFF 100%);
+  }
+
+  .post-header-content {
+    position: relative;
+    margin-top: -160px;
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .post-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    margin-bottom: var(--spacing-md);
+    transition: color var(--transition-fast);
+  }
+
+  .post-back:hover {
+    color: var(--color-primary);
+  }
+
+  .post-title {
+    max-width: 800px;
+    margin: var(--spacing-sm) 0;
+  }
+
+  .post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--color-text-subtle);
+  }
+
+  .post-body-wrap {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--spacing-2xl);
+    padding: var(--spacing-xl) 0;
+  }
+
+  .post-body {
+    max-width: 720px;
+  }
+
+  .post-lead {
+    font-size: 1.15rem;
+    color: var(--color-text);
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .post-body h2 {
+    margin: var(--spacing-lg) 0 var(--spacing-sm);
+    font-size: 1.4rem;
+  }
+
+  .post-body p {
+    margin-bottom: var(--spacing-md);
+  }
+
+  .post-author-box {
+    display: flex;
+    gap: var(--spacing-sm);
+    align-items: flex-start;
+    margin-top: var(--spacing-xl);
+    padding: var(--spacing-md);
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+  }
+
+  .post-author-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: white;
+    border: 1px solid var(--color-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  .post-author-avatar img {
+    width: 34px;
+    height: 34px;
+    object-fit: contain;
+  }
+
+  .post-author-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+
+  .post-author-bio {
+    font-size: 0.82rem;
+    margin: 4px 0 0;
+  }
+
+  .post-sidebar {
+    position: relative;
+  }
+
+  .post-cta-card {
+    position: sticky;
+    top: calc(var(--nav-height) + var(--spacing-lg));
+    background: var(--gradient-card);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-lg);
+    text-align: center;
+  }
+
+  .post-cta-card h3 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+  }
+
+  .post-cta-card p {
+    font-size: 0.85rem;
+    margin-bottom: var(--spacing-md);
+  }
+
+  .post-cta-card .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .post-related-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-lg);
+  }
+
+  .post-related-card {
+    display: block;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: var(--gradient-card);
+    border: 1px solid var(--color-border);
+    transition: all var(--transition-normal);
+  }
+
+  .post-related-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-border-light);
+  }
+
+  .post-related-card img {
+    width: 100%;
+    aspect-ratio: 16/10;
+    object-fit: cover;
+  }
+
+  .post-related-body {
+    padding: var(--spacing-md);
+  }
+
+  .post-related-body span {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    font-weight: 700;
+  }
+
+  .post-related-body h3 {
+    font-size: 0.98rem;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 1024px) {
+    .post-body-wrap { grid-template-columns: 1fr; }
+    .post-related-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .post-header-content { margin-top: -100px; }
+    .post-hero-image { min-height: 300px; }
+  }
+
+  @media (max-width: 640px) {
+    .post-related-grid { grid-template-columns: 1fr; }
+  }
+</style>

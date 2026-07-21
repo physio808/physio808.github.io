@@ -1,0 +1,206 @@
+---
+---
+
+<section class="hero">
+  <div class="hero-shapes" aria-hidden="true">
+    <span class="shape shape-ring"></span>
+    <span class="shape shape-dot-grid"></span>
+    <span class="shape shape-blob-red"></span>
+  </div>
+
+  <div class="container hero-inner">
+    <!-- Visuel voiture -->
+    <div class="hero-visual">
+      <div class="hero-visual-frame">
+        <img src="/images/cabriolet.jpg" alt="Prendre la route en Guadeloupe, plage et cocotiers" class="hero-img-main" />
+      </div>
+    </div>
+
+    <!-- Texte -->
+    <div class="hero-text">
+      <h1 class="hero-title">
+        Location de voiture<br />
+        <span class="hero-title-accent">en Guadeloupe</span>
+      </h1>
+      <p class="hero-price">
+        À partir de <strong>28€ par jour</strong>
+      </p>
+      <p class="hero-subtitle">
+        Kilométrage illimité. Livraison aéroport gratuite. Zéro frais caché.
+      </p>
+      <div class="hero-actions">
+        <a href="/reservation" class="btn btn-primary btn-lg">
+          Réserver maintenant
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a href="/nos-vehicules" class="hero-secondary-link">Voir nos véhicules</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    background:
+      radial-gradient(ellipse 50% 80% at 85% 10%, rgba(227,24,55,0.05), transparent),
+      white;
+    overflow: hidden;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .hero-inner {
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    gap: var(--spacing-2xl);
+    align-items: center;
+    padding-block: var(--spacing-2xl);
+    min-height: 440px;
+  }
+
+  /* ===== Décor discret ===== */
+  .hero-shapes {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .shape {
+    position: absolute;
+  }
+
+  .shape-ring {
+    width: 120px;
+    height: 120px;
+    border: 12px solid var(--color-rose);
+    border-radius: 50%;
+    top: -40px;
+    left: 4%;
+  }
+
+  .shape-dot-grid {
+    width: 120px;
+    height: 90px;
+    top: 14%;
+    right: 5%;
+    background-image: radial-gradient(rgba(227,24,55,0.22) 2.5px, transparent 2.5px);
+    background-size: 18px 18px;
+  }
+
+  .shape-blob-red {
+    width: 220px;
+    height: 220px;
+    background: rgba(227, 24, 55, 0.05);
+    border-radius: 61% 39% 55% 45% / 48% 58% 42% 52%;
+    bottom: -90px;
+    right: -50px;
+  }
+
+  /* ===== Visuel ===== */
+  .hero-visual {
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hero-visual-frame {
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    aspect-ratio: 3 / 2;
+    max-width: 560px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .hero-img-main {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ===== Texte ===== */
+  .hero-text {
+    animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both;
+  }
+
+  .hero-title {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .hero-title-accent {
+    color: var(--color-primary);
+  }
+
+  .hero-price {
+    font-size: 1.25rem;
+    color: var(--color-text-body);
+    margin-bottom: var(--spacing-xs);
+  }
+
+  .hero-price strong {
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1rem;
+    max-width: 420px;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
+
+  .hero-secondary-link {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    border-bottom: 2px solid var(--color-border-light);
+    padding-bottom: 2px;
+    transition: color var(--transition-fast), border-color var(--transition-fast);
+  }
+
+  .hero-secondary-link:hover {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1024px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-xl);
+      text-align: center;
+      padding-block: var(--spacing-xl);
+    }
+
+    .hero-visual {
+      order: 2;
+      max-width: 520px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-text {
+      order: 1;
+    }
+
+    .hero-subtitle {
+      margin-inline: auto;
+    }
+
+    .hero-actions {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .shape-ring { width: 84px; height: 84px; border-width: 9px; }
+    .hero-actions { flex-direction: column; gap: var(--spacing-sm); }
+    .hero-actions .btn { width: 100%; justify-content: center; }
+  }
+</style>

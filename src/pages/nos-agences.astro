@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import DestinationsGrid from '../components/DestinationsGrid.astro';
+import CTASection from '../components/CTASection.astro';
+---
+
+<BaseLayout
+  title="Nos Agences"
+  description="Retrouvez toutes les agences Adventura en Guadeloupe : aéroport Pôle Caraïbes, Pointe-à-Pitre, Le Gosier, Saint-François, Basse-Terre, Deshaies."
+>
+  <section class="page-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">Nos agences</span>
+      <h1 class="page-hero-title animate-on-scroll" style="animation-delay:0.1s">
+        Un point de retrait <span>proche de vous</span>
+      </h1>
+      <p class="page-hero-subtitle animate-on-scroll" style="animation-delay:0.2s">
+        Six agences réparties entre Grande-Terre et Basse-Terre pour récupérer et restituer votre véhicule sans détour.
+      </p>
+    </div>
+  </section>
+
+  <DestinationsGrid />
+  <CTASection />
+</BaseLayout>
+
+<style>
+  .page-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .page-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .page-hero-title span {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .page-hero-subtitle {
+    max-width: 560px;
+    margin: 0 auto;
+  }
+</style>

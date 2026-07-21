@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+  {
+    title: '1. Conditions de location',
+    content: 'Le conducteur principal doit être âgé d\'au moins 21 ans et titulaire d\'un permis de conduire valide depuis plus de 2 ans. Une majoration "jeune conducteur" s\'applique entre 21 et 24 ans. Une pièce d\'identité, le permis de conduire et une carte bancaire au nom du conducteur sont exigés lors de la prise en charge.',
+  },
+  {
+    title: '2. Réservation & paiement',
+    content: 'La réservation est confirmée après paiement en ligne ou pré-autorisation bancaire. Le prix affiché au moment de la réservation est garanti, sauf modification des dates ou du véhicule à l\'initiative du client.',
+  },
+  {
+    title: '3. Annulation & modification',
+    content: 'L\'annulation est gratuite jusqu\'à 48 heures avant la date de prise en charge. Passé ce délai, des frais équivalents à une journée de location peuvent être retenus. Les modifications de dates sont gratuites sous réserve de disponibilité du véhicule.',
+  },
+  {
+    title: '4. Kilométrage & carburant',
+    content: 'Tous les véhicules sont loués avec un kilométrage illimité. Le véhicule doit être restitué avec le même niveau de carburant qu\'au départ ; à défaut, le plein est facturé au tarif local majoré de frais de service.',
+  },
+  {
+    title: '5. Assurances',
+    content: 'L\'assurance au tiers, vol et incendie est incluse dans le tarif de base. Une assurance tous risques avec franchise réduite est proposée en option. La franchise applicable est communiquée avant la validation de la réservation.',
+  },
+  {
+    title: '6. État du véhicule',
+    content: 'Un état des lieux contradictoire est réalisé à la prise en charge et à la restitution. Tout dommage non signalé au départ et constaté au retour pourra être facturé selon le barème en vigueur.',
+  },
+  {
+    title: '7. Restrictions de circulation',
+    content: 'Le véhicule ne peut pas être transporté sur un ferry inter-îles (Les Saintes, Marie-Galante, La Désirade) sans accord écrit préalable. Toute infraction au code de la route reste à la charge du conducteur.',
+  },
+  {
+    title: '8. Restitution tardive',
+    content: 'Tout retard de restitution non signalé au-delà de 59 minutes entraîne la facturation d\'une journée supplémentaire au tarif en vigueur.',
+  },
+];
+---
+
+<BaseLayout title="Conditions Générales de Location" description="Conditions générales de location de véhicules Adventura en Guadeloupe.">
+  <section class="legal-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">Informations légales</span>
+      <h1 class="legal-hero-title animate-on-scroll" style="animation-delay:0.1s">Conditions Générales de Location</h1>
+      <p class="legal-hero-subtitle animate-on-scroll" style="animation-delay:0.2s">Dernière mise à jour : 1er janvier 2026</p>
+    </div>
+  </section>
+
+  <section class="legal section">
+    <div class="container legal-container">
+      {sections.map((s, i) => (
+        <div class="legal-section animate-on-scroll" style={`animation-delay:${(i % 4) * 0.05}s`}>
+          <h2>{s.title}</h2>
+          <p>{s.content}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .legal-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .legal-hero-subtitle {
+    color: var(--color-text-subtle);
+    font-size: 0.9rem;
+  }
+
+  .legal-container {
+    max-width: 760px;
+  }
+
+  .legal-section {
+    padding-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .legal-section:last-child {
+    border-bottom: none;
+  }
+
+  .legal-section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    color: var(--color-text);
+  }
+</style>

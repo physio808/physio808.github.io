@@ -1,0 +1,110 @@
+---
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  title = 'Prêt à prendre la route ?',
+  subtitle = 'Réservez en 2 minutes, sans engagement et avec annulation gratuite jusqu\'à 48h avant le départ.',
+  ctaLabel = 'Réserver mon véhicule',
+  ctaHref = '/reservation',
+} = Astro.props;
+---
+
+<section class="cta section-sm">
+  <div class="container">
+    <div class="cta-split animate-on-scroll">
+      <div class="cta-image">
+        <img src="/images/vehicles/kia-stonic.jpg" alt="Kia Stonic prête au départ en Guadeloupe" loading="lazy" />
+      </div>
+      <div class="cta-panel">
+        <div class="cta-panel-deco" aria-hidden="true"></div>
+        <h2 class="cta-title">{title}</h2>
+        <p class="cta-subtitle">{subtitle}</p>
+        <a href={ctaHref} class="btn btn-white btn-lg cta-btn">
+          {ctaLabel}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-split {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cta-image {
+    position: relative;
+    min-height: 300px;
+  }
+
+  .cta-image img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cta-panel {
+    position: relative;
+    background: var(--gradient-band);
+    padding: var(--spacing-2xl);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .cta-panel-deco {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255,255,255,0.1) 2px, transparent 2px);
+    background-size: 26px 26px;
+    mask-image: linear-gradient(120deg, transparent 50%, black 100%);
+    -webkit-mask-image: linear-gradient(120deg, transparent 50%, black 100%);
+    pointer-events: none;
+  }
+
+  .cta-title {
+    color: white;
+    margin-bottom: var(--spacing-sm);
+    position: relative;
+  }
+
+  .cta-subtitle {
+    color: rgba(255,255,255,0.9);
+    font-size: 1rem;
+    margin-bottom: var(--spacing-lg);
+    max-width: 440px;
+    position: relative;
+  }
+
+  .cta-btn {
+    position: relative;
+  }
+
+  @media (max-width: 900px) {
+    .cta-split {
+      grid-template-columns: 1fr;
+    }
+    .cta-image {
+      min-height: 220px;
+    }
+    .cta-panel {
+      padding: var(--spacing-xl);
+      align-items: center;
+      text-align: center;
+    }
+  }
+</style>

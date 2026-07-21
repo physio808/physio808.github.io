@@ -1,0 +1,98 @@
+---
+const badges = [
+  {
+    icon: 'shield',
+    title: 'Meilleur prix garanti',
+    text: 'Trouvez moins cher ailleurs, nous vous remboursons la différence.',
+  },
+  {
+    icon: 'ban',
+    title: 'Zéro frais caché',
+    text: 'Kilométrage illimité et assurance de base incluse dans chaque tarif.',
+  },
+  {
+    icon: 'clock',
+    title: 'Annulation gratuite',
+    text: 'Changez d\'avis jusqu\'à 48h avant le départ, sans justification.',
+  },
+  {
+    icon: 'headset',
+    title: 'Assistance 24/7',
+    text: 'Une équipe locale joignable par téléphone et WhatsApp à toute heure.',
+  },
+];
+
+const icons: Record<string, string> = {
+  shield: '<path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><line x1="5.5" y1="5.5" x2="18.5" y2="18.5"/>',
+  clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+  headset: '<path d="M3 14v-3a9 9 0 0 1 18 0v3"/><path d="M21 15a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-2a2 2 0 0 1 2-2h3zM3 15a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2H3z"/>',
+};
+---
+
+<section class="trust section-sm">
+  <div class="container">
+    <div class="trust-grid">
+      {badges.map((b, i) => (
+        <div class="trust-item animate-on-scroll" style={`transition-delay:${i * 0.08}s`}>
+          <div class="trust-icon" set:html={`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icons[b.icon]}</svg>`} />
+          <h3 class="trust-title">{b.title}</h3>
+          <p class="trust-text">{b.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .trust-item {
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-lg);
+    background: white;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-card);
+    transition: all var(--transition-normal);
+  }
+
+  .trust-item:hover {
+    border-color: rgba(227,24,55,0.25);
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .trust-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px;
+    height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--gradient-primary);
+    color: white;
+    margin-bottom: var(--spacing-sm);
+    box-shadow: var(--shadow-primary);
+  }
+
+  .trust-title {
+    font-size: 1.02rem;
+    margin-bottom: 6px;
+  }
+
+  .trust-text {
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 1024px) {
+    .trust-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px) {
+    .trust-grid { grid-template-columns: 1fr; }
+  }
+</style>

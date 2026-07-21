@@ -1,0 +1,79 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const sections = [
+  {
+    title: 'Données collectées',
+    content: 'Lors d\'une réservation ou d\'une prise de contact, nous collectons votre nom, email, téléphone et, si nécessaire, les informations relatives à votre permis de conduire. Aucune donnée bancaire n\'est stockée sur nos serveurs, le paiement étant traité par un prestataire certifié PCI-DSS.',
+  },
+  {
+    title: 'Finalité du traitement',
+    content: 'Ces données sont utilisées exclusivement pour la gestion de votre réservation, la relation client et, si vous y consentez, l\'envoi d\'offres promotionnelles.',
+  },
+  {
+    title: 'Durée de conservation',
+    content: 'Les données sont conservées pendant la durée nécessaire à la relation commerciale, puis archivées conformément aux obligations légales et comptables en vigueur.',
+  },
+  {
+    title: 'Vos droits',
+    content: 'Conformément au RGPD, vous disposez d\'un droit d\'accès, de rectification, d\'opposition et de suppression de vos données. Pour exercer ces droits, contactez-nous à contact@adventura-guadeloupe.fr.',
+  },
+  {
+    title: 'Cookies',
+    content: 'Ce site utilise des cookies fonctionnels nécessaires à son bon fonctionnement. Aucun cookie publicitaire tiers n\'est déposé sans votre consentement préalable.',
+  },
+];
+---
+
+<BaseLayout title="Politique de Confidentialité" description="Politique de confidentialité et de protection des données personnelles d'Adventura Guadeloupe.">
+  <section class="legal-hero">
+    <div class="container">
+      <span class="section-badge animate-on-scroll">Informations légales</span>
+      <h1 class="legal-hero-title animate-on-scroll" style="animation-delay:0.1s">Politique de Confidentialité</h1>
+    </div>
+  </section>
+
+  <section class="legal section">
+    <div class="container legal-container">
+      {sections.map((s, i) => (
+        <div class="legal-section animate-on-scroll" style={`animation-delay:${(i % 4) * 0.05}s`}>
+          <h2>{s.title}</h2>
+          <p>{s.content}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .legal-hero {
+    padding: calc(var(--nav-height) + var(--spacing-2xl)) 0 var(--spacing-xl);
+    text-align: center;
+    background: var(--gradient-glow);
+  }
+
+  .legal-hero-title {
+    margin: var(--spacing-sm) auto;
+    max-width: 700px;
+  }
+
+  .legal-container {
+    max-width: 760px;
+  }
+
+  .legal-section {
+    padding-bottom: var(--spacing-lg);
+    margin-bottom: var(--spacing-lg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .legal-section:last-child {
+    border-bottom: none;
+  }
+
+  .legal-section h2 {
+    font-size: 1.15rem;
+    margin-bottom: 8px;
+    color: var(--color-text);
+  }
+</style>
