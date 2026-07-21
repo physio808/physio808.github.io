@@ -1,0 +1,137 @@
+---
+import { vehicles } from '../data/data';
+
+const citadineMin = Math.min(...vehicles.filter((v) => v.categorySlug === 'citadine').map((v) => v.priceLow));
+const suvMin = Math.min(...vehicles.filter((v) => v.categorySlug === 'suv').map((v) => v.priceLow));
+---
+
+<section class="pstrip" aria-label="Nos tarifs">
+  <div class="container pstrip-grid">
+    <a href="/nos-vehicules?categorie=citadine" class="pstrip-item animate-on-scroll">
+      <span class="pstrip-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
+      </span>
+      <span class="pstrip-body">
+        <strong>Citadines</strong>
+        <small>dès {citadineMin}€<em>/jour</em></small>
+      </span>
+      <svg class="pstrip-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+
+    <a href="/nos-vehicules?categorie=suv" class="pstrip-item animate-on-scroll" style="transition-delay:0.08s">
+      <span class="pstrip-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 4H7L4 10v9h2.5v2h2v-2h7v2h2v-2H20v-9z"/><circle cx="7.5" cy="15" r="1.5"/><circle cx="16.5" cy="15" r="1.5"/></svg>
+      </span>
+      <span class="pstrip-body">
+        <strong>SUV urbains</strong>
+        <small>dès {suvMin}€<em>/jour</em></small>
+      </span>
+      <svg class="pstrip-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+
+    <a href="/reservation" class="pstrip-item pstrip-item-promo animate-on-scroll" style="transition-delay:0.16s">
+      <span class="pstrip-icon pstrip-icon-promo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12v8H4v-8M2 7h20v5H2zM12 22V7M12 7s-2-5-5-5-2.5 5 0 5zM12 7s2-5 5-5 2.5 5 0 5z"/></svg>
+      </span>
+      <span class="pstrip-body">
+        <strong>−20% dès 7 jours</strong>
+        <small>appliqué automatiquement</small>
+      </span>
+      <svg class="pstrip-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  .pstrip {
+    background: white;
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-md) 0;
+  }
+
+  .pstrip-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+  }
+
+  .pstrip-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+  }
+
+  .pstrip-item:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .pstrip-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-sm);
+    background: white;
+    border: 1px solid var(--color-border);
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .pstrip-icon-promo {
+    background: var(--gradient-primary);
+    border: none;
+    color: white;
+  }
+
+  .pstrip-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pstrip-body strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .pstrip-body small {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary);
+  }
+
+  .pstrip-body small em {
+    font-style: normal;
+    font-weight: 500;
+    color: var(--color-text-muted);
+  }
+
+  .pstrip-arrow {
+    color: var(--color-text-subtle);
+    flex-shrink: 0;
+    transition: transform var(--transition-fast), color var(--transition-fast);
+  }
+
+  .pstrip-item:hover .pstrip-arrow {
+    transform: translateX(3px);
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 900px) {
+    .pstrip-grid {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+  }
+</style>

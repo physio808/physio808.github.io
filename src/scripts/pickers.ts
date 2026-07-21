@@ -25,10 +25,13 @@ function todayISO(): string {
   return iso(t.getFullYear(), t.getMonth(), t.getDate());
 }
 
-function fmtDT(dateStr: string, timeStr: string): string {
+function fmtD(dateStr: string): string {
   const d = new Date(dateStr + 'T00:00:00');
-  const label = d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
-  return `${label} · ${timeStr}`;
+  return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
+}
+
+function fmtDT(dateStr: string, timeStr: string): string {
+  return `${fmtD(dateStr)} · ${timeStr}`;
 }
 
 interface DtContext {
@@ -155,10 +158,37 @@ export function setupPickers(rootId: string): void {
     }
   }
 
+  const hasTimes = Boolean(dtPopup?.querySelector('[data-pk-times]'));
+
+  function commitDt(time: string): void {
+    if (!dt) return;
+    dt.dateInput.value = dt.sel;
+    dt.timeInput.value = time;
+    dt.label.textContent = hasTimes ? fmtDT(dt.sel, time) : fmtD(dt.sel);
+    dt.trigger.classList.add('has-value');
+    dt.dateInput.dispatchEvent(new Event('change', { bubbles: true }));
+    dt.timeInput.dispatchEvent(new Event('change', { bubbles: true }));
+    const chain = dt.chain;
+    close();
+    if (chain) {
+      const chainDate = document.getElementById(chain) as HTMLInputElement | null;
+      const chainTrigger = root!.querySelector<HTMLElement>(`[data-pk-date="${chain}"]`);
+      if (chainTrigger && chainDate && !chainDate.value) {
+        setTimeout(() => chainTrigger.click(), 140);
+      }
+    }
+  }
+
   calGrid?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-day]');
     if (!btn || btn.disabled || !dt) return;
     dt.sel = btn.getAttribute('data-day') || dt.sel;
+    if (!hasTimes) {
+      // Pas de liste de créneaux dans le popup : la date se valide au clic,
+      // l'heure est choisie via une liste déroulante à côté du champ.
+      commitDt(dt.timeInput.value || dt.trigger.getAttribute('data-pk-default-time') || '09:00');
+      return;
+    }
     renderCal();
   });
 
@@ -179,22 +209,7 @@ export function setupPickers(rootId: string): void {
   dtPopup?.querySelector('[data-pk-times]')?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-time]');
     if (!btn || !dt) return;
-    const time = btn.getAttribute('data-time') || '09:00';
-    dt.dateInput.value = dt.sel;
-    dt.timeInput.value = time;
-    dt.label.textContent = fmtDT(dt.sel, time);
-    dt.trigger.classList.add('has-value');
-    dt.dateInput.dispatchEvent(new Event('change', { bubbles: true }));
-    dt.timeInput.dispatchEvent(new Event('change', { bubbles: true }));
-    const chain = dt.chain;
-    close();
-    if (chain) {
-      const chainDate = document.getElementById(chain) as HTMLInputElement | null;
-      const chainTrigger = root!.querySelector<HTMLElement>(`[data-pk-date="${chain}"]`);
-      if (chainTrigger && chainDate && !chainDate.value) {
-        setTimeout(() => chainTrigger.click(), 140);
-      }
-    }
+    commitDt(btn.getAttribute('data-time') || '09:00');
   });
 
   root.querySelectorAll<HTMLElement>('[data-pk-open="dt"]').forEach((trigger) => {
@@ -205,7 +220,9 @@ export function setupPickers(rootId: string): void {
 
     // Libellé initial si une date est déjà renseignée
     if (dateInput.value) {
-      label.textContent = fmtDT(dateInput.value, timeInput.value || trigger.getAttribute('data-pk-default-time') || '09:00');
+      label.textContent = hasTimes
+        ? fmtDT(dateInput.value, timeInput.value || trigger.getAttribute('data-pk-default-time') || '09:00')
+        : fmtD(dateInput.value);
       trigger.classList.add('has-value');
     }
 
