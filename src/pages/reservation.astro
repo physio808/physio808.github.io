@@ -651,13 +651,13 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     font-size: 0.98rem;
     cursor: pointer;
     white-space: nowrap;
-    box-shadow: 0 6px 18px rgba(227, 24, 55, 0.4);
+    box-shadow: 0 6px 18px rgba(143, 29, 46, 0.4);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .res-bar-next:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(227, 24, 55, 0.5);
+    box-shadow: 0 10px 24px rgba(143, 29, 46, 0.5);
   }
 
   /* Popover détail du prix */
@@ -930,7 +930,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
 
   .res-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(227, 24, 55, 0.4);
+    box-shadow: 0 12px 30px rgba(143, 29, 46, 0.4);
   }
 
   /* ============ ÉTAPE 2 : toolbar ============ */
@@ -1631,7 +1631,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     position: relative;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(ellipse 130% 95% at 50% 108%, #454C56 0%, #262B33 52%, #14161A 100%);
+    background: var(--gradient-studio);
     border: 1.5px solid transparent;
     border-radius: 18px;
     padding: 20px 20px 0;
@@ -1648,7 +1648,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
 
   .vc.is-selected {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 1px var(--color-primary), 0 18px 44px rgba(227, 24, 55, 0.25);
+    box-shadow: 0 0 0 1px var(--color-primary), 0 18px 44px rgba(143, 29, 46, 0.25);
   }
 
   .vc-name {
@@ -1865,7 +1865,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     position: relative;
     display: flex;
     flex-direction: column;
-    background: radial-gradient(ellipse 125% 90% at 50% 105%, #454C56 0%, #262B33 55%, #14161A 100%);
+    background: var(--gradient-studio);
     padding: 26px;
     color: white;
     min-height: 480px;
@@ -2114,7 +2114,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     height: 64px;
     object-fit: contain;
     border-radius: 10px;
-    background: radial-gradient(ellipse 90% 75% at 50% 70%, #E4E7EC 0%, #C2C7CF 100%);
+    background: var(--gradient-studio);
     padding: 4px;
   }
 
@@ -2399,7 +2399,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     const rows: string[] = [];
     if (t.vehicle) rows.push(`<div class="res-pop-row"><span>Véhicule (${t.duration} jour${t.duration > 1 ? 's' : ''})</span><span>${fmtEUR(t.gross)}</span></div>`);
     if (t.discount > 0) rows.push(`<div class="res-pop-row is-discount"><span>Remise longue durée −${Math.round(t.rate * 100)}%</span><span>−${fmtEUR(t.discount)}</span></div>`);
-    if (t.airportFee > 0) rows.push(`<div class="res-pop-row"><span>Livraison aéroport Pôle Caraïbes</span><span>+${fmtEUR(t.airportFee)}</span></div>`);
+    if (t.airportFee > 0) rows.push(`<div class="res-pop-row"><span>Livraison aéroport Guadeloupe Maryse Condé</span><span>+${fmtEUR(t.airportFee)}</span></div>`);
     if (t.flexTotal > 0) rows.push(`<div class="res-pop-row"><span>Option Restez flexible</span><span>+${fmtEUR(t.flexTotal)}</span></div>`);
     if (t.protection) rows.push(`<div class="res-pop-row"><span>${t.protection.name}</span><span>${t.protection.price === 0 ? 'Incluse' : '+' + fmtEUR(t.protectionTotal)}</span></div>`);
     t.chosenExtras.forEach((e) => rows.push(`<div class="res-pop-row"><span>${e.label}</span><span>+${fmtEUR(e.total)}</span></div>`));
@@ -2815,7 +2815,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
   function spawnConfetti() {
     const container = document.querySelector('.res-confetti');
     if (!container) return;
-    const colors = ['#E31837', '#FF6B35', '#00A98F', '#E8A413'];
+    const colors = ['#8F1D2E', '#FF6B35', '#00A98F', '#E8A413'];
     for (let i = 0; i < 40; i++) {
       const piece = document.createElement('span');
       piece.style.left = `${Math.random() * 100}%`;

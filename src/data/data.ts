@@ -48,7 +48,7 @@ export function longStayRate(days: number): number {
   return 0;
 }
 
-/** Forfait livraison : +50€ si l'aéroport Pôle Caraïbes est choisi (départ ou retour) */
+/** Forfait livraison : +50€ si l'aéroport Guadeloupe Maryse Condé est choisi (départ ou retour) */
 export const AIRPORT_FEE = 50;
 export const AIRPORT_AGENCE_ID = 'aeroport-pole-caraibes';
 
@@ -88,7 +88,7 @@ export const vehicles: Vehicle[] = [
     priceLow: 32,
     priceHigh: 48,
     seats: 5,
-    transmission: 'Manuelle',
+    transmission: 'Automatique',
     fuel: 'Essence',
     doors: 5,
     bags: 2,
@@ -99,7 +99,7 @@ export const vehicles: Vehicle[] = [
     features: ['Climatisation', 'Bluetooth / CarPlay', 'Caméra de recul', 'Kilométrage illimité'],
     techSpecs: [
       { label: 'Motorisation', value: '1.2 Dualjet mild-hybrid, 83 ch' },
-      { label: 'Boîte de vitesses', value: 'Manuelle, 5 rapports' },
+      { label: 'Boîte de vitesses', value: 'Automatique' },
       { label: 'Consommation mixte', value: '≈ 4,4 l/100 km' },
       { label: 'Volume de coffre', value: '265 litres' },
       { label: 'Connectivité', value: 'Apple CarPlay / Android Auto' },
@@ -152,7 +152,7 @@ export const vehicles: Vehicle[] = [
     priceLow: 39,
     priceHigh: 58,
     seats: 5,
-    transmission: 'Manuelle',
+    transmission: 'Automatique',
     fuel: 'Essence',
     doors: 5,
     bags: 3,
@@ -163,7 +163,7 @@ export const vehicles: Vehicle[] = [
     features: ['Climatisation', 'Bluetooth / CarPlay', 'Régulateur de vitesse', 'Kilométrage illimité'],
     techSpecs: [
       { label: 'Motorisation', value: '1.0 T-GDi turbo, 100 ch' },
-      { label: 'Boîte de vitesses', value: 'Manuelle, 6 rapports' },
+      { label: 'Boîte de vitesses', value: 'Automatique' },
       { label: 'Consommation mixte', value: '≈ 5,5 l/100 km' },
       { label: 'Volume de coffre', value: '352 litres — 2 grandes valises' },
       { label: 'Connectivité', value: 'Apple CarPlay / Android Auto' },
@@ -267,7 +267,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: "À l'atterrissage : comment ça se passe",
         paragraphs: [
-          "Chez Adventura, la livraison à l'aéroport est gratuite et fonctionne 24h/24, y compris pour les vols retardés : nous suivons votre numéro de vol, pas l'heure prévue sur le billet. Une fois vos bagages récupérés, un message vous indique le point de rendez-vous, à quelques minutes à pied du hall d'arrivée.",
+          "Chez Adventura, la livraison à l'aéroport fonctionne 24h/24, y compris pour les vols retardés : nous suivons votre numéro de vol, pas l'heure prévue sur le billet. Une fois vos bagages récupérés, un message vous indique le point de rendez-vous, à quelques minutes à pied du hall d'arrivée.",
           "L'état des lieux se fait ensemble, photos à l'appui, avant la signature. Prenez le temps de faire le tour du véhicule même si la nuit tombe — l'éclairage du parking suffit largement, et c'est dans votre intérêt autant que dans le nôtre.",
         ],
       },
@@ -439,13 +439,13 @@ export interface Agence {
 export const agences: Agence[] = [
   {
     id: 'aeroport-pole-caraibes',
-    name: 'Aéroport Pôle Caraïbes',
-    address: 'Aéroport Pôle Caraïbes, 97139 Les Abymes',
+    name: 'Aéroport Guadeloupe - Maryse Condé',
+    address: '97139 Les Abymes, Guadeloupe',
     hours: '24h/24 - 7j/7',
     phone: '06 90 48 47 76',
     lat: 16.2653,
     lng: -61.5321,
-    badge: 'Livraison gratuite',
+    badge: 'Livraison 24h/24',
   },
   {
     id: 'petit-canal',
@@ -456,53 +456,6 @@ export const agences: Agence[] = [
     lat: 16.3767,
     lng: -61.4933,
     badge: 'Livraison',
-  },
-  {
-    id: 'pointe-a-pitre',
-    name: 'Pointe-à-Pitre Centre',
-    address: '12 Rue Frébault, 97110 Pointe-à-Pitre',
-    hours: '8h - 19h, Lun - Sam',
-    phone: '06 90 48 47 76',
-    lat: 16.2415,
-    lng: -61.5331,
-  },
-  {
-    id: 'le-gosier',
-    name: 'Le Gosier',
-    address: 'Avenue de l\'Europe, 97190 Le Gosier',
-    hours: '8h - 18h, Lun - Sam',
-    phone: '06 90 48 47 76',
-    lat: 16.2077,
-    lng: -61.4967,
-    badge: 'Populaire',
-  },
-  {
-    id: 'saint-francois',
-    name: 'Saint-François',
-    address: 'Marina de Saint-François, 97118 Saint-François',
-    hours: '9h - 18h, Lun - Sam',
-    phone: '06 90 48 47 76',
-    lat: 16.2534,
-    lng: -61.2661,
-  },
-  {
-    id: 'basse-terre',
-    name: 'Basse-Terre',
-    address: '5 Boulevard du Général de Gaulle, 97100 Basse-Terre',
-    hours: '8h30 - 17h30, Lun - Ven',
-    phone: '06 90 48 47 76',
-    lat: 15.9989,
-    lng: -61.7285,
-  },
-  {
-    id: 'deshaies',
-    name: 'Deshaies',
-    address: 'Route de la Plage, 97126 Deshaies',
-    hours: '9h - 17h, Mar - Sam',
-    phone: '06 90 48 47 76',
-    lat: 16.3049,
-    lng: -61.7936,
-    badge: 'Nouveau',
   },
 ];
 
@@ -574,8 +527,8 @@ export const faqs: FaqItem[] = [
   },
   {
     category: 'Livraison',
-    question: 'Livrez-vous le véhicule à l\'aéroport Pôle Caraïbes ?',
-    answer: 'Oui, la livraison et la récupération à l\'aéroport Pôle Caraïbes sont incluses gratuitement, 24h/24 et 7j/7, y compris pour les vols de nuit ou retardés.',
+    question: 'Livrez-vous le véhicule à l\'aéroport Guadeloupe Maryse Condé ?',
+    answer: 'Oui, la livraison et la récupération à l\'aéroport Guadeloupe Maryse Condé (Pôle Caraïbes) sont disponibles 24h/24 et 7j/7, y compris pour les vols de nuit ou retardés (forfait de 50€ affiché avant validation).',
   },
   {
     category: 'Tarifs',
@@ -595,7 +548,7 @@ export const faqs: FaqItem[] = [
   {
     category: 'Conduite',
     question: 'Puis-je traverser vers les Saintes ou Marie-Galante avec le véhicule ?',
-    answer: 'Le véhicule n\'est pas autorisé à monter sur les ferries. Nous recommandons de le laisser dans une de nos agences (Saint-François ou Pointe-à-Pitre) et de louer un scooter sur place pour explorer ces îles.',
+    answer: 'Le véhicule n\'est pas autorisé à monter sur les ferries. Nous recommandons de le laisser sur l\'un de nos points de retrait (aéroport Guadeloupe Maryse Condé ou Petit-Canal) et de louer un scooter sur place pour explorer ces îles.',
   },
 ];
 
