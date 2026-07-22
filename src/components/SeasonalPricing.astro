@@ -1,0 +1,230 @@
+---
+const rows = [
+  {
+    cat: 'Mini & citadine',
+    desc: 'Petites voitures faciles à garer, idéales en ville',
+    low: '13 – 20€',
+    high: '35 – 55€',
+  },
+  {
+    cat: 'Voiture automatique',
+    desc: 'Conduite fluide sans changement de vitesse, pratique partout',
+    low: '16 – 26€',
+    high: '45 – 60€',
+  },
+  {
+    cat: 'SUV & crossover',
+    desc: 'Véhicules robustes pour routes variées et escapades nature',
+    low: '35 – 60€',
+    high: '75 – 110€',
+  },
+  {
+    cat: 'Familiale & monospace',
+    desc: 'Grande capacité pour familles nombreuses ou groupes',
+    low: '30 – 50€',
+    high: '80 – 130€',
+  },
+  {
+    cat: 'Premium & haut de gamme',
+    desc: 'Modèles élégants et performants pour un voyage tout confort',
+    low: '40 – 60€',
+    high: '90 – 120€',
+  },
+  {
+    cat: 'Électrique & hybride',
+    desc: 'Voitures écologiques et économiques en carburant',
+    low: '18 – 30€',
+    high: '36 – 75€',
+  },
+];
+---
+
+<section class="spricing section section-soft">
+  <div class="container">
+    <div class="section-header centered animate-on-scroll">
+      <span class="section-badge">Tarifs transparents</span>
+      <h2 class="section-title">Combien coûte une location <span>en Guadeloupe ?</span></h2>
+      <p class="section-subtitle">Les prix varient selon la catégorie, la durée et la saison. Voici les fourchettes moyennes constatées sur l'île pour vous aider à préparer votre budget.</p>
+    </div>
+
+    <div class="spricing-table-wrap animate-on-scroll">
+      <table class="spricing-table">
+        <thead>
+          <tr>
+            <th>Catégorie de véhicule</th>
+            <th>Basse saison<br /><small>mai → novembre</small></th>
+            <th>Haute saison<br /><small>20 déc. → 20 avril</small></th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr>
+              <td>
+                <strong>{r.cat}</strong>
+                <small>{r.desc}</small>
+              </td>
+              <td class="spricing-price">{r.low}<em>/jour</em></td>
+              <td class="spricing-price spricing-price-high">{r.high}<em>/jour</em></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p class="spricing-note animate-on-scroll">
+      Prix moyens indicatifs constatés en Guadeloupe, susceptibles d'évoluer selon la demande (vacances, carnaval, événements) et la disponibilité. Chez Adventura, nos tarifs de citadines et SUV sont affichés à l'année, avec kilométrage illimité et <strong>−20% dès 7 jours de location</strong>.
+    </p>
+
+    <div class="spricing-tips animate-on-scroll">
+      <div class="spricing-tip">
+        <strong>Haute saison ?</strong>
+        <p>Réservez 4 à 8 semaines à l'avance : entre le 20 décembre et le 20 avril, la demande explose et les meilleures voitures partent vite.</p>
+      </div>
+      <div class="spricing-tip">
+        <strong>Basse saison ?</strong>
+        <p>Quelques jours d'avance suffisent en général — mais réserver tôt garantit le modèle de votre choix au meilleur prix.</p>
+      </div>
+      <div class="spricing-tip">
+        <strong>Le bon réflexe</strong>
+        <p>Récupérez votre véhicule directement à l'aéroport : vous gagnez du temps et évitez les frais de transport vers votre hébergement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .spricing-table-wrap {
+    overflow-x: auto;
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    max-width: 940px;
+    margin: 0 auto var(--spacing-md);
+  }
+
+  .spricing-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 620px;
+  }
+
+  .spricing-table th {
+    text-align: left;
+    font-family: var(--font-display);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    padding: 16px 20px;
+    background: var(--color-bg-soft);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .spricing-table th small {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--color-text-subtle);
+    margin-top: 2px;
+  }
+
+  .spricing-table td {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+    vertical-align: middle;
+  }
+
+  .spricing-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .spricing-table tbody tr:hover {
+    background: var(--color-rose);
+  }
+
+  .spricing-table td strong {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .spricing-table td small {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+    margin-top: 2px;
+    max-width: 320px;
+  }
+
+  .spricing-price {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1rem;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .spricing-price em {
+    font-style: normal;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.72rem;
+    color: var(--color-text-subtle);
+    margin-left: 2px;
+  }
+
+  .spricing-price-high {
+    color: var(--color-primary);
+  }
+
+  .spricing-note {
+    max-width: 940px;
+    margin: 0 auto var(--spacing-lg);
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .spricing-note strong {
+    color: var(--color-primary);
+  }
+
+  .spricing-tips {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-sm);
+    max-width: 940px;
+    margin: 0 auto;
+  }
+
+  .spricing-tip {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+  }
+
+  .spricing-tip strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    color: var(--color-primary);
+    margin-bottom: 4px;
+  }
+
+  .spricing-tip p {
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 768px) {
+    .spricing-tips {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

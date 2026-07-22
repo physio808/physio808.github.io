@@ -9,127 +9,131 @@ for (let h = 7; h <= 19; h++) {
   if (h < 19) timeSlots.push(`${String(h).padStart(2, '0')}:30`);
 }
 
-const reassurance = [
+const ages = ['21 - 25 ans', '26 ans et plus'];
+
+const args = [
   {
     icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
     title: 'Loueur 100% local',
-    text: 'Une équipe basée en Guadeloupe, 6 points de retrait sur l\'île',
+    text: 'Une équipe basée en Guadeloupe et 6 points de retrait sur l\'île, de l\'aéroport à Deshaies.',
   },
   {
     icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/>',
     title: 'Annulation gratuite',
-    text: 'Jusqu\'à 48h avant le départ, sans justification',
-  },
-  {
-    icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
-    title: 'Aéroport 24h/24',
-    text: 'Livraison gratuite à Pôle Caraïbes, même pour les vols de nuit',
+    text: 'Annulez ou modifiez sans frais jusqu\'à 48h avant le début de votre location.',
   },
   {
     icon: '<path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
-    title: 'Kilométrage illimité',
-    text: 'Assurance incluse, zéro frais caché',
+    title: 'Prix transparents',
+    text: 'Kilométrage illimité et assurance inclus. Le prix affiché est le prix payé, sans surprise.',
+  },
+  {
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+    title: 'Disponibles 7j/7',
+    text: 'Téléphone et WhatsApp tous les jours, livraison à l\'aéroport 24h/24 même en vol de nuit.',
   },
 ];
 ---
 
 <section class="hero" id="hero-booking">
   <div class="hero-bg" aria-hidden="true">
-    <img src="/images/hero-beach.jpg" alt="" fetchpriority="high" />
+    <img src="/images/hero-plage.jpg" alt="" fetchpriority="high" />
     <div class="hero-bg-overlay"></div>
   </div>
 
   <div class="container hero-inner">
-    <!-- Carte de réservation -->
-    <div class="hero-card">
+    <!-- Carte de réservation (gauche) -->
+    <form class="hero-card hb-form" action="/reservation" method="get">
       <h1 class="hero-card-title">Location de voiture en Guadeloupe</h1>
 
-      <form class="hb-form" action="/nos-vehicules" method="get">
-        <div class="hb-field">
-          <label>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Lieu de départ
-          </label>
-          <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="pickup" aria-haspopup="dialog">
-            <span data-pk-label>{agences[0].name}</span>
-            <svg class="pk-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <input type="hidden" id="pickup" name="pickup" value={agences[0].id} />
-        </div>
-
-        <button type="button" class="hb-toggle-dropoff" id="hb-toggle-dropoff">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Lieu de retour différent
+      <div class="hb-field">
+        <label>Lieu de départ</label>
+        <button type="button" class="pk-trigger has-value hb-loc" data-pk-open="loc" data-pk-input="pickup" aria-haspopup="dialog">
+          <svg class="hb-loc-pin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span data-pk-label>{agences[0].name}</span>
+          <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
+        <input type="hidden" id="pickup" name="pickup" value={agences[0].id} />
+      </div>
 
-        <div class="hb-field hb-field-dropoff is-hidden" id="hb-dropoff-field">
-          <label>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            Lieu de retour
-          </label>
-          <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="dropoff" aria-haspopup="dialog">
-            <span data-pk-label>{agences[0].name}</span>
-            <svg class="pk-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <label class="hb-check">
+        <input type="checkbox" id="hb-toggle-dropoff" />
+        <span class="hb-check-box">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        Je souhaite restituer la voiture à un autre endroit
+      </label>
+
+      <div class="hb-field hb-field-dropoff is-hidden" id="hb-dropoff-field">
+        <label>Lieu de retour</label>
+        <button type="button" class="pk-trigger has-value hb-loc" data-pk-open="loc" data-pk-input="dropoff" aria-haspopup="dialog">
+          <svg class="hb-loc-pin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span data-pk-label>{agences[0].name}</span>
+          <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <input type="hidden" id="dropoff" name="dropoff" value={agences[0].id} />
+      </div>
+
+      <div class="hb-field">
+        <label>Date de départ</label>
+        <div class="hb-dt">
+          <button type="button" class="pk-trigger hb-dt-date" data-pk-open="range" data-pk-start="date-start" data-pk-end="date-end" aria-haspopup="dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span data-pk-label>Choisir</span>
           </button>
-          <input type="hidden" id="dropoff" name="dropoff" value={agences[0].id} />
-        </div>
-
-        <div class="hb-row">
-          <div class="hb-field hb-field-date">
-            <label>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Date de départ
-            </label>
-            <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="date-start" data-pk-time="time-start-mirror" data-pk-default-time="09:00" data-pk-chain="date-end" aria-haspopup="dialog">
-              <span data-pk-label>Choisir une date</span>
-              <svg class="pk-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <input type="hidden" id="date-start" name="date-start" value={today} />
-            <input type="hidden" id="time-start-mirror" value="" />
-          </div>
-          <div class="hb-field hb-field-time">
-            <label>Heure</label>
+          <div class="hb-dt-time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
             <select id="time-start" name="time-start" aria-label="Heure de départ">
               {timeSlots.map((t) => <option value={t} selected={t === '09:00'}>{t}</option>)}
             </select>
           </div>
         </div>
+      </div>
 
-        <div class="hb-row">
-          <div class="hb-field hb-field-date">
-            <label>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-              Date de retour
-            </label>
-            <button type="button" class="pk-trigger" data-pk-open="dt" data-pk-date="date-end" data-pk-time="time-end-mirror" data-pk-default-time="17:00" data-pk-min-from="date-start" aria-haspopup="dialog">
-              <span data-pk-label>Choisir une date</span>
-              <svg class="pk-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <input type="hidden" id="date-end" name="date-end" value="" />
-            <input type="hidden" id="time-end-mirror" value="" />
-          </div>
-          <div class="hb-field hb-field-time">
-            <label>Heure</label>
+      <div class="hb-field">
+        <label>Date de retour</label>
+        <div class="hb-dt">
+          <button type="button" class="pk-trigger hb-dt-date" data-pk-open="range" data-pk-role="end" data-pk-start="date-start" data-pk-end="date-end" aria-haspopup="dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span data-pk-label>Choisir</span>
+          </button>
+          <div class="hb-dt-time">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
             <select id="time-end" name="time-end" aria-label="Heure de retour">
               {timeSlots.map((t) => <option value={t} selected={t === '17:00'}>{t}</option>)}
             </select>
           </div>
         </div>
+      </div>
 
-        <button type="submit" class="hb-submit">
-          Voir les véhicules
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
-      </form>
-    </div>
+      <div class="hb-row-2">
+        <div class="hb-field">
+          <label>Âge du conducteur</label>
+          <div class="hb-select">
+            <select id="age" name="age" aria-label="Âge du conducteur">
+              {ages.map((a, i) => <option value={a} selected={i === 1}>{a}</option>)}
+            </select>
+            <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+          </div>
+        </div>
+        <div class="hb-field">
+          <label>Code promo</label>
+          <input type="text" id="promo" name="promo" class="hb-input" placeholder="Optionnel" />
+        </div>
+      </div>
 
-    <!-- Réassurance -->
+      <input type="hidden" id="date-start" name="date-start" value={today} />
+      <input type="hidden" id="date-end" name="date-end" value="" />
+
+      <button type="submit" class="hb-submit">Voir les véhicules</button>
+    </form>
+
+    <!-- Arguments (droite) -->
     <div class="hero-side">
-      <p class="hero-side-heading">Explorez l'archipel<br />à votre rythme.</p>
       <ul class="hero-side-list">
-        {reassurance.map((r) => (
+        {args.map((r) => (
           <li>
-            <span class="hero-side-icon" set:html={`<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${r.icon}</svg>`} />
+            <span class="hero-side-icon" set:html={`<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${r.icon}</svg>`} />
             <span>
               <strong>{r.title}</strong>
               <small>{r.text}</small>
@@ -143,48 +147,52 @@ const reassurance = [
   <!-- Overlay + popups -->
   <div class="pk-overlay" data-pk-overlay hidden></div>
 
-  <div class="pk-popup" data-pk-popup="loc" role="dialog" aria-label="Choisir une agence" hidden>
+  <div class="pk-popup pk-popup-loc" data-pk-popup="loc" role="dialog" aria-label="Choisir une agence" hidden>
     <div class="pk-popup-head">
       <span>Choisir une agence</span>
       <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="pk-loc-list">
-      {agences.map((a) => (
-        <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name}>
-          <span class="pk-loc-icon">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          </span>
-          <span class="pk-loc-body">
-            <span class="pk-loc-name">{a.name}</span>
-            <span class="pk-loc-meta">{a.address}</span>
-            <span class="pk-loc-hours">{a.hours}</span>
-          </span>
-          <span class="pk-loc-check">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-          </span>
-        </button>
-      ))}
+    <div class="pk-loc-split">
+      <div class="pk-loc-list">
+        <span class="pk-loc-list-title">Agences en Guadeloupe</span>
+        {agences.map((a) => (
+          <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name} data-loc-address={a.address} data-loc-hours={a.hours}>
+            <span class="pk-loc-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            </span>
+            <span class="pk-loc-body">
+              <span class="pk-loc-name">{a.name}</span>
+              <span class="pk-loc-meta">{a.address}</span>
+            </span>
+            <span class="pk-loc-check">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            </span>
+          </button>
+        ))}
+      </div>
+      <div class="pk-loc-detail" data-pk-loc-detail></div>
     </div>
   </div>
 
-  <div class="pk-popup" data-pk-popup="dt" role="dialog" aria-label="Choisir une date" hidden>
+  <div class="pk-popup pk-popup-range" data-pk-popup="range" role="dialog" aria-label="Choisir vos dates" hidden>
     <div class="pk-popup-head">
-      <div class="pk-cal-nav">
-        <button type="button" class="pk-nav" data-pk-prev aria-label="Mois précédent">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <span class="pk-cal-title" data-pk-cal-title></span>
-        <button type="button" class="pk-nav" data-pk-next aria-label="Mois suivant">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
-      </div>
+      <span>Sélectionnez vos dates</span>
       <button type="button" class="pk-close" data-pk-close aria-label="Fermer">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="pk-cal-grid" data-pk-cal></div>
+    <div class="pk-range-wrap">
+      <button type="button" class="pk-nav" data-pk-prev aria-label="Mois précédent">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="pk-months" data-pk-cal></div>
+      <button type="button" class="pk-nav" data-pk-next aria-label="Mois suivant">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <p class="pk-range-hint">Choisissez d'abord la date de départ, puis la date de retour.</p>
   </div>
 </section>
 
@@ -203,21 +211,22 @@ const reassurance = [
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 60%;
+    object-position: center 55%;
+    /* léger blur artistique */
+    filter: blur(3px) brightness(0.98);
+    transform: scale(1.06);
   }
 
   .hero-bg-overlay {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(90deg, rgba(10, 18, 30, 0.55) 0%, rgba(10, 18, 30, 0.25) 45%, rgba(10, 18, 30, 0.45) 100%),
-      linear-gradient(180deg, rgba(10, 18, 30, 0.35) 0%, transparent 30%);
+    background: linear-gradient(90deg, rgba(8, 22, 38, 0.32) 0%, rgba(8, 22, 38, 0.12) 45%, rgba(8, 22, 38, 0.28) 100%);
   }
 
   .hero-inner {
     position: relative;
     display: grid;
-    grid-template-columns: 420px 1fr;
+    grid-template-columns: 440px 1fr;
     gap: var(--spacing-2xl);
     align-items: center;
     padding-block: var(--spacing-xl);
@@ -228,124 +237,231 @@ const reassurance = [
   .hero-card {
     background: white;
     border-radius: var(--radius-lg);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
     padding: var(--spacing-lg);
-    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .hero-card-title {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
     line-height: 1.3;
-    margin-bottom: var(--spacing-md);
-  }
-
-  .hb-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .hb-field {
-    background: var(--color-bg-soft);
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 9px 14px;
-    transition: border-color var(--transition-fast);
-  }
-
-  .hb-field:focus-within,
-  .hb-field:hover {
-    border-color: var(--color-primary);
+    margin-bottom: 4px;
   }
 
   .hb-field label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.66rem;
+    display: block;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--color-text-subtle);
-    margin-bottom: 2px;
+    color: var(--color-ink);
+    margin-bottom: 6px;
   }
 
-  .hb-field label svg {
+  /* Déclencheur lieu (avec pin) */
+  .hb-loc {
+    width: 100%;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: border-color var(--transition-fast);
+  }
+
+  .hb-loc:hover,
+  .hb-loc:focus-visible {
+    border-color: var(--color-primary);
+  }
+
+  .hb-loc-pin {
     color: var(--color-primary);
     flex-shrink: 0;
   }
 
-  .hb-field select {
-    width: 100%;
-    border: none;
-    background: transparent;
-    font-family: var(--font-body);
-    font-size: 0.92rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    outline: none;
-    cursor: pointer;
-    padding: 2px 0;
+  .hb-loc [data-pk-label] {
+    flex: 1;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
-  .hb-row {
-    display: grid;
-    grid-template-columns: 1.6fr 1fr;
-    gap: 10px;
+  .hb-loc .pk-chevron {
+    color: var(--color-text-subtle);
+    flex-shrink: 0;
   }
 
-  .hb-toggle-dropoff {
-    display: inline-flex;
+  /* Checkbox retour */
+  .hb-check {
+    display: flex;
     align-items: center;
-    gap: 6px;
-    align-self: flex-start;
-    background: none;
-    border: none;
-    padding: 0;
-    font-family: var(--font-body);
-    font-size: 0.78rem;
-    font-weight: 600;
+    gap: 9px;
+    font-size: 0.82rem;
     color: var(--color-text-muted);
     cursor: pointer;
-    transition: color var(--transition-fast);
+    margin: -2px 0 2px;
   }
 
-  .hb-toggle-dropoff:hover {
-    color: var(--color-primary);
-  }
-
-  .hb-toggle-dropoff.is-active {
-    color: var(--color-primary);
-  }
-
-  .hb-field-dropoff {
-    overflow: hidden;
-    transition: max-height 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease, padding 0.35s ease, border-width 0.35s ease, margin 0.35s ease;
-    max-height: 80px;
-  }
-
-  .hb-field-dropoff.is-hidden {
-    max-height: 0;
+  .hb-check input {
+    position: absolute;
     opacity: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    border-width: 0;
-    margin: -10px 0 0;
+    pointer-events: none;
   }
 
-  .hb-submit {
+  .hb-check-box {
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--color-border-light);
+    border-radius: 5px;
+    color: transparent;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+  }
+
+  .hb-check input:checked + .hb-check-box {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  /* Date + heure */
+  .hb-dt {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 10px;
+  }
+
+  .hb-dt-date,
+  .hb-dt-time {
+    display: flex;
+    align-items: center;
     gap: 8px;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    transition: border-color var(--transition-fast);
+  }
+
+  .hb-dt-date {
+    cursor: pointer;
+    font-size: 0.94rem;
+    color: var(--color-ink);
+  }
+
+  .hb-dt-date:hover {
+    border-color: var(--color-primary);
+  }
+
+  .hb-dt-date svg,
+  .hb-dt-time svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .hb-dt-date [data-pk-label] {
+    flex: 1;
+    text-align: left;
+  }
+
+  .hb-dt-date:not(.has-value) [data-pk-label] {
+    color: var(--color-text-subtle);
+  }
+
+  .hb-dt-time select {
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    outline: none;
+    cursor: pointer;
+    width: 100%;
+  }
+
+  /* Âge + code promo */
+  .hb-row-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .hb-select {
+    position: relative;
+  }
+
+  .hb-select select {
+    width: 100%;
+    appearance: none;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 34px 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: var(--color-ink);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .hb-select select:hover {
+    border-color: var(--color-primary);
+  }
+
+  .hb-select .pk-chevron {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text-subtle);
+    pointer-events: none;
+  }
+
+  .hb-input {
+    width: 100%;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .hb-input:focus {
+    border-color: var(--color-primary);
+  }
+
+  .hb-field-dropoff.is-hidden {
+    display: none;
+  }
+
+  .hb-submit {
     background: var(--gradient-primary);
     color: white;
     border: none;
     border-radius: var(--radius-md);
-    padding: 15px;
+    padding: 16px;
     font-family: var(--font-display);
     font-weight: 700;
     font-size: 1rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
     cursor: pointer;
     box-shadow: var(--shadow-primary);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
@@ -361,64 +477,51 @@ const reassurance = [
     transform: translateY(0) scale(0.99);
   }
 
-  /* ===== Réassurance ===== */
+  /* ===== Arguments (droite) ===== */
   .hero-side {
-    color: white;
+    background: rgba(9, 30, 48, 0.55);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
     animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both;
+    max-width: 620px;
     justify-self: end;
-    max-width: 460px;
-  }
-
-  .hero-side-heading {
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 3vw, 2.3rem);
-    font-weight: 800;
-    line-height: 1.2;
-    color: white;
-    margin-bottom: var(--spacing-lg);
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+    width: 100%;
   }
 
   .hero-side-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 26px;
   }
 
   .hero-side-list li {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
+    gap: 18px;
   }
 
   .hero-side-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
     color: white;
     flex-shrink: 0;
+    margin-top: 2px;
   }
 
   .hero-side-list strong {
     display: block;
     font-family: var(--font-display);
-    font-size: 0.98rem;
+    font-size: 1.1rem;
     font-weight: 700;
     color: white;
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+    margin-bottom: 4px;
   }
 
   .hero-side-list small {
     display: block;
-    font-size: 0.82rem;
-    color: rgba(255, 255, 255, 0.88);
-    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.4);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.82);
   }
 
   /* ===== Responsive ===== */
@@ -427,44 +530,27 @@ const reassurance = [
       grid-template-columns: 1fr;
       gap: var(--spacing-lg);
       min-height: 0;
-      padding-block: var(--spacing-lg) var(--spacing-xl);
     }
 
     .hero-card {
-      order: 1;
       max-width: 480px;
       width: 100%;
       margin: 0 auto;
     }
 
     .hero-side {
-      order: 2;
       justify-self: center;
-      max-width: 480px;
-      width: 100%;
-    }
-
-    .hero-side-heading {
-      text-align: center;
-      margin-bottom: var(--spacing-md);
-    }
-
-    .hero-side-list {
-      gap: 12px;
+      max-width: 560px;
     }
   }
 
   @media (max-width: 640px) {
-    .hero-card {
+    .hero-card,
+    .hero-side {
       padding: var(--spacing-md);
     }
-
-    .hb-row {
-      grid-template-columns: 1.4fr 1fr;
-    }
-
-    .hero-side-list li small {
-      font-size: 0.78rem;
+    .hero-side-list {
+      gap: 16px;
     }
   }
 </style>
@@ -475,11 +561,10 @@ const reassurance = [
   setupPickers('hero-booking');
 
   // Lieu de retour différent
-  const toggleBtn = document.getElementById('hb-toggle-dropoff');
+  const toggleBox = document.getElementById('hb-toggle-dropoff') as HTMLInputElement | null;
   const dropField = document.getElementById('hb-dropoff-field');
-  toggleBtn?.addEventListener('click', () => {
-    const hidden = dropField?.classList.toggle('is-hidden');
-    toggleBtn.classList.toggle('is-active', !hidden);
+  toggleBox?.addEventListener('change', () => {
+    dropField?.classList.toggle('is-hidden', !toggleBox.checked);
   });
 
   // Si le retour est masqué, il suit le lieu de départ
@@ -487,13 +572,13 @@ const reassurance = [
   heroForm?.addEventListener('submit', (e) => {
     const pickup = document.getElementById('pickup') as HTMLInputElement | null;
     const dropoff = document.getElementById('dropoff') as HTMLInputElement | null;
-    if (dropField?.classList.contains('is-hidden') && pickup && dropoff) {
+    if (!toggleBox?.checked && pickup && dropoff) {
       dropoff.value = pickup.value;
     }
     const dateEnd = document.getElementById('date-end') as HTMLInputElement | null;
     if (dateEnd && !dateEnd.value) {
       e.preventDefault();
-      document.querySelector<HTMLElement>('#hero-booking [data-pk-date="date-end"]')?.click();
+      document.querySelector<HTMLElement>('#hero-booking [data-pk-open="range"]')?.click();
     }
   });
 </script>

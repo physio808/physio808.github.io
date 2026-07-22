@@ -11,38 +11,33 @@ const { vehicle, index = 0 } = Astro.props;
 
 <article class="v-card animate-on-scroll" style={`--i:${index % 4}`}>
   <div class="v-card-box">
-    <a href={`/nos-vehicules/${vehicle.id}`} class="v-card-image" data-v-detail aria-label={`Voir la fiche ${vehicle.name}`}>
-      <img src={vehicle.image} alt={`${vehicle.name} à louer en Guadeloupe`} loading="lazy" />
+    <a href={`/nos-vehicules/${vehicle.id}`} class="v-card-visual" data-v-detail aria-label={`Voir la fiche ${vehicle.name}`}>
+      <div class="v-card-visual-head">
+        <span class="v-card-title">{vehicle.name}</span>
+        <span class="v-card-subtitle">{vehicle.category} · {vehicle.transmission}</span>
+        <span class="v-card-chips">
+          <i>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+            {vehicle.seats}
+          </i>
+          <i>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+            {vehicle.doors} portes
+          </i>
+          <i>{vehicle.transmission === 'Automatique' ? 'Auto' : 'Manuelle'}</i>
+        </span>
+      </div>
+      {vehicle.imageCutout
+        ? <img class="v-card-cutout" src={vehicle.imageCutout} alt={`${vehicle.name} à louer en Guadeloupe`} loading="lazy" />
+        : <img class="v-card-photo" src={vehicle.image} alt={`${vehicle.name} à louer en Guadeloupe`} loading="lazy" />}
       {vehicle.badge && <span class="v-card-badge">{vehicle.badge}</span>}
     </a>
     <div class="v-card-body">
-      <div class="v-card-head">
-        <div>
-          <span class="v-card-category">{vehicle.category}</span>
-          <h3 class="v-card-name">
-            <a href={`/nos-vehicules/${vehicle.id}`} data-v-detail>{vehicle.name}</a>
-          </h3>
-        </div>
-        <div class="v-card-price">
-          <span class="v-card-price-from">dès</span>
-          <span class="v-card-price-amount">{vehicle.priceLow}€</span>
-          <span class="v-card-price-unit">/jour</span>
-        </div>
-      </div>
-      <div class="v-card-specs">
-        <span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
-          {vehicle.seats} places
-        </span>
-        <span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-          {vehicle.transmission}
-        </span>
-        <span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
-          {vehicle.doors} portes
-        </span>
-      </div>
+      <span class="v-card-included">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+        Kilométrage illimité · assurance incluse
+      </span>
+      <div class="v-card-quote" data-v-quote>Tarif selon vos dates</div>
       <div class="v-card-actions">
         <a href={`/nos-vehicules/${vehicle.id}`} class="v-card-btn v-card-btn-ghost" data-v-detail>
           Voir le véhicule
@@ -79,123 +74,163 @@ const { vehicle, index = 0 } = Astro.props;
     box-shadow: var(--shadow-lg);
   }
 
-  .v-card-image {
+  /* Visuel studio : voiture détourée sur dégradé argenté */
+  .v-card-visual {
     position: relative;
     display: block;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 11;
     overflow: hidden;
+    background:
+      radial-gradient(ellipse 90% 68% at 50% 74%, #D7DBE1 0%, #A9AFB8 42%, #4A515B 78%, #262B33 100%);
   }
 
-  .v-card-image img {
+  .v-card-cutout {
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    bottom: 5%;
+    top: 26%;
+    width: 88%;
+    height: 69%;
+    object-fit: contain;
+    object-position: center bottom;
+    filter: drop-shadow(0 16px 20px rgba(0, 0, 0, 0.42));
+    transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .v-card-box:hover .v-card-cutout {
+    transform: scale(1.045);
+  }
+
+  .v-card-photo {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    opacity: 0.88;
     transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .v-card-box:hover .v-card-image img {
-    transform: scale(1.07);
+  .v-card-box:hover .v-card-photo {
+    transform: scale(1.06);
+  }
+
+  .v-card-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(10, 14, 22, 0.82) 0%, rgba(10, 14, 22, 0.18) 38%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .v-card-visual-head {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    padding: 16px 18px;
+  }
+
+  .v-card-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    color: white;
+    line-height: 1.15;
+  }
+
+  .v-card-subtitle {
+    display: block;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.75);
+    margin-top: 2px;
+  }
+
+  .v-card-chips {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .v-card-chips i {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-style: normal;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: var(--radius-full);
+    padding: 3px 10px;
   }
 
   .v-card-badge {
     position: absolute;
-    top: 14px;
+    bottom: 14px;
     left: 14px;
     z-index: 2;
     background: var(--gradient-primary);
     color: white;
     font-family: var(--font-display);
-    font-size: 0.68rem;
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     padding: 5px 12px;
     border-radius: var(--radius-full);
-    box-shadow: 0 4px 12px rgba(227,24,55,0.35);
+    box-shadow: 0 4px 12px rgba(227, 24, 55, 0.35);
   }
 
+  /* Corps */
   .v-card-body {
     display: flex;
     flex-direction: column;
     flex: 1;
-    padding: var(--spacing-md);
-  }
-
-  .v-card-head {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
+    padding: 14px 18px 18px;
     gap: 10px;
-    margin-bottom: 12px;
   }
 
-  .v-card-category {
-    font-size: 0.7rem;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    color: var(--color-primary);
-  }
-
-  .v-card-name {
-    font-size: 1.1rem;
-    margin-top: 2px;
-  }
-
-  .v-card-name a {
-    color: inherit;
-  }
-
-  .v-card-name a:hover {
-    color: var(--color-primary);
-  }
-
-  .v-card-price {
-    display: flex;
-    align-items: baseline;
-    gap: 3px;
-    flex-shrink: 0;
-    background: var(--color-rose);
-    border-radius: var(--radius-full);
-    padding: 6px 14px;
-  }
-
-  .v-card-price-from {
-    font-size: 0.7rem;
-    color: var(--color-text-muted);
-  }
-
-  .v-card-price-amount {
-    font-family: var(--font-display);
-    font-size: 1.1rem;
-    font-weight: 800;
-    color: var(--color-primary);
-  }
-
-  .v-card-price-unit {
-    font-size: 0.7rem;
-    color: var(--color-text-muted);
-  }
-
-  .v-card-specs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: var(--spacing-sm);
-    padding-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .v-card-specs span {
+  .v-card-included {
     display: flex;
     align-items: center;
-    gap: 5px;
-    font-size: 0.78rem;
+    gap: 7px;
+    font-size: 0.8rem;
     color: var(--color-text-muted);
   }
 
-  .v-card-specs svg {
+  .v-card-included svg {
+    color: var(--color-turquoise);
+    flex-shrink: 0;
+  }
+
+  .v-card-quote {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+
+  .v-card-quote small {
+    display: block;
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+  }
+
+  .v-card-quote s {
+    font-weight: 500;
+    font-size: 0.82rem;
     color: var(--color-text-subtle);
+    margin-left: 6px;
   }
 
   .v-card-actions {
@@ -232,11 +267,11 @@ const { vehicle, index = 0 } = Astro.props;
   .v-card-btn-primary {
     background: var(--gradient-primary);
     color: white;
-    box-shadow: 0 4px 14px rgba(227,24,55,0.25);
+    box-shadow: 0 4px 14px rgba(227, 24, 55, 0.25);
   }
 
   .v-card-btn-primary:hover {
     transform: translateY(-1px);
-    box-shadow: 0 8px 20px rgba(227,24,55,0.35);
+    box-shadow: 0 8px 20px rgba(227, 24, 55, 0.35);
   }
 </style>

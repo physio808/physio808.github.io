@@ -22,22 +22,20 @@ await page.waitForTimeout(800);
 const shot = (name) => page.screenshot({ path: `${outDir}/${name}.png`, fullPage: false });
 
 // ── Étape 1 : trajet + dates à cheval sur les deux saisons (18 → 26 déc)
-// Le calendrier valide la date au clic ; l'heure se choisit en liste déroulante.
-await page.click('[data-pk-date="res-date-start"]');
-await page.waitForSelector('[data-pk-popup="dt"]:not([hidden])');
+// Calendrier double mois : on sélectionne la plage départ → retour dans la même vue.
+await page.click('#res-app [data-pk-open="range"]');
+await page.waitForSelector('#res-app [data-pk-popup="range"]:not([hidden])');
 for (let i = 0; i < 12; i++) {
-  const title = (await page.textContent('[data-pk-cal-title]'))?.trim().toLowerCase();
-  if (title === 'décembre 2026') break;
-  await page.click('[data-pk-next]');
+  const title = (await page.textContent('#res-app [data-pk-month-title]'))?.trim().toLowerCase();
+  if (title?.startsWith('décembre 2026')) break;
+  await page.click('#res-app [data-pk-next]');
   await page.waitForTimeout(80);
 }
-await shot('popup-calendrier');
 await page.click('[data-day="2026-12-18"]');
-// Le sélecteur de retour s'ouvre automatiquement (chaînage départ → retour)
-await page.waitForTimeout(400);
-await page.waitForSelector('[data-pk-popup="dt"]:not([hidden])');
+await page.waitForTimeout(150);
+await shot('popup-calendrier');
 await page.click('[data-day="2026-12-26"]');
-await page.waitForTimeout(300);
+await page.waitForTimeout(500);
 await page.selectOption('#res-time-start', '10:00');
 await page.selectOption('#res-time-end', '16:30');
 await page.waitForTimeout(300);
@@ -45,43 +43,47 @@ await shot('step1-trajet');
 await page.click('#res-next');
 await page.waitForTimeout(500);
 
-// ── Étape 2 : filtre citadines puis choisir la Fiat 500 (28€ basse / 42€ haute)
+// ── Étape 2 : filtre citadines, clic Fiat 500 → panneau détail → Suivant
 await page.click('.res-veh-filter[data-filter="citadine"]');
 await page.waitForTimeout(300);
 await page.click('.res-veh-card[data-veh-id="fiat-500-lounge"]');
 await page.waitForTimeout(400);
-await shot('step2-vehicule');
+const panelVisible = await page.isVisible('#veh-panel:not([hidden])');
+const panelPrice = await page.textContent('#veh-panel-price');
+await shot('step2-vehicule-panneau');
+console.log('Panneau véhicule ouvert:', panelVisible, '| prix panneau:', panelPrice?.replace(/\s+/g, ' ').trim());
 const totalStep2 = await page.textContent('#res-summary-total');
 console.log('Total après choix véhicule:', totalStep2?.trim(), '(attendu 246,40€)');
-await page.click('#res-next');
+await page.click('#veh-panel-next');
 await page.waitForTimeout(500);
 
-// ── Étape 3 : protection Confort (3€/jour)
+// ── Étape 3 : protection Intermédiaire (8€/jour → 64€)
 await page.click('.res-protection[data-protection="confort"]');
 await page.waitForTimeout(400);
 await shot('step3-protection');
 const totalStep3 = await page.textContent('#res-summary-total');
 const protLine = await page.textContent('#res-summary-protection');
-console.log('Total avec protection Confort:', totalStep3?.trim(), '(attendu 270,40€) | ligne protection:', protLine?.trim());
+console.log('Total avec protection Intermédiaire:', totalStep3?.trim(), '(attendu 310,40€) | ligne protection:', protLine?.trim());
 await page.click('#res-next');
 await page.waitForTimeout(500);
 
-// ── Étape 4 : GPS (5€/jour) + plein prépayé (65€ une fois)
+// ── Étape 4 : GPS (5€/jour → 40€) + plein prépayé (65€ une fois)
 await page.click('.res-extra[data-extra="gps"]');
 await page.click('.res-extra[data-extra="plein-prepaye"]');
 await page.waitForTimeout(400);
 await shot('step4-options');
 const totalStep4 = await page.textContent('#res-summary-total');
-console.log('Total avec GPS + plein prépayé:', totalStep4?.trim(), '(attendu 375,40€)');
+console.log('Total avec GPS + plein prépayé:', totalStep4?.trim(), '(attendu 415,40€)');
 await page.click('#res-next');
 await page.waitForTimeout(500);
 
-// ── Étape 5 : vérification (recap) + coordonnées + conditions
+// ── Étape 5 : Revoir (recap) + coordonnées + conditions
 const recapText = (await page.textContent('#res-recap'))?.replace(/\s+/g, ' ').trim();
 console.log('Recap contient véhicule:', recapText?.includes('Fiat 500 Lounge') ? 'OK' : 'MANQUANT');
-console.log('Recap contient protection:', recapText?.includes('Confort') ? 'OK' : 'MANQUANT');
-console.log('Recap contient total:', recapText?.includes('375,40€') ? 'OK' : recapText?.slice(-80));
-await page.fill('#res-name', 'Jean Test');
+console.log('Recap contient protection:', recapText?.includes('Intermédiaire') ? 'OK' : 'MANQUANT');
+console.log('Recap contient total:', recapText?.includes('415,40€') ? 'OK' : recapText?.slice(-80));
+await page.fill('#res-firstname', 'Jean');
+await page.fill('#res-name', 'Test');
 await page.fill('#res-email', 'jean.test@example.com');
 await page.fill('#res-phone', '0690123456');
 await page.check('#res-terms-check');
@@ -112,36 +114,37 @@ console.log('Entonnoir rapide → étape Protection active:', step3Active, '| to
 // ── Scénario 3 : liste véhicules avec contexte → prix totaux + lien direct réservation
 await page.goto(`${base}/nos-vehicules?pickup=le-gosier&dropoff=le-gosier&date-start=2026-12-18&time-start=10%3A00&date-end=2026-12-26&time-end=16%3A30`, { waitUntil: 'networkidle' });
 await page.waitForTimeout(800);
-const cardPrice = await page.textContent('.fleet-grid-item[data-veh-id="fiat-500-lounge"] .v-card-price-amount');
+const cardQuote = (await page.textContent('.fleet-grid-item[data-veh-id="fiat-500-lounge"] .v-card-quote'))?.replace(/\s+/g, ' ').trim();
 const reserveHref = await page.getAttribute('.fleet-grid-item[data-veh-id="fiat-500-lounge"] [data-v-reserve]', 'href');
 const ctxBanner = await page.textContent('#fleet-context-text');
-console.log('Liste avec contexte → prix carte Fiat:', cardPrice?.trim(), '(attendu 246,40€)');
+console.log('Liste avec dates → devis carte Fiat:', cardQuote, '(doit contenir 246,40€)');
 console.log('Bandeau:', ctxBanner?.trim());
 console.log('Bouton Réserver → réservation directe:', reserveHref?.startsWith('/reservation?vehicule=fiat-500-lounge') ? 'OK' : reserveHref);
 
-// ── Scénario 4 : hero accueil → recherche → arrivée sur la flotte avec contexte
+// ── Scénario 4 : hero accueil → recherche → arrivée sur le tunnel étape Véhicule
 await page.goto(`${base}/`, { waitUntil: 'networkidle' });
 await page.waitForTimeout(800);
-await page.click('#hero-booking [data-pk-date="date-start"]');
-await page.waitForSelector('#hero-booking [data-pk-popup="dt"]:not([hidden])');
+await page.click('#hero-booking [data-pk-open="range"]');
+await page.waitForSelector('#hero-booking [data-pk-popup="range"]:not([hidden])');
 for (let i = 0; i < 12; i++) {
-  const title = (await page.textContent('#hero-booking [data-pk-cal-title]'))?.trim().toLowerCase();
-  if (title === 'décembre 2026') break;
+  const title = (await page.textContent('#hero-booking [data-pk-month-title]'))?.trim().toLowerCase();
+  if (title?.startsWith('décembre 2026')) break;
   await page.click('#hero-booking [data-pk-next]');
   await page.waitForTimeout(80);
 }
 await page.click('#hero-booking [data-day="2026-12-18"]');
-await page.waitForTimeout(400);
+await page.waitForTimeout(200);
 await page.click('#hero-booking [data-day="2026-12-26"]');
-await page.waitForTimeout(300);
+await page.waitForTimeout(500);
 await page.selectOption('#time-start', '10:00');
 await page.selectOption('#time-end', '16:30');
 await shot('hero-rempli');
 await page.click('#hero-booking .hb-submit');
-await page.waitForURL('**/nos-vehicules**', { timeout: 10000 });
-await page.waitForTimeout(800);
-const heroFlowBanner = await page.textContent('#fleet-context-text').catch(() => null);
-console.log('Hero → flotte avec contexte:', heroFlowBanner?.trim() || 'ÉCHEC');
+await page.waitForURL('**/reservation**', { timeout: 10000 });
+await page.waitForTimeout(1000);
+const heroStep2 = await page.isVisible('.res-step[data-step="2"].is-active');
+const heroCards = await page.locator('.res-veh-card').count();
+console.log('Hero → tunnel étape Véhicule active:', heroStep2, '| cartes affichées:', heroCards);
 
 if (errors.length) {
   console.log('ERREURS JS:', errors.join('\n'));

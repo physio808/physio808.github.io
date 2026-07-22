@@ -91,22 +91,14 @@ const jsonLd = JSON.stringify({
           </dl>
         </div>
 
-        <div class="vd-booking-card" id="vd-booking-card" data-price-low={vehicle.priceLow} data-price-high={vehicle.priceHigh}>
+        <div class="vd-booking-card" id="vd-booking-card">
           <div class="vd-price-row">
-            <div class="vd-price-seasons">
-              <div class="vd-price-season">
-                <span class="vd-price">{vehicle.priceLow}€<span>/jour</span></span>
-                <span class="vd-price-season-label">Basse saison · mai → nov.</span>
-              </div>
-              <div class="vd-price-season-divider"></div>
-              <div class="vd-price-season">
-                <span class="vd-price">{vehicle.priceHigh}€<span>/jour</span></span>
-                <span class="vd-price-season-label">Haute saison · 20 déc. → 20 avr.</span>
-              </div>
+            <div class="vd-price-info">
+              <strong>Tarif selon vos dates</strong>
+              <span>Indiquez vos dates pour obtenir votre prix, kilométrage illimité et assurance inclus.</span>
             </div>
             <span class="badge badge-turquoise">Kilométrage illimité</span>
           </div>
-          <p class="vd-context-total" id="vd-context-total" hidden></p>
           <a href={`/reservation?vehicule=${vehicle.id}`} class="btn btn-primary btn-lg vd-cta">
             Réserver ce véhicule
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -348,39 +340,20 @@ const jsonLd = JSON.stringify({
     flex-wrap: wrap;
   }
 
-  .vd-price {
+  .vd-price-info strong {
+    display: block;
     font-family: var(--font-display);
-    font-size: 2rem;
+    font-size: 1.15rem;
     font-weight: 800;
-    color: var(--color-text);
+    color: var(--color-ink);
   }
 
-  .vd-price span {
-    font-size: 1rem;
-    font-weight: 500;
+  .vd-price-info span {
+    display: block;
+    font-size: 0.82rem;
     color: var(--color-text-muted);
-  }
-
-  .vd-price-seasons {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-  }
-
-  .vd-price-season {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .vd-price-season-label {
-    font-size: 0.72rem;
-    color: var(--color-text-subtle);
-  }
-
-  .vd-price-season-divider {
-    width: 1px;
-    align-self: stretch;
-    background: var(--color-border);
+    margin-top: 3px;
+    max-width: 320px;
   }
 
   .vd-cta {
@@ -415,40 +388,5 @@ const jsonLd = JSON.stringify({
     const cta = document.querySelector('.vd-cta');
     const href = cta?.getAttribute('href');
     if (cta && href) cta.setAttribute('href', `${href}&${qs}`);
-  }
-
-  // Total pour les dates choisies, remise −20% incluse dès 7 jours
-  const ds = search.get('date-start');
-  const de = search.get('date-end');
-  const card = document.getElementById('vd-booking-card');
-  if (ds && de && card) {
-    const isHigh = (d: Date) => {
-      const m = d.getMonth() + 1;
-      const day = d.getDate();
-      if (m === 12) return day >= 20;
-      if (m < 4) return true;
-      if (m === 4) return day <= 20;
-      return false;
-    };
-    const days = Math.max(1, Math.round((new Date(de).getTime() - new Date(ds).getTime()) / 86400000));
-    const low = Number(card.getAttribute('data-price-low'));
-    const high = Number(card.getAttribute('data-price-high'));
-    let gross = 0;
-    const start = new Date(ds + 'T12:00:00');
-    for (let i = 0; i < days; i++) {
-      const d = new Date(start);
-      d.setDate(start.getDate() + i);
-      gross += isHigh(d) ? high : low;
-    }
-    const discounted = days >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
-    const fmtEUR = (n: number) =>
-      (Number.isInteger(n) ? String(n) : n.toFixed(2).replace('.', ',')) + '€';
-    const box = document.getElementById('vd-context-total');
-    if (box) {
-      box.innerHTML = days >= 7
-        ? `Pour vos dates (${days} j) : <strong>${fmtEUR(discounted)}</strong> au lieu de <s>${fmtEUR(gross)}</s> — remise −20% incluse`
-        : `Pour vos dates (${days} j) : <strong>${fmtEUR(discounted)}</strong>`;
-      box.hidden = false;
-    }
   }
 </script>

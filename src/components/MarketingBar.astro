@@ -1,0 +1,160 @@
+---
+const points = [
+  {
+    icon: '<path d="M20 6 9 17l-5-5"/>',
+    text: 'Sans frais cachés',
+  },
+  {
+    icon: '<path d="M12 2 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5z"/>',
+    text: 'Kilométrage illimité inclus',
+  },
+  {
+    icon: '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><path d="M9 14l2 2 4-4"/>',
+    text: 'Annulation gratuite 48h',
+  },
+  {
+    icon: '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>',
+    text: '6 agences sur l\'île',
+  },
+];
+---
+
+<section class="mbar">
+  <div class="mbar-deco" aria-hidden="true"></div>
+  <div class="container mbar-inner">
+    <div class="mbar-lead">
+      <span class="mbar-kicker">Location de voiture en Guadeloupe</span>
+      <h2 class="mbar-title">Réservez en 2 minutes, prenez la route l'esprit libre.</h2>
+    </div>
+
+    <ul class="mbar-points">
+      {points.map((p) => (
+        <li>
+          <span class="mbar-point-icon" set:html={`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">${p.icon}</svg>`} />
+          {p.text}
+        </li>
+      ))}
+    </ul>
+
+    <a href="/reservation" class="mbar-cta">
+      Voir les véhicules
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  .mbar {
+    position: relative;
+    background: var(--gradient-band);
+    overflow: hidden;
+  }
+
+  .mbar-deco {
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1.5px, transparent 1.5px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(100deg, black 0%, transparent 55%);
+    -webkit-mask-image: linear-gradient(100deg, black 0%, transparent 55%);
+    pointer-events: none;
+  }
+
+  .mbar-inner {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-xl);
+    padding-block: var(--spacing-lg);
+    flex-wrap: wrap;
+  }
+
+  .mbar-kicker {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 4px;
+  }
+
+  .mbar-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.2rem, 2.2vw, 1.6rem);
+    font-weight: 800;
+    color: white;
+    max-width: 420px;
+    line-height: 1.25;
+  }
+
+  .mbar-points {
+    display: grid;
+    grid-template-columns: repeat(2, auto);
+    gap: 10px 26px;
+  }
+
+  .mbar-points li {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  .mbar-point-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.16);
+    color: white;
+    flex-shrink: 0;
+  }
+
+  .mbar-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    background: white;
+    color: var(--color-primary);
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 14px 26px;
+    border-radius: var(--radius-full);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+    white-space: nowrap;
+  }
+
+  .mbar-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  }
+
+  @media (max-width: 900px) {
+    .mbar-inner {
+      justify-content: center;
+      text-align: center;
+    }
+    .mbar-title {
+      max-width: 100%;
+    }
+    .mbar-points {
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .mbar-points {
+      grid-template-columns: 1fr;
+      justify-items: center;
+    }
+  }
+</style>

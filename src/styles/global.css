@@ -712,39 +712,148 @@ button { font-family: inherit; }
   color: white;
 }
 
-/* Liste des agences */
+/* Calendrier de période (jusqu'à 3 mois) */
+.pk-popup-range {
+  width: min(1020px, calc(100vw - 24px));
+  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
+}
+
+.pk-range-wrap {
+  position: relative;
+  padding: 0 38px;
+}
+
+.pk-range-wrap .pk-nav {
+  position: absolute;
+  top: 4px;
+}
+
+.pk-range-wrap [data-pk-prev] {
+  left: 0;
+}
+
+.pk-range-wrap [data-pk-next] {
+  right: 0;
+}
+
+.pk-months {
+  display: flex;
+  gap: 30px;
+}
+
+.pk-month {
+  flex: 1;
+  min-width: 0;
+}
+
+.pk-month-title {
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  text-transform: capitalize;
+  padding: 8px 0 10px;
+}
+
+.pk-month-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px 0;
+}
+
+.pk-month-grid .pk-cal-day {
+  height: 40px;
+  border-radius: 0;
+}
+
+.pk-month-grid .pk-cal-day.is-start,
+.pk-month-grid .pk-cal-day.is-end {
+  background: var(--color-ink);
+  color: white;
+  box-shadow: none;
+}
+
+.pk-month-grid .pk-cal-day.is-start {
+  border-radius: 10px 0 0 10px;
+}
+
+.pk-month-grid .pk-cal-day.is-end {
+  border-radius: 0 10px 10px 0;
+}
+
+.pk-month-grid .pk-cal-day.is-start.is-end {
+  border-radius: 10px;
+}
+
+.pk-month-grid .pk-cal-day.in-range {
+  background: var(--color-rose);
+  color: var(--color-primary);
+}
+
+.pk-range-hint {
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--color-text-subtle);
+  padding-top: 10px;
+}
+
+/* Sélecteur d'agence : liste (gauche) + fiche détail (droite) */
+.pk-popup-loc {
+  width: min(760px, calc(100vw - 24px));
+  padding: 0;
+  overflow: hidden;
+}
+
+.pk-popup-loc .pk-popup-head {
+  padding: 16px 18px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.pk-loc-split {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  min-height: 340px;
+}
+
 .pk-loc-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  padding: 10px;
+  max-height: 440px;
+  overflow-y: auto;
+}
+
+.pk-loc-list-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-subtle);
+  padding: 8px 10px 6px;
 }
 
 .pk-loc-item {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 12px;
   width: 100%;
   text-align: left;
-  padding: 13px 14px;
-  border: 1.5px solid var(--color-border);
-  background: white;
+  padding: 12px 12px;
+  border: none;
   border-radius: var(--radius-md);
+  background: transparent;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 
-.pk-loc-item:hover {
-  border-color: var(--color-primary);
-  background: var(--color-rose);
-}
-
+.pk-loc-item:hover,
 .pk-loc-item.is-selected {
-  border-color: var(--color-primary);
+  background: var(--color-bg-soft);
 }
 
 .pk-loc-icon {
-  color: var(--color-primary);
-  margin-top: 2px;
+  color: var(--color-ink);
   flex-shrink: 0;
 }
 
@@ -757,7 +866,7 @@ button { font-family: inherit; }
   display: block;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--color-ink);
 }
 
@@ -765,25 +874,70 @@ button { font-family: inherit; }
   display: block;
   font-size: 0.76rem;
   color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pk-loc-hours {
-  display: block;
-  font-size: 0.74rem;
-  color: var(--color-text-subtle);
-  margin-top: 2px;
+  display: none;
 }
 
 .pk-loc-check {
   color: var(--color-primary);
   opacity: 0;
   flex-shrink: 0;
-  margin-top: 4px;
   transition: opacity var(--transition-fast);
 }
 
 .pk-loc-item.is-selected .pk-loc-check {
   opacity: 1;
+}
+
+/* Fiche détail */
+.pk-loc-detail {
+  background: var(--color-bg-soft);
+  border-left: 1px solid var(--color-border);
+  padding: 22px 22px;
+}
+
+.pk-loc-detail-icon {
+  color: var(--color-ink);
+  margin-bottom: 12px;
+}
+
+.pk-loc-detail-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-ink);
+  margin-bottom: 6px;
+}
+
+.pk-loc-detail-address {
+  font-size: 0.86rem;
+  color: var(--color-text-muted);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.pk-loc-detail-hours {
+  font-size: 0.86rem;
+  color: var(--color-text-body);
+}
+
+.pk-loc-detail-hours-label {
+  display: block;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: 4px;
+}
+
+.pk-sheet.pk-popup-loc .pk-loc-split {
+  grid-template-columns: 1fr;
+}
+
+.pk-sheet .pk-loc-detail {
+  display: none;
 }
 
 /* ========== RESPONSIVE ========== */

@@ -1,0 +1,98 @@
+---
+const points = [
+  { title: 'Tarifs affichés toute l\'année', text: 'Deux saisons, deux prix, zéro surprise au comptoir.' },
+  { title: 'Annulation gratuite jusqu\'à 48h', text: 'Vos plans changent ? Aucun frais, aucune justification.' },
+  { title: 'Kilométrage illimité inclus', text: 'Grande-Terre, Basse-Terre, la Traversée : roulez sans compter.' },
+  { title: 'Flotte récente et entretenue', text: 'Chaque véhicule est révisé et contrôlé avant chaque départ.' },
+  { title: 'Livraison aéroport 24h/24', text: 'Votre voiture vous attend à Pôle Caraïbes, même en vol de nuit.' },
+  { title: 'Zéro frais caché', text: 'Le prix affiché à la réservation est le prix payé. Point.' },
+  { title: 'Une équipe joignable 7j/7', text: 'Téléphone et WhatsApp, même le dimanche, même un jour férié.' },
+  { title: '−20% dès 7 jours', text: 'La remise longue durée s\'applique automatiquement au paiement.' },
+];
+---
+
+<section class="whyus section">
+  <div class="container">
+    <div class="section-header centered animate-on-scroll">
+      <span class="section-badge">Pourquoi Adventura</span>
+      <h2 class="section-title">Bien plus qu'une voiture : <span>la tranquillité</span></h2>
+      <p class="section-subtitle">Un loueur indépendant basé en Guadeloupe, qui connaît chaque route de l'île — et qui mise tout sur la transparence.</p>
+    </div>
+
+    <div class="whyus-grid">
+      {points.map((p, i) => (
+        <div class="whyus-item animate-on-scroll" style={`transition-delay:${(i % 4) * 0.07}s`}>
+          <span class="whyus-check">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <div>
+            <strong>{p.title}</strong>
+            <p>{p.text}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .whyus {
+    background: white;
+  }
+
+  .whyus-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    max-width: 980px;
+    margin: 0 auto;
+  }
+
+  .whyus-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px 20px;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), transform var(--transition-fast);
+  }
+
+  .whyus-item:hover {
+    border-color: rgba(227, 24, 55, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .whyus-check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--color-turquoise);
+    color: white;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .whyus-item strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+
+  .whyus-item p {
+    font-size: 0.84rem;
+    margin-top: 2px;
+  }
+
+  @media (max-width: 768px) {
+    .whyus-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

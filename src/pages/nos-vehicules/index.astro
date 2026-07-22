@@ -324,22 +324,12 @@ const agencesMapJson = JSON.stringify(
       const total = discountApplies ? Math.round(gross * 0.8 * 100) / 100 : gross;
       const perDay = Math.round((total / days) * 100) / 100;
 
-      const fromEl = item.querySelector('.v-card-price-from');
-      const amountEl = item.querySelector('.v-card-price-amount');
-      const unitEl = item.querySelector('.v-card-price-unit');
-      if (fromEl) fromEl.textContent = 'total';
-      if (amountEl) amountEl.textContent = fmtEUR(total);
-      if (unitEl) unitEl.textContent = `/${days} j`;
-
-      // Ligne de détail transparente sous le titre
-      const head = item.querySelector('.v-card-head');
-      if (head && !item.querySelector('.v-card-deal')) {
-        const deal = document.createElement('p');
-        deal.className = 'v-card-deal';
-        deal.innerHTML = discountApplies
-          ? `soit ${fmtEUR(perDay)}/jour · <strong>−20% appliqué</strong> · <s>${fmtEUR(gross)}</s>`
-          : `soit ${fmtEUR(perDay)}/jour pour vos dates`;
-        head.insertAdjacentElement('afterend', deal);
+      // Devis pour les dates choisies (uniquement quand des dates sont renseignées)
+      const quoteEl = item.querySelector('.v-card-quote');
+      if (quoteEl) {
+        quoteEl.innerHTML = discountApplies
+          ? `${fmtEUR(total)} <s>${fmtEUR(gross)}</s><small>total ${days} jours · soit ${fmtEUR(perDay)}/jour · −20% inclus</small>`
+          : `${fmtEUR(total)}<small>total ${days} jours · soit ${fmtEUR(perDay)}/jour</small>`;
       }
 
       // Boutons : réservation directe + fiche avec contexte conservé

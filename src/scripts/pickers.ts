@@ -1,9 +1,9 @@
 /**
- * Popups de sélection (agence + date & heure) pour les formulaires de réservation.
- * S'active sur tout conteneur possédant :
- *  - des déclencheurs [data-pk-open="loc"|"dt"]
- *  - un overlay [data-pk-overlay]
- *  - des popups [data-pk-popup="loc"] et [data-pk-popup="dt"]
+ * Popups de sélection pour les formulaires de réservation :
+ *  - agence  : [data-pk-open="loc"]   + popup [data-pk-popup="loc"]
+ *              (liste à gauche, fiche détail à droite — style agence)
+ *  - période : [data-pk-open="range"]  + popup [data-pk-popup="range"]
+ *              (calendrier 3 mois, sélection départ → retour)
  */
 
 const MONTHS_FR = [
@@ -30,20 +30,18 @@ function fmtD(dateStr: string): string {
   return d.toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short' });
 }
 
-function fmtDT(dateStr: string, timeStr: string): string {
-  return `${fmtD(dateStr)} · ${timeStr}`;
-}
-
-interface DtContext {
-  dateInput: HTMLInputElement;
-  timeInput: HTMLInputElement;
-  label: HTMLElement;
-  trigger: HTMLElement;
+interface RangeContext {
+  startInput: HTMLInputElement;
+  endInput: HTMLInputElement;
+  startLabel: HTMLElement;
+  endLabel: HTMLElement;
+  startTrigger: HTMLElement;
+  endTrigger: HTMLElement;
   min: string;
-  sel: string;
+  selStart: string | null;
+  selEnd: string | null;
   viewY: number;
   viewM: number;
-  chain?: string;
 }
 
 export function setupPickers(rootId: string): void {
@@ -52,12 +50,12 @@ export function setupPickers(rootId: string): void {
 
   const overlay = root.querySelector<HTMLElement>('[data-pk-overlay]');
   const locPopup = root.querySelector<HTMLElement>('[data-pk-popup="loc"]');
-  const dtPopup = root.querySelector<HTMLElement>('[data-pk-popup="dt"]');
+  const rangePopup = root.querySelector<HTMLElement>('[data-pk-popup="range"]');
   if (!overlay) return;
 
   let activePopup: HTMLElement | null = null;
   let locTarget: { input: HTMLInputElement; label: HTMLElement } | null = null;
-  let dt: DtContext | null = null;
+  let rc: RangeContext | null = null;
 
   function close(): void {
     activePopup?.setAttribute('hidden', '');
@@ -71,7 +69,7 @@ export function setupPickers(rootId: string): void {
     overlay!.removeAttribute('hidden');
     popup.removeAttribute('hidden');
 
-    const isSheet = window.matchMedia('(max-width: 640px)').matches;
+    const isSheet = window.matchMedia('(max-width: 720px)').matches;
     popup.classList.toggle('pk-sheet', isSheet);
     if (!isSheet) {
       const r = trigger.getBoundingClientRect();
@@ -102,7 +100,27 @@ export function setupPickers(rootId: string): void {
     btn.addEventListener('click', close);
   });
 
-  /* ── Sélecteur d'agence ─────────────────────────────── */
+  /* ── Sélecteur d'agence (liste + fiche détail) ──────── */
+
+  const locDetail = locPopup?.querySelector<HTMLElement>('[data-pk-loc-detail]');
+
+  function fillDetail(item: HTMLElement): void {
+    if (!locDetail) return;
+    const name = item.getAttribute('data-loc-name') || '';
+    const address = item.getAttribute('data-loc-address') || '';
+    const hours = item.getAttribute('data-loc-hours') || '';
+    locDetail.innerHTML = `
+      <div class="pk-loc-detail-icon">
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </div>
+      <h4 class="pk-loc-detail-name">${name}</h4>
+      <p class="pk-loc-detail-address">${address}</p>
+      <div class="pk-loc-detail-hours">
+        <span class="pk-loc-detail-hours-label">Horaires d'ouverture</span>
+        <span>${hours}</span>
+      </div>
+    `;
+  }
 
   root.querySelectorAll<HTMLElement>('[data-pk-open="loc"]').forEach((trigger) => {
     trigger.addEventListener('click', () => {
@@ -111,11 +129,24 @@ export function setupPickers(rootId: string): void {
       const label = trigger.querySelector<HTMLElement>('[data-pk-label]');
       if (!input || !label) return;
       locTarget = { input, label };
+      let current: HTMLElement | null = null;
       locPopup.querySelectorAll<HTMLElement>('[data-loc-id]').forEach((b) => {
-        b.classList.toggle('is-selected', b.getAttribute('data-loc-id') === input.value);
+        const active = b.getAttribute('data-loc-id') === input.value;
+        b.classList.toggle('is-selected', active);
+        if (active) current = b;
       });
+      if (current) fillDetail(current);
+      else {
+        const first = locPopup.querySelector<HTMLElement>('[data-loc-id]');
+        if (first) fillDetail(first);
+      }
       open(locPopup, trigger);
     });
+  });
+
+  locPopup?.querySelectorAll<HTMLElement>('[data-loc-id]').forEach((item) => {
+    item.addEventListener('mouseenter', () => fillDetail(item));
+    item.addEventListener('focus', () => fillDetail(item));
   });
 
   locPopup?.addEventListener('click', (e) => {
@@ -127,132 +158,151 @@ export function setupPickers(rootId: string): void {
     close();
   });
 
-  /* ── Sélecteur date & heure ─────────────────────────── */
+  /* ── Calendrier de période (3 mois, plage) ──────────── */
 
-  const calGrid = dtPopup?.querySelector<HTMLElement>('[data-pk-cal]');
-  const calTitle = dtPopup?.querySelector<HTMLElement>('[data-pk-cal-title]');
-  const prevBtn = dtPopup?.querySelector<HTMLButtonElement>('[data-pk-prev]');
-  const nextBtn = dtPopup?.querySelector<HTMLButtonElement>('[data-pk-next]');
+  const monthsHost = rangePopup?.querySelector<HTMLElement>('[data-pk-cal]');
+  const prevBtn = rangePopup?.querySelector<HTMLButtonElement>('[data-pk-prev]');
+  const nextBtn = rangePopup?.querySelector<HTMLButtonElement>('[data-pk-next]');
 
-  function renderCal(): void {
-    if (!dt || !calGrid || !calTitle) return;
-    calTitle.textContent = `${MONTHS_FR[dt.viewM]} ${dt.viewY}`;
+  function monthsCount(): number {
+    if (window.matchMedia('(min-width: 1080px)').matches) return 3;
+    if (window.matchMedia('(min-width: 720px)').matches) return 2;
+    return 1;
+  }
 
-    const first = new Date(dt.viewY, dt.viewM, 1);
+  function renderMonth(y: number, m: number): string {
+    if (!rc) return '';
+    const first = new Date(y, m, 1);
     const startCol = (first.getDay() + 6) % 7; // lundi = 0
-    const daysInMonth = new Date(dt.viewY, dt.viewM + 1, 0).getDate();
+    const daysInMonth = new Date(y, m + 1, 0).getDate();
 
-    let html = DOW_FR.map((d) => `<span class="pk-cal-dow">${d}</span>`).join('');
-    for (let i = 0; i < startCol; i++) html += '<span></span>';
+    let cells = DOW_FR.map((d) => `<span class="pk-cal-dow">${d}</span>`).join('');
+    for (let i = 0; i < startCol; i++) cells += '<span></span>';
     for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = iso(dt.viewY, dt.viewM, d);
-      const disabled = dateStr < dt.min;
-      const selected = dateStr === dt.sel;
-      html += `<button type="button" class="pk-cal-day${selected ? ' is-selected' : ''}" data-day="${dateStr}"${disabled ? ' disabled' : ''}>${d}</button>`;
+      const dateStr = iso(y, m, d);
+      const disabled = dateStr < rc.min;
+      const classes = ['pk-cal-day'];
+      if (rc.selStart && dateStr === rc.selStart) classes.push('is-start');
+      if (rc.selEnd && dateStr === rc.selEnd) classes.push('is-end');
+      if (rc.selStart && rc.selEnd && dateStr > rc.selStart && dateStr < rc.selEnd) classes.push('in-range');
+      cells += `<button type="button" class="${classes.join(' ')}" data-day="${dateStr}"${disabled ? ' disabled' : ''}>${d}</button>`;
     }
-    calGrid.innerHTML = html;
 
-    if (prevBtn && dt) {
-      const minD = new Date(dt.min + 'T00:00:00');
-      prevBtn.disabled = dt.viewY * 12 + dt.viewM <= minD.getFullYear() * 12 + minD.getMonth();
+    return `
+      <div class="pk-month">
+        <div class="pk-month-title" data-pk-month-title>${MONTHS_FR[m]} ${y}</div>
+        <div class="pk-month-grid">${cells}</div>
+      </div>
+    `;
+  }
+
+  function renderRange(): void {
+    if (!rc || !monthsHost) return;
+    const count = monthsCount();
+    let html = '';
+    let y = rc.viewY;
+    let m = rc.viewM;
+    for (let i = 0; i < count; i++) {
+      html += renderMonth(y, m);
+      m++;
+      if (m > 11) { m = 0; y++; }
+    }
+    monthsHost.innerHTML = html;
+
+    if (prevBtn) {
+      const minD = new Date(rc.min + 'T00:00:00');
+      prevBtn.disabled = rc.viewY * 12 + rc.viewM <= minD.getFullYear() * 12 + minD.getMonth();
     }
   }
 
-  const hasTimes = Boolean(dtPopup?.querySelector('[data-pk-times]'));
-
-  function commitDt(time: string): void {
-    if (!dt) return;
-    dt.dateInput.value = dt.sel;
-    dt.timeInput.value = time;
-    dt.label.textContent = hasTimes ? fmtDT(dt.sel, time) : fmtD(dt.sel);
-    dt.trigger.classList.add('has-value');
-    dt.dateInput.dispatchEvent(new Event('change', { bubbles: true }));
-    dt.timeInput.dispatchEvent(new Event('change', { bubbles: true }));
-    const chain = dt.chain;
-    close();
-    if (chain) {
-      const chainDate = document.getElementById(chain) as HTMLInputElement | null;
-      const chainTrigger = root!.querySelector<HTMLElement>(`[data-pk-date="${chain}"]`);
-      if (chainTrigger && chainDate && !chainDate.value) {
-        setTimeout(() => chainTrigger.click(), 140);
-      }
-    }
+  function commitRange(): void {
+    if (!rc || !rc.selStart || !rc.selEnd) return;
+    rc.startInput.value = rc.selStart;
+    rc.endInput.value = rc.selEnd;
+    rc.startLabel.textContent = fmtD(rc.selStart);
+    rc.endLabel.textContent = fmtD(rc.selEnd);
+    rc.startTrigger.classList.add('has-value');
+    rc.endTrigger.classList.add('has-value');
+    rc.startInput.dispatchEvent(new Event('change', { bubbles: true }));
+    rc.endInput.dispatchEvent(new Event('change', { bubbles: true }));
+    setTimeout(close, 220);
   }
 
-  calGrid?.addEventListener('click', (e) => {
+  monthsHost?.addEventListener('click', (e) => {
     const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-day]');
-    if (!btn || btn.disabled || !dt) return;
-    dt.sel = btn.getAttribute('data-day') || dt.sel;
-    if (!hasTimes) {
-      // Pas de liste de créneaux dans le popup : la date se valide au clic,
-      // l'heure est choisie via une liste déroulante à côté du champ.
-      commitDt(dt.timeInput.value || dt.trigger.getAttribute('data-pk-default-time') || '09:00');
-      return;
+    if (!btn || btn.disabled || !rc) return;
+    const day = btn.getAttribute('data-day')!;
+
+    if (!rc.selStart || (rc.selStart && rc.selEnd)) {
+      rc.selStart = day;
+      rc.selEnd = null;
+    } else if (day < rc.selStart) {
+      rc.selStart = day;
+    } else if (day === rc.selStart) {
+      rc.selEnd = null;
+    } else {
+      rc.selEnd = day;
     }
-    renderCal();
+
+    renderRange();
+    if (rc.selStart && rc.selEnd) commitRange();
   });
 
   prevBtn?.addEventListener('click', () => {
-    if (!dt) return;
-    dt.viewM--;
-    if (dt.viewM < 0) { dt.viewM = 11; dt.viewY--; }
-    renderCal();
+    if (!rc) return;
+    rc.viewM--;
+    if (rc.viewM < 0) { rc.viewM = 11; rc.viewY--; }
+    renderRange();
   });
 
   nextBtn?.addEventListener('click', () => {
-    if (!dt) return;
-    dt.viewM++;
-    if (dt.viewM > 11) { dt.viewM = 0; dt.viewY++; }
-    renderCal();
+    if (!rc) return;
+    rc.viewM++;
+    if (rc.viewM > 11) { rc.viewM = 0; rc.viewY++; }
+    renderRange();
   });
 
-  dtPopup?.querySelector('[data-pk-times]')?.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLElement>('[data-time]');
-    if (!btn || !dt) return;
-    commitDt(btn.getAttribute('data-time') || '09:00');
-  });
-
-  root.querySelectorAll<HTMLElement>('[data-pk-open="dt"]').forEach((trigger) => {
-    const dateInput = document.getElementById(trigger.getAttribute('data-pk-date') || '') as HTMLInputElement | null;
-    const timeInput = document.getElementById(trigger.getAttribute('data-pk-time') || '') as HTMLInputElement | null;
+  const rangeTriggers = Array.from(root.querySelectorAll<HTMLElement>('[data-pk-open="range"]'));
+  rangeTriggers.forEach((trigger) => {
+    const startInput = document.getElementById(trigger.getAttribute('data-pk-start') || '') as HTMLInputElement | null;
+    const endInput = document.getElementById(trigger.getAttribute('data-pk-end') || '') as HTMLInputElement | null;
     const label = trigger.querySelector<HTMLElement>('[data-pk-label]');
-    if (!dateInput || !timeInput || !label) return;
+    if (!startInput || !endInput || !label) return;
 
-    // Libellé initial si une date est déjà renseignée
-    if (dateInput.value) {
-      label.textContent = hasTimes
-        ? fmtDT(dateInput.value, timeInput.value || trigger.getAttribute('data-pk-default-time') || '09:00')
-        : fmtD(dateInput.value);
+    const isStartTrigger = trigger.getAttribute('data-pk-role') !== 'end';
+    const ownValue = isStartTrigger ? startInput.value : endInput.value;
+    if (ownValue) {
+      label.textContent = fmtD(ownValue);
       trigger.classList.add('has-value');
     }
 
     trigger.addEventListener('click', () => {
-      if (!dtPopup) return;
-      const minFrom = trigger.getAttribute('data-pk-min-from');
-      let min = todayISO();
-      if (minFrom) {
-        const mfVal = (document.getElementById(minFrom) as HTMLInputElement | null)?.value;
-        if (mfVal && mfVal > min) min = mfVal;
-      }
-      const sel = dateInput.value && dateInput.value >= min ? dateInput.value : min;
-      const selD = new Date(sel + 'T00:00:00');
-      dt = {
-        dateInput,
-        timeInput,
-        label,
-        trigger,
+      if (!rangePopup) return;
+      const startTrigger = rangeTriggers.find((t) => t.getAttribute('data-pk-role') !== 'end') || trigger;
+      const endTrigger = rangeTriggers.find((t) => t.getAttribute('data-pk-role') === 'end') || trigger;
+      const startLabel = startTrigger.querySelector<HTMLElement>('[data-pk-label]')!;
+      const endLabel = endTrigger.querySelector<HTMLElement>('[data-pk-label]')!;
+      const min = todayISO();
+      const hasFullRange = Boolean(startInput.value && endInput.value && startInput.value >= min && endInput.value > startInput.value);
+      const selStart = hasFullRange ? startInput.value : null;
+      const selEnd = hasFullRange ? endInput.value : null;
+      const base = selStart || (startInput.value && startInput.value >= min ? startInput.value : min);
+      const baseD = new Date(base + 'T00:00:00');
+      rc = {
+        startInput,
+        endInput,
+        startLabel,
+        endLabel,
+        startTrigger,
+        endTrigger,
         min,
-        sel,
-        viewY: selD.getFullYear(),
-        viewM: selD.getMonth(),
-        chain: trigger.getAttribute('data-pk-chain') || undefined,
+        selStart,
+        selEnd,
+        viewY: baseD.getFullYear(),
+        viewM: baseD.getMonth(),
       };
-      renderCal();
-      const currentTime = timeInput.value || trigger.getAttribute('data-pk-default-time') || '09:00';
-      dtPopup.querySelectorAll<HTMLElement>('[data-time]').forEach((b) => {
-        b.classList.toggle('is-selected', b.getAttribute('data-time') === currentTime);
-      });
-      open(dtPopup, trigger);
+      renderRange();
+      open(rangePopup, startTrigger);
     });
   });
 }

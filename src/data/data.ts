@@ -6,6 +6,8 @@ export interface Vehicle {
   category: string;
   categorySlug: string;
   image: string;
+  /** Visuel détouré (fond transparent) pour les cartes façon studio */
+  imageCutout?: string;
   /** Tarif €/jour basse saison (mai → novembre) */
   priceLow: number;
   /** Tarif €/jour haute saison (20 décembre → 20 avril) */
@@ -61,6 +63,7 @@ export const vehicles: Vehicle[] = [
     category: 'Citadine',
     categorySlug: 'citadine',
     image: '/images/vehicles/suzuki-swift.jpg',
+    imageCutout: '/images/vehicles/cutout-suzuki-swift.png',
     priceLow: 32,
     priceHigh: 48,
     seats: 5,
@@ -91,6 +94,7 @@ export const vehicles: Vehicle[] = [
     category: 'Citadine',
     categorySlug: 'citadine',
     image: '/images/vehicles/fiat-500.jpg',
+    imageCutout: '/images/vehicles/cutout-fiat-500.png',
     priceLow: 28,
     priceHigh: 42,
     seats: 4,
@@ -121,6 +125,7 @@ export const vehicles: Vehicle[] = [
     category: 'SUV urbain',
     categorySlug: 'suv',
     image: '/images/vehicles/kia-stonic.jpg',
+    imageCutout: '/images/vehicles/cutout-kia-stonic.png',
     priceLow: 39,
     priceHigh: 58,
     seats: 5,
