@@ -631,6 +631,18 @@ const args = [
   }
 
   /* ===== Responsive ===== */
+  /* Anti-débordement : les pistes et champs peuvent toujours rétrécir */
+  .hero-inner {
+    grid-template-columns: minmax(0, 440px) minmax(0, 1fr);
+  }
+
+  .hero-card,
+  .hb-fields,
+  .hb-fields > *,
+  .hb-fields :where(input, select, button) {
+    min-width: 0;
+  }
+
   /* Tablette paysage / petit laptop : 2 colonnes resserrées */
   @media (min-width: 901px) and (max-width: 1100px) {
     .hero-inner {
@@ -645,7 +657,7 @@ const args = [
   /* Tablette portrait & mobile paysage : carte élargie, champs sur 2 colonnes */
   @media (min-width: 641px) and (max-width: 900px) {
     .hero-inner {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--spacing-lg);
       min-height: 0;
     }
@@ -686,7 +698,7 @@ const args = [
   /* Mobile portrait : tout empilé */
   @media (max-width: 640px) {
     .hero-inner {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
       gap: var(--spacing-lg);
       min-height: 0;
     }

@@ -770,6 +770,14 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     display: flex;
     flex-direction: column;
     gap: 14px;
+    min-width: 0;
+  }
+
+  .res-fields > *,
+  .res-fields :where(input, select, button),
+  .res-dt,
+  .res-dt > * {
+    min-width: 0;
   }
 
   .res-field label {
