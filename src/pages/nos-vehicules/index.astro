@@ -315,20 +315,22 @@ const agencesMapJson = JSON.stringify(
   if (dateStart && dateEnd) {
     const days = Math.max(1, Math.round((new Date(dateEnd).getTime() - new Date(dateStart).getTime()) / 86400000));
     const bd = seasonBreakdown(dateStart, days);
-    const discountApplies = days >= 7;
+    // Remise longue durée : -5% dès 7 j, -10% dès 14 j, -15% dès 28 j
+    const rate = days >= 28 ? 0.15 : days >= 14 ? 0.1 : days >= 7 ? 0.05 : 0;
+    const discountApplies = rate > 0;
 
     items.forEach((item) => {
       const low = Number(item.getAttribute('data-price'));
       const high = Number(item.getAttribute('data-price-high'));
       const gross = bd.low * low + bd.high * high;
-      const total = discountApplies ? Math.round(gross * 0.8 * 100) / 100 : gross;
+      const total = discountApplies ? Math.round(gross * (1 - rate) * 100) / 100 : gross;
       const perDay = Math.round((total / days) * 100) / 100;
 
       // Devis pour les dates choisies (uniquement quand des dates sont renseignées)
       const quoteEl = item.querySelector('.v-card-quote');
       if (quoteEl) {
         quoteEl.innerHTML = discountApplies
-          ? `${fmtEUR(total)} <s>${fmtEUR(gross)}</s><small>total ${days} jours · soit ${fmtEUR(perDay)}/jour · −20% inclus</small>`
+          ? `${fmtEUR(total)} <s>${fmtEUR(gross)}</s><small>total ${days} jours · soit ${fmtEUR(perDay)}/jour · −${Math.round(rate * 100)}% inclus</small>`
           : `${fmtEUR(total)}<small>total ${days} jours · soit ${fmtEUR(perDay)}/jour</small>`;
       }
 

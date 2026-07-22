@@ -30,8 +30,27 @@ export interface Vehicle {
   available: boolean;
 }
 
-/** Remise longue durée : -20% à partir de 7 jours de location */
-export const LONG_STAY = { minDays: 7, rate: 0.2 };
+/**
+ * Remises longue durée (appliquées automatiquement) :
+ * -5% dès 7 jours (1 semaine), -10% dès 14 jours (2 semaines), -15% dès 28 jours (1 mois).
+ */
+export const LONG_STAY_TIERS = [
+  { minDays: 28, rate: 0.15 },
+  { minDays: 14, rate: 0.1 },
+  { minDays: 7, rate: 0.05 },
+];
+
+/** Taux de remise longue durée pour une durée donnée (0 si < 7 jours) */
+export function longStayRate(days: number): number {
+  for (const tier of LONG_STAY_TIERS) {
+    if (days >= tier.minDays) return tier.rate;
+  }
+  return 0;
+}
+
+/** Forfait livraison : +50€ si l'aéroport Pôle Caraïbes est choisi (départ ou retour) */
+export const AIRPORT_FEE = 50;
+export const AIRPORT_AGENCE_ID = 'aeroport-pole-caraibes';
 
 /**
  * Haute saison : 20 décembre → 20 avril. Basse saison : le reste de l'année.
@@ -76,7 +95,7 @@ export const vehicles: Vehicle[] = [
     ac: true,
     description: 'Citadine récente (2026) en finition GL Plus, agile et économe. Parfaite pour circuler en ville comme sur les routes côtières de l\'île.',
     seoDescription: 'La Suzuki Swift GL Plus 2026 est la citadine idéale pour un séjour en Guadeloupe : compacte pour se garer facilement à Pointe-à-Pitre ou au Gosier, sobre en carburant pour les allers-retours entre Grande-Terre et Basse-Terre, et suffisamment vive pour les montées vers la route de la Traversée. Sa motorisation hybride légère consomme environ 4,4 l/100 km : sur une semaine de location, la différence se sent à la pompe. À bord : climatisation, caméra de recul et compatibilité Apple CarPlay / Android Auto pour suivre votre itinéraire sans data supplémentaire.',
-    metaDescription: 'Louez une Suzuki Swift GL Plus 2026 en Guadeloupe dès 32€/jour. Citadine hybride économe, clim, CarPlay, kilométrage illimité. -20% dès 7 jours.',
+    metaDescription: 'Louez une Suzuki Swift GL Plus 2026 en Guadeloupe dès 32€/jour. Citadine hybride économe, clim, CarPlay, kilométrage illimité. Jusqu\'à -15% en longue durée.',
     features: ['Climatisation', 'Bluetooth / CarPlay', 'Caméra de recul', 'Kilométrage illimité'],
     techSpecs: [
       { label: 'Motorisation', value: '1.2 Dualjet mild-hybrid, 83 ch' },
@@ -108,7 +127,7 @@ export const vehicles: Vehicle[] = [
     ac: true,
     description: 'L\'iconique citadine italienne en finition Lounge, coloris noir. Compacte, stylée et facile à garer partout en Guadeloupe.',
     seoDescription: 'Notre Fiat 500 Lounge noire (2018) est le meilleur prix de la flotte — et sûrement la voiture la plus facile à vivre de l\'île. Avec ses 3,57 m, elle se gare dans les ruelles de Saint-François ou sur les parkings bondés de la plage de la Caravelle quand les autres renoncent. Son toit panoramique en verre fait entrer la lumière des Antilles à bord, et sa boîte 5 souple pardonne tout dans les embouteillages de Pointe-à-Pitre. Idéale pour un couple qui voyage léger, moins adaptée si vous partez à 4 avec les valises.',
-    metaDescription: 'Fiat 500 Lounge noire à louer en Guadeloupe dès 28€/jour. Toit panoramique, clim, stationnement facile. Le meilleur prix Adventura, -20% dès 7 jours.',
+    metaDescription: 'Fiat 500 Lounge noire à louer en Guadeloupe dès 28€/jour. Toit panoramique, clim, stationnement facile. Le meilleur prix Adventura, jusqu\'à -15% en longue durée.',
     features: ['Climatisation', 'Toit panoramique', 'Bluetooth', 'Kilométrage illimité'],
     techSpecs: [
       { label: 'Motorisation', value: '1.2 8v essence, 69 ch' },
@@ -140,7 +159,7 @@ export const vehicles: Vehicle[] = [
     ac: true,
     description: 'SUV urbain coloris blanc, position de conduite surélevée et grand coffre. Le bon compromis confort / budget pour les familles.',
     seoDescription: 'Le Kia Stonic blanc est le choix des familles et des voyageurs chargés : 352 litres de coffre — deux grosses valises plus les sacs de plage —, une garde au sol surélevée appréciable sur les routes dégradées de la côte sous le vent, et une position de conduite haute qui rassure sur les ronds-points guadeloupéens. Son moteur 1.0 turbo de 100 ch emmène 5 personnes sans forcer, y compris dans les lacets qui montent vers les Chutes du Carbet. Climatisation efficace, CarPlay et régulateur de série.',
-    metaDescription: 'Louez un Kia Stonic (SUV urbain) en Guadeloupe dès 39€/jour. Grand coffre 352L, 5 places, position haute, clim. Idéal familles, -20% dès 7 jours.',
+    metaDescription: 'Louez un Kia Stonic (SUV urbain) en Guadeloupe dès 39€/jour. Grand coffre 352L, 5 places, position haute, clim. Idéal familles, jusqu\'à -15% en longue durée.',
     features: ['Climatisation', 'Bluetooth / CarPlay', 'Régulateur de vitesse', 'Kilométrage illimité'],
     techSpecs: [
       { label: 'Motorisation', value: '1.0 T-GDi turbo, 100 ch' },
@@ -195,7 +214,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'Les vrais prix, saison par saison',
         paragraphs: [
-          "En Guadeloupe, la location suit deux saisons bien distinctes. De mai à novembre (basse saison), une citadine correcte se loue entre 25 et 40€ par jour. Du 20 décembre au 20 avril, la demande explose avec les vols depuis la métropole : comptez 40 à 60€ pour le même véhicule. Chez Adventura, notre Fiat 500 passe par exemple de 28€ à 42€ par jour entre les deux périodes — et nous appliquons automatiquement -20% dès 7 jours de location, toute l'année.",
+          "En Guadeloupe, la location suit deux saisons bien distinctes. De mai à novembre (basse saison), une citadine correcte se loue entre 25 et 40€ par jour. Du 20 décembre au 20 avril, la demande explose avec les vols depuis la métropole : comptez 40 à 60€ pour le même véhicule. Chez Adventura, notre Fiat 500 passe par exemple de 28€ à 42€ par jour entre les deux périodes — et nous appliquons automatiquement une remise longue durée : -5% dès 7 jours, -10% dès 14 jours et -15% dès 28 jours, toute l'année.",
           "Un conseil que peu de gens suivent : si vos dates sont flexibles, décaler votre séjour de fin décembre à mi-janvier ne change presque rien au climat, mais beaucoup à la facture.",
         ],
       },
@@ -307,7 +326,7 @@ export const blogPosts: BlogPost[] = [
       {
         heading: 'Notre grille de décision, en résumé',
         paragraphs: [
-          "Couple + Grande-Terre + budget serré : Fiat 500 Lounge, dès 28€/jour. Couple ou trio + programme mixte : Suzuki Swift, le meilleur équilibre de la flotte. Famille, gros bagages ou logement sur Basse-Terre : Kia Stonic, dès 39€/jour. Et dans tous les cas, à partir de 7 jours de location, la remise de 20% s'applique automatiquement — sur une semaine, elle paie presque deux jours de voiture.",
+          "Couple + Grande-Terre + budget serré : Fiat 500 Lounge, dès 28€/jour. Couple ou trio + programme mixte : Suzuki Swift, le meilleur équilibre de la flotte. Famille, gros bagages ou logement sur Basse-Terre : Kia Stonic, dès 39€/jour. Et dans tous les cas, la remise longue durée s'applique automatiquement : -5% dès 7 jours, -10% dès 14 jours, -15% dès 28 jours.",
         ],
       },
     ],
@@ -316,7 +335,7 @@ export const blogPosts: BlogPost[] = [
     id: 'road-trip-7-jours-guadeloupe',
     title: "Road trip de 7 jours en Guadeloupe : l'itinéraire qu'on conseille à nos clients",
     excerpt: "Jour par jour, l'itinéraire que nous recommandons depuis des années : temps de route réels, bons créneaux pour éviter la foule, et où faire le plein.",
-    metaDescription: "Itinéraire road trip 7 jours en Guadeloupe avec voiture de location : étapes jour par jour, temps de trajet réels, conseils d'un loueur local. -20% dès 7 jours.",
+    metaDescription: "Itinéraire road trip 7 jours en Guadeloupe avec voiture de location : étapes jour par jour, temps de trajet réels, conseils d'un loueur local. Jusqu'à -15% en longue durée.",
     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80',
     category: 'Itinéraires',
     author: "L'équipe Adventura",
@@ -326,7 +345,7 @@ export const blogPosts: BlogPost[] = [
     content: [
       {
         paragraphs: [
-          "Sept jours, c'est la durée idéale pour un premier séjour : assez pour voir les deux ailes du papillon sans courir, et c'est justement à partir de 7 jours que notre remise de 20% s'applique. Voici l'itinéraire que nous conseillons à nos clients, affiné au fil de leurs retours. Les temps de route sont réels, pas ceux du GPS un jour sans trafic.",
+          "Sept jours, c'est la durée idéale pour un premier séjour : assez pour voir les deux ailes du papillon sans courir, et c'est justement à partir de 7 jours que notre remise longue durée s'applique (-5%, puis -10% dès 14 jours et -15% dès 28 jours). Voici l'itinéraire que nous conseillons à nos clients, affiné au fil de leurs retours. Les temps de route sont réels, pas ceux du GPS un jour sans trafic.",
         ],
       },
       {
@@ -427,6 +446,16 @@ export const agences: Agence[] = [
     lat: 16.2653,
     lng: -61.5321,
     badge: 'Livraison gratuite',
+  },
+  {
+    id: 'petit-canal',
+    name: 'Petit-Canal',
+    address: 'Centre-ville de Petit-Canal, 97131 Petit-Canal',
+    hours: '9h - 18h, Lun - Sam',
+    phone: '06 90 48 47 76',
+    lat: 16.3767,
+    lng: -61.4933,
+    badge: 'Livraison',
   },
   {
     id: 'pointe-a-pitre',

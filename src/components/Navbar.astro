@@ -1,4 +1,10 @@
 ---
+export interface Props {
+  hideBand?: boolean;
+}
+
+const { hideBand = false } = Astro.props;
+
 const navLinks = [
   { href: '/', label: 'Accueil' },
   { href: '/nos-vehicules', label: 'Nos Véhicules' },
@@ -29,9 +35,9 @@ const isActive = (href: string) =>
       </a>
 
       <div class="nav-topbar-right">
-        <a href="mailto:contact@adventura-guadeloupe.fr" class="nav-topbar-item nav-topbar-mail">
+        <a href="mailto:Adventurarentals@gmail.com" class="nav-topbar-item nav-topbar-mail">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          <span>contact@adventura-guadeloupe.fr</span>
+          <span>Adventurarentals@gmail.com</span>
         </a>
         <!-- Hamburger (mobile) -->
         <button id="menu-toggle" class="hamburger" aria-label="Menu" aria-expanded="false">
@@ -43,7 +49,8 @@ const isActive = (href: string) =>
     </div>
   </div>
 
-  <!-- Nav band: rouge charte -->
+  <!-- Nav band: rouge charte (masquée dans le tunnel de réservation) -->
+  {!hideBand && (
   <div class="nav-band" id="nav-band">
     <nav class="container nav-band-inner" aria-label="Navigation principale">
       <div class="nav-band-links">
@@ -59,6 +66,7 @@ const isActive = (href: string) =>
       </a>
     </nav>
   </div>
+  )}
 
   <!-- Mobile Menu -->
   <div id="mobile-menu" class="mobile-menu" role="navigation" aria-label="Navigation mobile">

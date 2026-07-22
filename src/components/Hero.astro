@@ -1,8 +1,6 @@
 ---
 import { agences } from '../data/data';
 
-const today = new Date().toISOString().split('T')[0];
-
 const timeSlots: string[] = [];
 for (let h = 7; h <= 19; h++) {
   timeSlots.push(`${String(h).padStart(2, '0')}:00`);
@@ -143,7 +141,7 @@ const args = [
         </div>
       </div>
 
-      <input type="hidden" id="date-start" name="date-start" value={today} />
+      <input type="hidden" id="date-start" name="date-start" value="" />
       <input type="hidden" id="date-end" name="date-end" value="" />
 
       <button type="submit" class="hb-submit">Voir les véhicules</button>

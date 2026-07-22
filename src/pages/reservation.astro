@@ -1,8 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { agences, vehicles } from '../data/data';
-
-const today = new Date().toISOString().split('T')[0];
+import { agences, vehicles, LONG_STAY_TIERS, AIRPORT_FEE, AIRPORT_AGENCE_ID } from '../data/data';
 
 const timeSlots: string[] = [];
 for (let h = 7; h <= 19; h++) {
@@ -27,7 +25,7 @@ const protections = [
     strike: null as number | null,
     remise: null as string | null,
     stars: 0,
-    franchise: 'Franchise : jusqu\'à 800€',
+    franchise: 'Franchise : jusqu\'à 900€',
     franchiseOk: false,
     covers: [false, false, false, true, false],
   },
@@ -109,11 +107,13 @@ const stepTitles: Record<number, string> = {
   5: 'REVOIR VOTRE RÉSERVATION',
 };
 const stepTitlesJson = JSON.stringify(stepTitles);
+const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_AGENCE_ID, tiers: LONG_STAY_TIERS });
 ---
 
 <BaseLayout
   title="Réservation"
   description="Réservez votre voiture en Guadeloupe en quelques minutes : véhicule, protection, options et confirmation immédiate. Kilométrage illimité inclus."
+  hideBand
 >
   <section class="res" id="res-app">
     <!-- Barre de tunnel façon Sixt : titre d'étape + total + action -->
@@ -212,7 +212,7 @@ const stepTitlesJson = JSON.stringify(stepTitles);
               </div>
             </div>
 
-            <input type="hidden" id="res-date-start" value={today} />
+            <input type="hidden" id="res-date-start" value="" />
             <input type="hidden" id="res-date-end" value="" />
           </div>
 
@@ -540,6 +540,7 @@ const stepTitlesJson = JSON.stringify(stepTitles);
 <script type="application/json" id="res-protections-data" set:html={protectionsJson}></script>
 <script type="application/json" id="res-badges-data" set:html={badgesJson}></script>
 <script type="application/json" id="res-step-titles" set:html={stepTitlesJson}></script>
+<script type="application/json" id="res-config-data" set:html={configJson}></script>
 
 <style>
   /* ============ BARRE DE TUNNEL (style Sixt) ============ */
@@ -2259,8 +2260,27 @@ const stepTitlesJson = JSON.stringify(stepTitles);
   const protectionsData: SimpleProtection[] = JSON.parse(document.getElementById('res-protections-data')?.textContent || '[]');
   const badgesData: Record<string, string> = JSON.parse(document.getElementById('res-badges-data')?.textContent || '{}');
   const stepTitles: Record<string, string> = JSON.parse(document.getElementById('res-step-titles')?.textContent || '{}');
+  const config: { airportFee: number; airportId: string; tiers: { minDays: number; rate: number }[] } =
+    JSON.parse(document.getElementById('res-config-data')?.textContent || '{}');
 
   const FLEX_PRICE_PER_DAY = 4; // Option « Restez flexible » (+4€/jour, façon Sixt)
+  const AIRPORT_FEE = config.airportFee ?? 50;
+  const AIRPORT_ID = config.airportId ?? 'aeroport-pole-caraibes';
+  const TIERS = config.tiers ?? [{ minDays: 7, rate: 0.05 }];
+
+  /** Taux de remise longue durée : -5% dès 7 j, -10% dès 14 j, -15% dès 28 j */
+  function discountRate(days: number): number {
+    for (const t of TIERS) if (days >= t.minDays) return t.rate;
+    return 0;
+  }
+
+  /** Forfait +50€ si l'aéroport est choisi au départ ou au retour */
+  function airportFeeApplies(): boolean {
+    const pu = (document.getElementById('res-pickup') as HTMLInputElement | null)?.value;
+    const sameChecked = (document.getElementById('res-same-location') as HTMLInputElement | null)?.checked;
+    const doVal = sameChecked ? (document.getElementById('res-dropoff') as HTMLInputElement | null)?.value : pu;
+    return pu === AIRPORT_ID || doVal === AIRPORT_ID;
+  }
 
   function syncLocLabel(inputId: string): void {
     const input = document.getElementById(inputId) as HTMLInputElement | null;
@@ -2337,10 +2357,12 @@ const stepTitlesJson = JSON.stringify(stepTitles);
     const duration = getDuration();
     const vehicle = vehiclesData.find((v) => v.id === selectedVehicleId) || null;
     const gross = vehicle ? vehicleGross(vehicle, duration) : 0;
-    const discount = duration >= 7 && gross > 0 ? Math.round(gross * 0.2 * 100) / 100 : 0;
+    const rate = discountRate(duration);
+    const discount = rate > 0 && gross > 0 ? Math.round(gross * rate * 100) / 100 : 0;
     const protection = protectionsData.find((p) => p.id === selectedProtection) || protectionsData[0];
     const protectionTotal = protection ? protection.price * duration : 0;
     const flexTotal = paymentOption === 'flex' ? FLEX_PRICE_PER_DAY * duration : 0;
+    const airportFee = airportFeeApplies() ? AIRPORT_FEE : 0;
 
     let extrasTotal = 0;
     const chosenExtras: { label: string; total: number }[] = [];
@@ -2353,8 +2375,8 @@ const stepTitlesJson = JSON.stringify(stepTitles);
       }
     });
 
-    const grand = Math.round((gross - discount + protectionTotal + extrasTotal + flexTotal) * 100) / 100;
-    return { duration, vehicle, gross, discount, protection, protectionTotal, chosenExtras, extrasTotal, flexTotal, grand };
+    const grand = Math.round((gross - discount + protectionTotal + extrasTotal + flexTotal + airportFee) * 100) / 100;
+    return { duration, vehicle, gross, rate, discount, protection, protectionTotal, chosenExtras, extrasTotal, flexTotal, airportFee, grand };
   }
 
   function updateSummary() {
@@ -2376,7 +2398,8 @@ const stepTitlesJson = JSON.stringify(stepTitles);
     const t = computeTotals();
     const rows: string[] = [];
     if (t.vehicle) rows.push(`<div class="res-pop-row"><span>Véhicule (${t.duration} jour${t.duration > 1 ? 's' : ''})</span><span>${fmtEUR(t.gross)}</span></div>`);
-    if (t.discount > 0) rows.push(`<div class="res-pop-row is-discount"><span>Remise −20% (7 jours et +)</span><span>−${fmtEUR(t.discount)}</span></div>`);
+    if (t.discount > 0) rows.push(`<div class="res-pop-row is-discount"><span>Remise longue durée −${Math.round(t.rate * 100)}%</span><span>−${fmtEUR(t.discount)}</span></div>`);
+    if (t.airportFee > 0) rows.push(`<div class="res-pop-row"><span>Livraison aéroport Pôle Caraïbes</span><span>+${fmtEUR(t.airportFee)}</span></div>`);
     if (t.flexTotal > 0) rows.push(`<div class="res-pop-row"><span>Option Restez flexible</span><span>+${fmtEUR(t.flexTotal)}</span></div>`);
     if (t.protection) rows.push(`<div class="res-pop-row"><span>${t.protection.name}</span><span>${t.protection.price === 0 ? 'Incluse' : '+' + fmtEUR(t.protectionTotal)}</span></div>`);
     t.chosenExtras.forEach((e) => rows.push(`<div class="res-pop-row"><span>${e.label}</span><span>+${fmtEUR(e.total)}</span></div>`));
@@ -2412,7 +2435,8 @@ const stepTitlesJson = JSON.stringify(stepTitles);
 
     const priced = list.map((v) => {
       const gross = vehicleGross(v, duration);
-      const discounted = duration >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
+      const rate = discountRate(duration);
+      const discounted = rate > 0 ? Math.round(gross * (1 - rate) * 100) / 100 : gross;
       const perDay = Math.round((discounted / duration) * 100) / 100;
       return { v, gross, discounted, perDay };
     });
@@ -2426,7 +2450,7 @@ const stepTitlesJson = JSON.stringify(stepTitles);
 
     grid.innerHTML = priced.map(({ v, discounted, perDay }) => {
       const badge = badgesData[v.id] ? `<span class="vc-badge">${badgesData[v.id]}</span>` : '';
-      const deal = duration >= 7 ? '<span class="vc-deal">Offre exceptionnelle</span>' : '';
+      const deal = discountRate(duration) > 0 ? '<span class="vc-deal">Offre exceptionnelle</span>' : '';
       return `
         <article class="vc ${v.id === selectedVehicleId ? 'is-selected' : ''}" data-veh-id="${v.id}" tabindex="0" role="button" aria-label="Choisir ${v.name}">
           <div class="vc-name">${v.name}</div>
@@ -2452,7 +2476,7 @@ const stepTitlesJson = JSON.stringify(stepTitles);
             <strong>${fmtEUR(perDay)} <small>/jour</small></strong>
             <span>${fmtEUR(discounted)} total</span>
           </div>
-          <div class="vc-foot"><strong>ADVENTURA</strong> −20% dès 7 jours de location, appliqué automatiquement</div>
+          <div class="vc-foot"><strong>ADVENTURA</strong> −5% dès 7 jours · jusqu'à −15% en longue durée</div>
         </article>
       `;
     }).join('');
@@ -2516,7 +2540,8 @@ const stepTitlesJson = JSON.stringify(stepTitles);
   function refreshVehPanelPrice(v: SimpleVehicle) {
     const duration = getDuration();
     const gross = vehicleGross(v, duration);
-    const discounted = duration >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
+    const rate = discountRate(duration);
+    const discounted = rate > 0 ? Math.round(gross * (1 - rate) * 100) / 100 : gross;
     const flex = paymentOption === 'flex' ? FLEX_PRICE_PER_DAY * duration : 0;
     const total = Math.round((discounted + flex) * 100) / 100;
     const perDay = Math.round((total / duration) * 100) / 100;

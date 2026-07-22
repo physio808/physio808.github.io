@@ -40,6 +40,7 @@ interface RangeContext {
   min: string;
   selStart: string | null;
   selEnd: string | null;
+  hoverEnd: string | null;
   viewY: number;
   viewM: number;
 }
@@ -208,6 +209,8 @@ export function setupPickers(rootId: string): void {
       if (rc.selStart && dateStr === rc.selStart) classes.push('is-start');
       if (rc.selEnd && dateStr === rc.selEnd) classes.push('is-end');
       if (rc.selStart && rc.selEnd && dateStr > rc.selStart && dateStr < rc.selEnd) classes.push('in-range');
+      // Aperçu de la plage au survol (avant le clic sur la date de retour)
+      if (rc.selStart && !rc.selEnd && rc.hoverEnd && dateStr > rc.selStart && dateStr <= rc.hoverEnd) classes.push('in-range');
       cells += `<button type="button" class="${classes.join(' ')}" data-day="${dateStr}"${disabled ? ' disabled' : ''}>${d}</button>`;
     }
 
@@ -271,6 +274,24 @@ export function setupPickers(rootId: string): void {
     if (rc.selStart && rc.selEnd) commitRange();
   });
 
+  // Aperçu de la plage quand la souris glisse vers la date de retour (style Sixt)
+  monthsHost?.addEventListener('mouseover', (e) => {
+    if (!rc || !rc.selStart || rc.selEnd) return;
+    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-day]');
+    if (!btn || btn.disabled) return;
+    const day = btn.getAttribute('data-day')!;
+    if (day !== rc.hoverEnd) {
+      rc.hoverEnd = day;
+      renderRange();
+    }
+  });
+
+  monthsHost?.addEventListener('mouseleave', () => {
+    if (!rc || !rc.hoverEnd) return;
+    rc.hoverEnd = null;
+    renderRange();
+  });
+
   prevBtn?.addEventListener('click', () => {
     if (!rc) return;
     rc.viewM--;
@@ -321,6 +342,7 @@ export function setupPickers(rootId: string): void {
         min,
         selStart,
         selEnd,
+        hoverEnd: null,
         viewY: baseD.getFullYear(),
         viewM: baseD.getMonth(),
       };

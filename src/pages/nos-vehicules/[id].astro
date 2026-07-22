@@ -44,7 +44,7 @@ const jsonLd = JSON.stringify({
   <section class="vd-hero">
     <div class="container vd-hero-grid">
       <div class="vd-gallery animate-on-scroll">
-        <img src={vehicle.image} alt={vehicle.name} />
+        <img src={vehicle.imageCutout || vehicle.image} alt={vehicle.name} />
         {vehicle.badge && <span class="vd-badge">{vehicle.badge}</span>}
       </div>
 
@@ -103,7 +103,7 @@ const jsonLd = JSON.stringify({
             Réserver ce véhicule
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </a>
-          <p class="vd-discount-note">−20% appliqué automatiquement dès 7 jours de location.</p>
+          <p class="vd-discount-note">Remise longue durée automatique : −5% dès 7 jours, −10% dès 14 jours, −15% dès 28 jours.</p>
         </div>
       </div>
     </div>
@@ -143,12 +143,16 @@ const jsonLd = JSON.stringify({
     aspect-ratio: 4 / 3;
     position: sticky;
     top: calc(var(--nav-height) + var(--spacing-lg));
+    background: radial-gradient(ellipse 130% 95% at 50% 108%, #454C56 0%, #262B33 52%, #14161A 100%);
   }
 
   .vd-gallery img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    object-position: center;
+    padding: 8%;
+    filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.5));
   }
 
   .vd-badge {
