@@ -1584,6 +1584,27 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     .res-review-card { position: static; }
   }
 
+  /* Tablette : la barre laisse respirer le titre au lieu de le tronquer */
+  @media (min-width: 721px) and (max-width: 1100px) {
+    .res-bar-inner {
+      gap: 10px;
+    }
+
+    .res-bar-title {
+      font-size: 1.02rem;
+      white-space: normal;
+      line-height: 1.15;
+    }
+
+    .res-bar-right {
+      gap: 14px;
+    }
+
+    .res-bar-next {
+      padding: 13px 22px;
+    }
+  }
+
   @media (max-width: 720px) {
     .res-bar-inner {
       flex-wrap: wrap;
@@ -2362,7 +2383,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     const protection = protectionsData.find((p) => p.id === selectedProtection) || protectionsData[0];
     const protectionTotal = protection ? protection.price * duration : 0;
     const flexTotal = paymentOption === 'flex' ? FLEX_PRICE_PER_DAY * duration : 0;
-    const airportFee = airportFeeApplies() ? AIRPORT_FEE : 0;
+    const airportFee = vehicle && airportFeeApplies() ? AIRPORT_FEE : 0;
 
     let extrasTotal = 0;
     const chosenExtras: { label: string; total: number }[] = [];
@@ -2375,7 +2396,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
       }
     });
 
-    const grand = Math.round((gross - discount + protectionTotal + extrasTotal + flexTotal + airportFee) * 100) / 100;
+    const grand = vehicle ? Math.round((gross - discount + protectionTotal + extrasTotal + flexTotal + airportFee) * 100) / 100 : 0;
     return { duration, vehicle, gross, rate, discount, protection, protectionTotal, chosenExtras, extrasTotal, flexTotal, airportFee, grand };
   }
 
@@ -2383,8 +2404,11 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     const t = computeTotals();
     const totalEl = document.getElementById('res-bar-total');
     if (totalEl) {
-      totalEl.textContent = fmtEUR(t.grand);
-      totalEl.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 250, easing: 'ease-out' });
+      // Aucun montant affiché tant qu'aucune voiture n'est choisie
+      totalEl.textContent = t.vehicle ? fmtEUR(t.grand) : '—';
+      if (t.vehicle) {
+        totalEl.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 250, easing: 'ease-out' });
+      }
     }
   }
 
@@ -2442,11 +2466,6 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     });
     if (sortMode === 'price-asc') priced.sort((a, b) => a.perDay - b.perDay);
     if (sortMode === 'price-desc') priced.sort((a, b) => b.perDay - a.perDay);
-
-    // Pré-sélection du véhicule recommandé : le total s'affiche dès l'arrivée (ancrage prix)
-    if (!selectedVehicleId && priced.length > 0) {
-      selectedVehicleId = priced[0].v.id;
-    }
 
     grid.innerHTML = priced.map(({ v, discounted, perDay }) => {
       const badge = badgesData[v.id] ? `<span class="vc-badge">${badgesData[v.id]}</span>` : '';

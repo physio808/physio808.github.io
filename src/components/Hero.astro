@@ -631,7 +631,60 @@ const args = [
   }
 
   /* ===== Responsive ===== */
-  @media (max-width: 1024px) {
+  /* Tablette paysage / petit laptop : 2 colonnes resserrées */
+  @media (min-width: 901px) and (max-width: 1100px) {
+    .hero-inner {
+      gap: var(--spacing-lg);
+    }
+
+    .hero-side {
+      padding: var(--spacing-lg);
+    }
+  }
+
+  /* Tablette portrait & mobile paysage : carte élargie, champs sur 2 colonnes */
+  @media (min-width: 641px) and (max-width: 900px) {
+    .hero-inner {
+      grid-template-columns: 1fr;
+      gap: var(--spacing-lg);
+      min-height: 0;
+    }
+
+    .hero-card {
+      max-width: 660px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .hb-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .hb-fields > * {
+      grid-column: span 2;
+    }
+
+    /* Dates départ/retour côte à côte */
+    .hb-fields > .hb-field:has(.hb-dt) {
+      grid-column: span 1;
+    }
+
+    .hero-side {
+      justify-self: center;
+      max-width: 660px;
+    }
+
+    .hero-side-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px 26px;
+    }
+  }
+
+  /* Mobile portrait : tout empilé */
+  @media (max-width: 640px) {
     .hero-inner {
       grid-template-columns: 1fr;
       gap: var(--spacing-lg);
@@ -648,13 +701,12 @@ const args = [
       justify-self: center;
       max-width: 560px;
     }
-  }
 
-  @media (max-width: 640px) {
     .hero-card,
     .hero-side {
       padding: var(--spacing-md);
     }
+
     .hero-side-list {
       gap: 16px;
     }
