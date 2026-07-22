@@ -651,13 +651,13 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
     font-size: 0.98rem;
     cursor: pointer;
     white-space: nowrap;
-    box-shadow: 0 6px 18px rgba(143, 29, 46, 0.4);
+    box-shadow: 0 6px 18px rgba(227, 24, 55, 0.4);
     transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .res-bar-next:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(143, 29, 46, 0.5);
+    box-shadow: 0 10px 24px rgba(227, 24, 55, 0.5);
   }
 
   /* Popover détail du prix */
@@ -930,7 +930,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
 
   .res-cta:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(143, 29, 46, 0.4);
+    box-shadow: 0 12px 30px rgba(227, 24, 55, 0.4);
   }
 
   /* ============ ÉTAPE 2 : toolbar ============ */
@@ -1648,7 +1648,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
 
   .vc.is-selected {
     border-color: var(--color-primary);
-    box-shadow: 0 0 0 1px var(--color-primary), 0 18px 44px rgba(143, 29, 46, 0.25);
+    box-shadow: 0 0 0 1px var(--color-primary), 0 18px 44px rgba(227, 24, 55, 0.25);
   }
 
   .vc-name {
@@ -2815,7 +2815,7 @@ const configJson = JSON.stringify({ airportFee: AIRPORT_FEE, airportId: AIRPORT_
   function spawnConfetti() {
     const container = document.querySelector('.res-confetti');
     if (!container) return;
-    const colors = ['#8F1D2E', '#FF6B35', '#00A98F', '#E8A413'];
+    const colors = ['#E31837', '#FF6B35', '#00A98F', '#E8A413'];
     for (let i = 0; i < 40; i++) {
       const piece = document.createElement('span');
       piece.style.left = `${Math.random() * 100}%`;
