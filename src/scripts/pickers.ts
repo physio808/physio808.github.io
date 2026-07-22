@@ -109,16 +109,29 @@ export function setupPickers(rootId: string): void {
     const name = item.getAttribute('data-loc-name') || '';
     const address = item.getAttribute('data-loc-address') || '';
     const hours = item.getAttribute('data-loc-hours') || '';
+    const is247 = hours.includes('24h/24');
+    const isAirport = item.getAttribute('data-loc-icon') === 'plane';
+    const iconSvg = isAirport
+      ? '<svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>'
+      : '<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>';
     locDetail.innerHTML = `
-      <div class="pk-loc-detail-icon">
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="pk-loc-detail-top">
+        <div class="pk-loc-detail-icon">${iconSvg}</div>
+        ${is247 ? `<span class="pk-loc-detail-pill">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          Retour 24 heures sur 24</span>` : ''}
       </div>
       <h4 class="pk-loc-detail-name">${name}</h4>
       <p class="pk-loc-detail-address">${address}</p>
       <div class="pk-loc-detail-hours">
-        <span class="pk-loc-detail-hours-label">Horaires d'ouverture</span>
-        <span>${hours}</span>
+        <span class="pk-loc-detail-hours-label">Heures d'ouverture</span>
+        <span class="pk-loc-detail-hours-row"><span>Lundi - Dimanche :</span><span>${hours}</span></span>
+        <span class="pk-loc-detail-hours-row"><span>Jours fériés :</span><span>${hours}</span></span>
       </div>
+      <a class="pk-loc-detail-link" href="/nos-agences">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="11" x2="12" y2="16" stroke="white" stroke-width="2"/><line x1="12" y1="8" x2="12.01" y2="8" stroke="white" stroke-width="2"/></svg>
+        Détails de la station
+      </a>
     `;
   }
 
@@ -154,6 +167,15 @@ export function setupPickers(rootId: string): void {
     if (!btn || !locTarget) return;
     locTarget.input.value = btn.getAttribute('data-loc-id') || '';
     locTarget.label.textContent = btn.getAttribute('data-loc-name') || '';
+    // Icône du déclencheur : avion pour l'aéroport, pin sinon (style Sixt)
+    const triggerEl = locTarget.label.closest<HTMLElement>('.pk-trigger');
+    const iconEl = triggerEl?.querySelector<HTMLElement>('[data-pk-icon]');
+    if (iconEl) {
+      iconEl.innerHTML = btn.getAttribute('data-loc-icon') === 'plane'
+        ? '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>'
+        : '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2"/>';
+      iconEl.setAttribute('fill', btn.getAttribute('data-loc-icon') === 'plane' ? 'currentColor' : 'none');
+    }
     locTarget.input.dispatchEvent(new Event('change', { bubbles: true }));
     close();
   });
@@ -182,6 +204,7 @@ export function setupPickers(rootId: string): void {
       const dateStr = iso(y, m, d);
       const disabled = dateStr < rc.min;
       const classes = ['pk-cal-day'];
+      if (dateStr === todayISO()) classes.push('is-today');
       if (rc.selStart && dateStr === rc.selStart) classes.push('is-start');
       if (rc.selEnd && dateStr === rc.selEnd) classes.push('is-end');
       if (rc.selStart && rc.selEnd && dateStr > rc.selStart && dateStr < rc.selEnd) classes.push('in-range');

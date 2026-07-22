@@ -655,7 +655,7 @@ button { font-family: inherit; }
   transition: background var(--transition-fast), color var(--transition-fast);
 }
 
-.pk-cal-day:hover:not(:disabled):not(.is-selected) {
+.pk-cal-day:hover:not(:disabled):not(.is-selected):not(.is-start):not(.is-end) {
   background: var(--color-rose);
   color: var(--color-primary);
 }
@@ -712,20 +712,38 @@ button { font-family: inherit; }
   color: white;
 }
 
-/* Calendrier de période (jusqu'à 3 mois) */
+/* Calendrier de période (jusqu'à 3 mois) — style Sixt */
 .pk-popup-range {
-  width: min(1020px, calc(100vw - 24px));
-  padding: var(--spacing-sm) var(--spacing-lg) var(--spacing-lg);
+  width: min(1060px, calc(100vw - 24px));
+  padding: var(--spacing-md) var(--spacing-lg) var(--spacing-lg);
+}
+
+/* Sur desktop, le calendrier n'a pas d'en-tête (comme Sixt) */
+.pk-popup-range .pk-popup-head {
+  display: none;
+}
+
+.pk-popup-range.pk-sheet .pk-popup-head {
+  display: flex;
 }
 
 .pk-range-wrap {
   position: relative;
-  padding: 0 38px;
+  padding: 0 44px;
 }
 
 .pk-range-wrap .pk-nav {
   position: absolute;
-  top: 4px;
+  top: 6px;
+  border: none;
+  width: 34px;
+  height: 34px;
+  color: var(--color-text-muted);
+}
+
+.pk-range-wrap .pk-nav:hover:not(:disabled) {
+  color: var(--color-ink);
+  background: var(--color-bg-soft);
 }
 
 .pk-range-wrap [data-pk-prev] {
@@ -738,7 +756,7 @@ button { font-family: inherit; }
 
 .pk-months {
   display: flex;
-  gap: 30px;
+  gap: 34px;
 }
 
 .pk-month {
@@ -750,96 +768,117 @@ button { font-family: inherit; }
   text-align: center;
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   color: var(--color-ink);
-  text-transform: capitalize;
-  padding: 8px 0 10px;
+  padding: 4px 0 14px;
 }
 
 .pk-month-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 2px 0;
+  gap: 0;
+}
+
+.pk-month-grid .pk-cal-dow {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-subtle);
+  padding: 0 0 8px;
 }
 
 .pk-month-grid .pk-cal-day {
-  height: 40px;
+  position: relative;
+  height: 46px;
   border-radius: 0;
+  font-weight: 500;
+  font-size: 0.92rem;
+  color: var(--color-ink);
 }
 
+.pk-month-grid .pk-cal-day:hover:not(:disabled):not(.is-start):not(.is-end) {
+  background: var(--color-bg-soft);
+  color: var(--color-ink);
+  border-radius: 8px;
+}
+
+/* Jour courant : texte rouge (repère Sixt) */
+.pk-month-grid .pk-cal-day.is-today {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+
+.pk-month-grid .pk-cal-day:disabled {
+  color: #C9CDD4;
+}
+
+/* Bornes : carrés noirs pleinement arrondis (Sixt) */
 .pk-month-grid .pk-cal-day.is-start,
 .pk-month-grid .pk-cal-day.is-end {
-  background: var(--color-ink);
+  background: #171B22;
   color: white;
+  border-radius: 8px;
+  font-weight: 700;
   box-shadow: none;
+  z-index: 1;
 }
 
-.pk-month-grid .pk-cal-day.is-start {
-  border-radius: 10px 0 0 10px;
-}
-
-.pk-month-grid .pk-cal-day.is-end {
-  border-radius: 0 10px 10px 0;
-}
-
-.pk-month-grid .pk-cal-day.is-start.is-end {
-  border-radius: 10px;
-}
-
+/* Intervalle : bande gris clair continue */
 .pk-month-grid .pk-cal-day.in-range {
-  background: var(--color-rose);
-  color: var(--color-primary);
+  background: #EFF0F2;
+  color: var(--color-ink);
 }
 
 .pk-range-hint {
-  text-align: center;
-  font-size: 0.78rem;
-  color: var(--color-text-subtle);
-  padding-top: 10px;
+  display: none;
 }
 
-/* Sélecteur d'agence : liste (gauche) + fiche détail (droite) */
+/* Sélecteur d'agence : liste (gauche) + fiche détail (droite) — style Sixt */
 .pk-popup-loc {
-  width: min(760px, calc(100vw - 24px));
+  width: min(940px, calc(100vw - 24px));
   padding: 0;
   overflow: hidden;
+  border-radius: var(--radius-md);
 }
 
 .pk-popup-loc .pk-popup-head {
+  display: none;
+}
+
+.pk-popup-loc.pk-sheet .pk-popup-head {
+  display: flex;
   padding: 16px 18px 12px;
   border-bottom: 1px solid var(--color-border);
 }
 
 .pk-loc-split {
   display: grid;
-  grid-template-columns: 1fr 300px;
-  min-height: 340px;
+  grid-template-columns: 1fr 1fr;
+  min-height: 380px;
 }
 
 .pk-loc-list {
   display: flex;
   flex-direction: column;
-  padding: 10px;
-  max-height: 440px;
+  padding: 14px 10px;
+  max-height: 480px;
   overflow-y: auto;
 }
 
 .pk-loc-list-title {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--color-text-subtle);
-  padding: 8px 10px 6px;
+  color: var(--color-ink);
+  padding: 8px 12px 8px;
 }
 
 .pk-loc-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   width: 100%;
   text-align: left;
-  padding: 12px 12px;
+  padding: 13px 12px;
   border: none;
   border-radius: var(--radius-md);
   background: transparent;
@@ -855,6 +894,8 @@ button { font-family: inherit; }
 .pk-loc-icon {
   color: var(--color-ink);
   flex-shrink: 0;
+  width: 22px;
+  text-align: center;
 }
 
 .pk-loc-body {
@@ -864,9 +905,9 @@ button { font-family: inherit; }
 
 .pk-loc-name {
   display: block;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
   color: var(--color-ink);
 }
 
@@ -894,42 +935,87 @@ button { font-family: inherit; }
   opacity: 1;
 }
 
-/* Fiche détail */
+/* Fiche détail (style Sixt) */
 .pk-loc-detail {
-  background: var(--color-bg-soft);
+  background: white;
   border-left: 1px solid var(--color-border);
-  padding: 22px 22px;
+  padding: 26px 28px;
+}
+
+.pk-loc-detail-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .pk-loc-detail-icon {
   color: var(--color-ink);
-  margin-bottom: 12px;
+}
+
+.pk-loc-detail-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1.5px solid var(--color-primary);
+  color: var(--color-primary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 5px 11px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
 }
 
 .pk-loc-detail-name {
-  font-size: 1.2rem;
+  font-family: var(--font-body);
+  font-size: 1.35rem;
   font-weight: 800;
   color: var(--color-ink);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .pk-loc-detail-address {
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   color: var(--color-text-muted);
-  margin-bottom: 18px;
+  margin-bottom: 22px;
   line-height: 1.5;
 }
 
 .pk-loc-detail-hours {
   font-size: 0.86rem;
   color: var(--color-text-body);
+  margin-bottom: 20px;
 }
 
 .pk-loc-detail-hours-label {
   display: block;
   font-weight: 700;
   color: var(--color-ink);
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+}
+
+.pk-loc-detail-hours-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 320px;
+  padding: 2px 0;
+}
+
+.pk-loc-detail-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.pk-loc-detail-link:hover {
+  color: var(--color-primary);
 }
 
 .pk-sheet.pk-popup-loc .pk-loc-split {

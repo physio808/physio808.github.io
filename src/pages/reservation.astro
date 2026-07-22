@@ -13,9 +13,9 @@ for (let h = 7; h <= 19; h++) {
 // Lignes de garantie communes (ordre fixe), affichées avec ✓ / ✗ par formule
 const protectionRows = [
   'Dommages : collision, rayures, chocs et vol',
-  'Pneus, pare-brise et vitres',
+  'Pneus, pare-brise, vitres',
   'Dommages intérieurs (ex : taches)',
-  'Assistance dépannage 24/7',
+  'Assistance dépannage : incidents courants, perte de clés...',
   'Protection conducteur et passagers',
 ];
 
@@ -24,6 +24,8 @@ const protections = [
     id: 'essentielle',
     name: 'Aucune protection supplémentaire',
     price: 0,
+    strike: null as number | null,
+    remise: null as string | null,
     stars: 0,
     franchise: 'Franchise : jusqu\'à 800€',
     franchiseOk: false,
@@ -33,6 +35,8 @@ const protections = [
     id: 'basique',
     name: 'Protection Basique',
     price: 4,
+    strike: 8,
+    remise: null as string | null,
     stars: 1,
     franchise: 'Franchise réduite : 400€',
     franchiseOk: false,
@@ -42,8 +46,9 @@ const protections = [
     id: 'confort',
     name: 'Protection Intermédiaire',
     price: 8,
+    strike: 16,
+    remise: '- 50% de remise en ligne',
     stars: 2,
-    badge: 'Le plus choisi',
     franchise: 'Franchise : 150€',
     franchiseOk: false,
     covers: [true, true, false, true, true],
@@ -52,8 +57,9 @@ const protections = [
     id: 'serenite',
     name: 'Protection Complète',
     price: 12,
+    strike: 24,
+    remise: '- 50% de remise en ligne',
     stars: 3,
-    badge: 'Zéro franchise',
     franchise: 'Pas de franchise',
     franchiseOk: true,
     covers: [true, true, true, true, true],
@@ -61,13 +67,13 @@ const protections = [
 ];
 
 const extras = [
-  { id: 'conducteur', label: 'Conducteur additionnel', desc: 'Second conducteur assuré au contrat', price: 6, per: 'jour', icon: 'user' },
-  { id: 'siege-bebe', label: 'Siège bébé (0-3 ans)', desc: 'Homologué, installé avant votre arrivée', price: 4, per: 'jour', icon: 'baby' },
-  { id: 'rehausseur', label: 'Rehausseur enfant', desc: 'Pour les 4-10 ans', price: 3, per: 'jour', icon: 'booster' },
-  { id: 'gps', label: 'GPS connecté', desc: 'Cartes de l\'archipel préchargées', price: 5, per: 'jour', icon: 'map' },
-  { id: 'wifi', label: 'Wifi de poche 4G', desc: 'Internet illimité, jusqu\'à 5 appareils', price: 3, per: 'jour', icon: 'wifi' },
-  { id: 'plein-prepaye', label: 'Plein prépayé', desc: 'Rendez le véhicule sans repasser à la pompe', price: 65, per: 'location', icon: 'fuel' },
-  { id: 'arrivee-nuit', label: 'Arrivée hors horaires', desc: 'Remise des clés entre 22h et 6h', price: 25, per: 'location', icon: 'moon' },
+  { id: 'conducteur', label: 'Conducteur supplémentaire', desc: 'Second conducteur assuré au contrat, même conditions que le conducteur principal.', price: 6, per: 'jour', perLabel: '/ jour et conducteur', stepper: true, max: 3, icon: 'user' },
+  { id: 'siege-bebe', label: 'Siège bébé (0-3 ans)', desc: 'Siège homologué, installé avant votre arrivée à l\'agence.', price: 4, per: 'jour', perLabel: '/ jour', stepper: false, max: 1, icon: 'baby' },
+  { id: 'rehausseur', label: 'Rehausseur enfant', desc: 'Pour les enfants de 4 à 10 ans, obligatoire selon la taille.', price: 3, per: 'jour', perLabel: '/ jour', stepper: false, max: 1, icon: 'booster' },
+  { id: 'gps', label: 'Système de navigation GPS', desc: 'Cartes de tout l\'archipel préchargées, fonctionne hors ligne.', price: 5, per: 'jour', perLabel: '/ jour', stepper: false, max: 1, icon: 'map' },
+  { id: 'wifi', label: 'Wifi de poche 4G', desc: 'Internet illimité, jusqu\'à 5 appareils connectés.', price: 3, per: 'jour', perLabel: '/ jour', stepper: false, max: 1, icon: 'wifi' },
+  { id: 'plein-prepaye', label: 'Service de plein/recharge', desc: 'Rendez le véhicule sans repasser à la pompe, nous nous occupons du plein.', price: 65, per: 'location', perLabel: '/ une fois', stepper: false, max: 1, icon: 'fuel' },
+  { id: 'arrivee-nuit', label: 'Arrivée hors horaires', desc: 'Remise des clés entre 22h et 6h, sur présentation du numéro de vol.', price: 25, per: 'location', perLabel: '/ une fois', stepper: false, max: 1, icon: 'moon' },
 ];
 
 const extraIcons: Record<string, string> = {
@@ -81,325 +87,328 @@ const extraIcons: Record<string, string> = {
 };
 
 const vehiclesJson = JSON.stringify(
-  vehicles.map((v) => ({ id: v.id, name: v.name, image: v.imageCutout || v.image, priceLow: v.priceLow, priceHigh: v.priceHigh, category: v.category, categorySlug: v.categorySlug, seats: v.seats, transmission: v.transmission, doors: v.doors }))
+  vehicles.map((v) => ({ id: v.id, name: v.name, image: v.imageCutout || v.image, priceLow: v.priceLow, priceHigh: v.priceHigh, category: v.category, categorySlug: v.categorySlug, seats: v.seats, bags: v.bags, transmission: v.transmission, doors: v.doors }))
 );
-const extrasJson = JSON.stringify(extras.map((e) => ({ id: e.id, label: e.label, price: e.price, per: e.per })));
+const extrasJson = JSON.stringify(extras.map((e) => ({ id: e.id, label: e.label, price: e.price, per: e.per, stepper: e.stepper, max: e.max })));
 const agencesJson = JSON.stringify(agences.map((a) => ({ id: a.id, name: a.name })));
 const protectionsJson = JSON.stringify(protections.map((p) => ({ id: p.id, name: p.name, price: p.price })));
 
-const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérification'];
+// Badges façon Sixt sur les cartes véhicules
+const cardBadges: Record<string, string> = {
+  'suzuki-swift-gl-plus': 'MEILLEUR CHOIX',
+  'kia-stonic': 'TRÈS DEMANDÉ',
+  'fiat-500-lounge': 'MEILLEUR PRIX',
+};
+const badgesJson = JSON.stringify(cardBadges);
+
+const stepTitles: Record<number, string> = {
+  1: 'VOS DATES ET VOTRE AGENCE',
+  2: 'QUELLE VOITURE VOULEZ-VOUS CONDUIRE ?',
+  3: 'DE QUELLE PROTECTION AVEZ-VOUS BESOIN ?',
+  4: 'DE QUELLES OPTIONS AVEZ-VOUS BESOIN ?',
+  5: 'REVOIR VOTRE RÉSERVATION',
+};
+const stepTitlesJson = JSON.stringify(stepTitles);
 ---
 
 <BaseLayout
   title="Réservation"
-  description="Réservez votre voiture en Guadeloupe en quelques minutes : trajet, véhicule, protection, options et confirmation immédiate."
+  description="Réservez votre voiture en Guadeloupe en quelques minutes : véhicule, protection, options et confirmation immédiate. Kilométrage illimité inclus."
 >
-  <section class="res-hero">
-    <div class="container">
-      <span class="section-badge animate-on-scroll">Réservation en ligne</span>
-      <h1 class="res-hero-title animate-on-scroll" style="animation-delay:0.1s">
-        Votre voiture vous attend <span>en quelques minutes</span>
-      </h1>
-    </div>
-  </section>
-
-  <section class="res section" id="res-app">
-    <!-- Barre sticky : total toujours visible -->
-    <div class="res-topbar" id="res-topbar">
-      <div class="container res-topbar-inner">
-        <div class="res-topbar-total">
-          <span>Total : <strong id="res-topbar-total">0€</strong></span>
-          <small>Remise, protection et options incluses</small>
+  <section class="res" id="res-app">
+    <!-- Barre de tunnel façon Sixt : titre d'étape + total + action -->
+    <div class="res-bar" id="res-bar">
+      <div class="container res-bar-inner">
+        <div class="res-bar-left">
+          <button type="button" class="res-bar-back" id="res-back" aria-label="Étape précédente" hidden>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          </button>
+          <h1 class="res-bar-title" id="res-bar-title">{stepTitles[2]}</h1>
         </div>
-        <button type="button" class="btn btn-primary res-topbar-next" id="res-topbar-next">
-          Continuer
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-        </button>
+        <div class="res-bar-right">
+          <div class="res-bar-total">
+            <span class="res-bar-total-line">Total : <strong id="res-bar-total">0€</strong></span>
+            <button type="button" class="res-bar-details" id="res-price-details" aria-haspopup="true" aria-expanded="false">Détails du prix</button>
+          </div>
+          <button type="button" class="res-bar-next" id="res-next-top">Continuer</button>
+        </div>
+      </div>
+      <!-- Popover détail du prix -->
+      <div class="res-price-pop" id="res-price-pop" hidden>
+        <div class="res-price-pop-card">
+          <div class="res-price-pop-head">
+            <strong>Détails du prix</strong>
+            <button type="button" class="pk-close" id="res-price-pop-close" aria-label="Fermer">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="res-price-pop-body" id="res-price-pop-body"></div>
+        </div>
       </div>
     </div>
 
-    <div class="container">
-      <!-- Stepper -->
-      <div class="res-stepper" id="res-stepper">
-        <div class="res-stepper-line">
-          <div class="res-stepper-fill" id="res-stepper-fill"></div>
+    <div class="container res-body">
+
+      <!-- ÉTAPE 1 : Trajet -->
+      <div class="res-step" data-step="1">
+        <div class="res-panel">
+          <div class="res-fields">
+            <div class="res-field">
+              <label>Retrait et retour</label>
+              <button type="button" class="pk-trigger has-value res-loc" data-pk-open="loc" data-pk-input="res-pickup" aria-haspopup="dialog">
+                <svg class="res-loc-icon" data-pk-icon width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                <span data-pk-label>{agences[0].name}</span>
+                <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="hidden" id="res-pickup" value={agences[0].id} />
+            </div>
+
+            <label class="res-check">
+              <input type="checkbox" id="res-same-location" />
+              <span class="res-check-box">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
+              Je souhaite restituer la voiture à un autre endroit
+            </label>
+
+            <div class="res-field is-hidden" id="res-dropoff-field">
+              <label>Lieu de retour</label>
+              <button type="button" class="pk-trigger has-value res-loc" data-pk-open="loc" data-pk-input="res-dropoff" aria-haspopup="dialog">
+                <svg class="res-loc-icon" data-pk-icon width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                <span data-pk-label>{agences[0].name}</span>
+                <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <input type="hidden" id="res-dropoff" value={agences[0].id} />
+            </div>
+
+            <div class="res-dt-row">
+              <div class="res-field">
+                <label>Date de départ</label>
+                <div class="res-dt">
+                  <button type="button" class="pk-trigger res-dt-date" data-pk-open="range" data-pk-start="res-date-start" data-pk-end="res-date-end" aria-haspopup="dialog">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span data-pk-label>Choisir</span>
+                  </button>
+                  <div class="res-dt-time">
+                    <select id="res-time-start" aria-label="Heure de départ">
+                      {timeSlots.map((t) => <option value={t} selected={t === '10:00'}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+              <div class="res-field">
+                <label>Date de retour</label>
+                <div class="res-dt">
+                  <button type="button" class="pk-trigger res-dt-date" data-pk-open="range" data-pk-role="end" data-pk-start="res-date-start" data-pk-end="res-date-end" aria-haspopup="dialog">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <span data-pk-label>Choisir</span>
+                  </button>
+                  <div class="res-dt-time">
+                    <select id="res-time-end" aria-label="Heure de retour">
+                      {timeSlots.map((t) => <option value={t} selected={t === '10:00'}>{t}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <input type="hidden" id="res-date-start" value={today} />
+            <input type="hidden" id="res-date-end" value="" />
+          </div>
+
+          <div class="res-step-actions">
+            <button type="button" class="res-cta" id="res-go-2">Voir les véhicules</button>
+          </div>
         </div>
-        <div class="res-stepper-items">
-          {stepLabels.map((label, i) => (
-            <div class={`res-stepper-item ${i === 0 ? 'is-active' : ''}`} data-step-indicator={i + 1}>
-              <span class="res-stepper-dot">{i + 1}</span>
-              <span class="res-stepper-label">{label}</span>
+      </div>
+
+      <!-- ÉTAPE 2 : Véhicules (cartes sombres façon Sixt) -->
+      <div class="res-step" data-step="2">
+        <div class="res-toolbar">
+          <div class="res-sort">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="16" y2="6"/><line x1="4" y1="12" x2="13" y2="12"/><line x1="4" y1="18" x2="10" y2="18"/><polyline points="17 9 20 12 17 15"/><line x1="20" y1="12" x2="14" y2="12"/></svg>
+            <select id="res-sort" aria-label="Trier les véhicules">
+              <option value="reco">Recommandé</option>
+              <option value="price-asc">Prix croissant</option>
+              <option value="price-desc">Prix décroissant</option>
+            </select>
+          </div>
+          <div class="res-filters" id="res-veh-filters">
+            <button type="button" class="res-filter is-active" data-filter="all" aria-pressed="true">Tous</button>
+            <button type="button" class="res-filter" data-filter="citadine" aria-pressed="false">Citadines</button>
+            <button type="button" class="res-filter" data-filter="suv" aria-pressed="false">SUV</button>
+          </div>
+        </div>
+
+        <div class="res-veh-grid" id="res-veh-grid"></div>
+      </div>
+
+      <!-- ÉTAPE 3 : Protections -->
+      <div class="res-step" data-step="3">
+        <div class="res-info-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="11" x2="12" y2="16" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/></svg>
+          Les conducteurs doivent avoir leur permis de conduire depuis au moins 2 an(s) pour ce véhicule
+        </div>
+
+        <div class="res-protections">
+          {protections.map((p) => (
+            <div class={`res-protection ${p.id === 'essentielle' ? 'is-selected' : ''}`} data-protection={p.id} data-protection-price={p.price} role="button" tabindex="0">
+              <div class="res-protection-top">
+                <span class="res-protection-name">{p.name}</span>
+                <span class="res-protection-radio" aria-hidden="true"></span>
+              </div>
+              <div class="res-protection-stars" aria-hidden="true">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <svg class={i < p.stars ? 'is-on' : ''} width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
+                ))}
+                {p.remise && <em class="res-protection-remise">{p.remise}</em>}
+              </div>
+              <span class={`res-protection-franchise ${p.franchiseOk ? 'is-ok' : ''}`}>{p.franchise}</span>
+              <ul class="res-protection-lines">
+                {protectionRows.map((row, i) => (
+                  <li class={p.covers[i] ? 'is-yes' : 'is-no'}>
+                    <span class="res-protection-line-left">
+                      {p.covers[i]
+                        ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>
+                        : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
+                      {row}
+                    </span>
+                    <svg class="res-protection-info" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                  </li>
+                ))}
+              </ul>
+              <div class="res-protection-price">
+                {p.price === 0
+                  ? <strong>Inclus</strong>
+                  : <>
+                      <strong>{p.price}€ <small>/ jour</small></strong>
+                      {p.strike && <s>{p.strike}€ / jour</s>}
+                    </>}
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      <div class="res-layout">
-        <!-- Main column -->
-        <div class="res-main">
+      <!-- ÉTAPE 4 : Options -->
+      <div class="res-step" data-step="4">
+        <div class="res-info-banner">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="11" x2="12" y2="16" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/></svg>
+          Les conducteurs doivent avoir leur permis de conduire depuis au moins 2 an(s) pour ce véhicule
+        </div>
 
-          <!-- ÉTAPE 1 : Trajet -->
-          <div class="res-step is-active" data-step="1">
-            <h2 class="res-step-title">Où et quand ?</h2>
-            <p class="res-step-desc">Choisissez votre agence et vos dates de location.</p>
-
-            <div class="res-fields">
-              <div class="res-field">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  Lieu de prise en charge
-                </label>
-                <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="res-pickup" aria-haspopup="dialog">
-                  <span data-pk-label>{agences[0].name}</span>
-                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <input type="hidden" id="res-pickup" value={agences[0].id} />
-              </div>
-
-              <div class="res-field" id="res-dropoff-field">
-                <label>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                  Lieu de retour
-                </label>
-                <button type="button" class="pk-trigger has-value" data-pk-open="loc" data-pk-input="res-dropoff" aria-haspopup="dialog">
-                  <span data-pk-label>{agences[0].name}</span>
-                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <input type="hidden" id="res-dropoff" value={agences[0].id} />
-              </div>
-
-              <div class="res-dt-group">
-                <div class="res-field res-field-date">
-                  <label>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Date de départ
-                  </label>
-                  <button type="button" class="pk-trigger" data-pk-open="range" data-pk-start="res-date-start" data-pk-end="res-date-end" aria-haspopup="dialog">
-                    <span data-pk-label>Choisir</span>
-                    <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="res-options-layout">
+          <div class="res-extras">
+            {extras.map((e) => (
+              <div class="res-extra" data-extra={e.id}>
+                <span class="res-extra-icon" set:html={`<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">${extraIcons[e.icon]}</svg>`} />
+                <div class="res-extra-body">
+                  <span class="res-extra-label">{e.label}</span>
+                  <span class="res-extra-price">{e.price.toFixed(2).replace('.', ',')} € <small>{e.perLabel}</small></span>
+                  <button type="button" class="res-extra-details" data-extra-details={e.id}>Détails</button>
+                  <span class="res-extra-desc" id={`extra-desc-${e.id}`} hidden>{e.desc}</span>
+                </div>
+                {e.stepper ? (
+                  <div class="res-stepper-ctrl" data-stepper={e.id}>
+                    <button type="button" class="res-stepper-btn" data-stepper-minus={e.id} aria-label="Retirer">−</button>
+                    <span class="res-stepper-count" data-stepper-count={e.id}>0</span>
+                    <button type="button" class="res-stepper-btn" data-stepper-plus={e.id} aria-label="Ajouter">+</button>
+                  </div>
+                ) : (
+                  <button type="button" class="res-toggle" data-extra-toggle={e.id} role="switch" aria-checked="false" aria-label={e.label}>
+                    <span class="res-toggle-knob"></span>
                   </button>
-                  <input type="hidden" id="res-date-start" value={today} />
-                </div>
-                <div class="res-field res-field-time">
-                  <label>Heure</label>
-                  <select id="res-time-start" aria-label="Heure de départ">
-                    {timeSlots.map((t) => <option value={t} selected={t === '09:00'}>{t}</option>)}
-                  </select>
-                </div>
+                )}
               </div>
-
-              <div class="res-dt-group">
-                <div class="res-field res-field-date">
-                  <label>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    Date de retour
-                  </label>
-                  <button type="button" class="pk-trigger" data-pk-open="range" data-pk-role="end" data-pk-start="res-date-start" data-pk-end="res-date-end" aria-haspopup="dialog">
-                    <span data-pk-label>Choisir</span>
-                    <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-                  </button>
-                  <input type="hidden" id="res-date-end" value="" />
-                </div>
-                <div class="res-field res-field-time">
-                  <label>Heure</label>
-                  <select id="res-time-end" aria-label="Heure de retour">
-                    {timeSlots.map((t) => <option value={t} selected={t === '17:00'}>{t}</option>)}
-                  </select>
-                </div>
-              </div>
-            </div>
+            ))}
           </div>
 
-          <!-- ÉTAPE 2 : Véhicule -->
-          <div class="res-step" data-step="2">
-            <h2 class="res-step-title">Quelle voiture voulez-vous conduire ?</h2>
-            <p class="res-step-desc">Prix total calculé pour vos dates, remise longue durée incluse. Cliquez sur un véhicule pour voir le détail.</p>
+          <aside class="res-apercu">
+            <strong class="res-apercu-title">Aperçu de votre réservation :</strong>
+            <ul class="res-apercu-list" id="res-apercu-list"></ul>
+          </aside>
+        </div>
+      </div>
 
-            <div class="res-veh-filters" id="res-veh-filters">
-              <button type="button" class="res-veh-filter" data-filter="all" aria-pressed="true">Tous</button>
-              <button type="button" class="res-veh-filter" data-filter="citadine" aria-pressed="false">Citadines</button>
-              <button type="button" class="res-veh-filter" data-filter="suv" aria-pressed="false">SUV</button>
-            </div>
-
-            <div class="res-veh-grid" id="res-veh-grid"></div>
-          </div>
-
-          <!-- ÉTAPE 3 : Protection -->
-          <div class="res-step" data-step="3">
-            <h2 class="res-step-title">Quelle protection souhaitez-vous ?</h2>
-            <p class="res-step-desc">Choisissez votre sérénité — modifiable jusqu'au départ, sans frais.</p>
-
-            <div class="res-info-banner">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-              Le conducteur doit être titulaire du permis depuis au moins 2 ans pour ce véhicule.
-            </div>
-
-            <div class="res-protections">
-              {protections.map((p) => (
-                <label class={`res-protection ${p.id === 'essentielle' ? 'is-selected' : ''}`} data-protection={p.id} data-protection-price={p.price}>
-                  <input type="radio" name="protection" value={p.id} checked={p.id === 'essentielle'} class="res-protection-radio" />
-                  <span class="res-protection-top">
-                    <span class="res-protection-name">{p.name}</span>
-                    <span class="res-protection-radio-dot"></span>
-                  </span>
-                  <span class="res-protection-stars" aria-hidden="true">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <svg class={i < p.stars ? 'is-on' : ''} width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 16.8l-6.2 4.5 2.4-7.4L2 9.4h7.6z"/></svg>
-                    ))}
-                    {p.badge && <em class="res-protection-badge">{p.badge}</em>}
-                  </span>
-                  <span class={`res-protection-franchise ${p.franchiseOk ? 'is-ok' : ''}`}>{p.franchise}</span>
-                  <ul class="res-protection-lines">
-                    {protectionRows.map((row, i) => (
-                      <li class={p.covers[i] ? 'is-yes' : 'is-no'}>
-                        {p.covers[i]
-                          ? <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>
-                          : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>}
-                        {row}
-                      </li>
-                    ))}
-                  </ul>
-                  <span class="res-protection-price">
-                    {p.price === 0 ? 'Incluse' : <>{p.price}€ <small>/jour</small></>}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <!-- ÉTAPE 4 : Options -->
-          <div class="res-step" data-step="4">
-            <h2 class="res-step-title">De quelles options avez-vous besoin ?</h2>
-            <p class="res-step-desc">Des options à la carte, ajoutées ou retirées librement.</p>
-
-            <div class="res-extras">
-              {extras.map((e) => (
-                <label class="res-extra" data-extra={e.id}>
-                  <input type="checkbox" class="res-extra-checkbox" data-extra-input={e.id} />
-                  <span class="res-extra-icon" set:html={`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${extraIcons[e.icon]}</svg>`} />
-                  <span class="res-extra-body">
-                    <span class="res-extra-label">{e.label}</span>
-                    <span class="res-extra-desc">{e.desc}</span>
-                  </span>
-                  <span class="res-extra-price">+{e.price}€<small>/{e.per}</small></span>
-                  <span class="res-extra-check">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <!-- ÉTAPE 5 : Revoir votre réservation -->
-          <div class="res-step" data-step="5">
-            <h2 class="res-step-title">Revoir votre réservation</h2>
-            <p class="res-step-desc">Un dernier coup d'œil avant de confirmer — rien ne sera débité sans votre accord.</p>
-
-            <h3 class="res-contact-title">Qui va conduire ?</h3>
+      <!-- ÉTAPE 5 : Revoir votre réservation -->
+      <div class="res-step" data-step="5">
+        <div class="res-review-layout">
+          <div class="res-review-form">
+            <h3 class="res-review-subtitle">Qui va conduire ?</h3>
             <div class="res-contact-fields">
               <div class="res-field res-field-full">
                 <label for="res-email">Adresse e-mail</label>
-                <input type="email" id="res-email" placeholder="jean.dupont@email.com" autocomplete="email" />
+                <input type="email" id="res-email" autocomplete="email" />
               </div>
               <div class="res-field">
                 <label for="res-firstname">Prénom</label>
-                <input type="text" id="res-firstname" placeholder="Jean" autocomplete="given-name" />
+                <input type="text" id="res-firstname" autocomplete="given-name" />
               </div>
               <div class="res-field">
                 <label for="res-name">Nom de famille</label>
-                <input type="text" id="res-name" placeholder="Dupont" autocomplete="family-name" />
+                <input type="text" id="res-name" autocomplete="family-name" />
+              </div>
+              <div class="res-field res-field-country">
+                <label for="res-country">Pays</label>
+                <div class="res-country">
+                  <select id="res-country" aria-label="Indicatif pays">
+                    <option value="+33" selected>🇫🇷 +33</option>
+                    <option value="+590">🇬🇵 +590</option>
+                    <option value="+1">🇨🇦 +1</option>
+                    <option value="+32">🇧🇪 +32</option>
+                    <option value="+41">🇨🇭 +41</option>
+                  </select>
+                  <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </div>
               </div>
               <div class="res-field">
                 <label for="res-phone">Numéro de téléphone</label>
-                <input type="tel" id="res-phone" placeholder="+33 6 12 34 56 78" autocomplete="tel" />
+                <input type="tel" id="res-phone" autocomplete="tel" />
               </div>
-              <div class="res-field">
-                <label for="res-message">Message (optionnel)</label>
-                <input type="text" id="res-message" placeholder="Numéro de vol, demande particulière..." />
+              <div class="res-field res-field-full">
+                <label for="res-company">Entreprise <small>(optionnel)</small></label>
+                <input type="text" id="res-company" autocomplete="organization" />
               </div>
             </div>
 
-            <div class="res-recap" id="res-recap"></div>
+            <div class="res-whatsapp">
+              <label class="res-radio">
+                <input type="radio" name="whatsapp" value="oui" checked />
+                <span class="res-radio-dot"></span>
+                Oui, je souhaite recevoir des messages automatisés via WhatsApp concernant ma réservation.
+              </label>
+              <label class="res-radio">
+                <input type="radio" name="whatsapp" value="non" />
+                <span class="res-radio-dot"></span>
+                Non, je ne souhaite pas recevoir de messages WhatsApp.
+              </label>
+            </div>
 
             <label class="res-terms">
               <input type="checkbox" id="res-terms-check" />
+              <span class="res-check-box">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg>
+              </span>
               <span>J'accepte les <a href="/conditions" target="_blank">conditions générales de location</a></span>
             </label>
           </div>
 
-          <!-- Navigation -->
-          <div class="res-nav">
-            <button class="btn btn-secondary" id="res-prev" hidden>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-              Précédent
-            </button>
-            <button class="btn btn-primary" id="res-next">
-              Continuer
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </button>
-          </div>
-
-          <!-- SUCCÈS -->
-          <div class="res-success" id="res-success" hidden>
-            <div class="res-success-check">
-              <svg viewBox="0 0 52 52">
-                <circle class="res-success-circle" cx="26" cy="26" r="24" fill="none"/>
-                <path class="res-success-tick" fill="none" d="M14 27l7 7 17-17"/>
-              </svg>
-            </div>
-            <h2 class="res-success-title">Réservation confirmée !</h2>
-            <p class="res-success-text">Un email de confirmation a été envoyé avec votre numéro de dossier <strong id="res-ref"></strong>. Notre équipe vous contacte sous 24h.</p>
-            <a href="/" class="btn btn-primary">Retour à l'accueil</a>
-            <div class="res-confetti" aria-hidden="true"></div>
-          </div>
+          <aside class="res-review-card" id="res-review-card"></aside>
         </div>
+      </div>
 
-        <!-- Récapitulatif latéral -->
-        <aside class="res-summary" id="res-summary">
-          <div class="res-summary-card">
-            <h3 class="res-summary-title">Récapitulatif</h3>
-
-            <div class="res-summary-vehicle" id="res-summary-vehicle">
-              <div class="res-summary-vehicle-placeholder">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
-                <span>Aucun véhicule sélectionné</span>
-              </div>
-            </div>
-
-            <div class="res-summary-row">
-              <span>Durée</span>
-              <span id="res-summary-duration">1 jour</span>
-            </div>
-            <div class="res-summary-row">
-              <span>Agence</span>
-              <span id="res-summary-agence">—</span>
-            </div>
-            <div class="res-summary-row">
-              <span>Prix véhicule</span>
-              <span id="res-summary-veh-price">0€</span>
-            </div>
-            <div class="res-summary-row res-summary-discount" id="res-summary-discount-row" hidden>
-              <span>Remise −20% (7 j et +)</span>
-              <span id="res-summary-discount">0€</span>
-            </div>
-            <div class="res-summary-row" id="res-summary-protection-row">
-              <span>Protection <em id="res-summary-protection-name">Essentielle</em></span>
-              <span id="res-summary-protection">Incluse</span>
-            </div>
-            <div class="res-summary-extras" id="res-summary-extras"></div>
-
-            <div class="res-summary-total">
-              <span>Total estimé</span>
-              <span id="res-summary-total">0€</span>
-            </div>
-
-            <div class="res-summary-trust">
-              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Annulation gratuite 48h</span>
-              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Kilométrage illimité inclus</span>
-              <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Aucun débit sans votre accord</span>
-            </div>
-          </div>
-        </aside>
+      <!-- SUCCÈS -->
+      <div class="res-success" id="res-success" hidden>
+        <div class="res-success-check">
+          <svg viewBox="0 0 52 52">
+            <circle class="res-success-circle" cx="26" cy="26" r="24" fill="none"/>
+            <path class="res-success-tick" fill="none" d="M14 27l7 7 17-17"/>
+          </svg>
+        </div>
+        <h2 class="res-success-title">Réservation confirmée !</h2>
+        <p class="res-success-text">Un email de confirmation a été envoyé avec votre numéro de dossier <strong id="res-ref"></strong>. Notre équipe vous contacte sous 24h.</p>
+        <a href="/" class="btn btn-primary">Retour à l'accueil</a>
+        <div class="res-confetti" aria-hidden="true"></div>
       </div>
     </div>
 
@@ -417,9 +426,11 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
         <div class="pk-loc-list">
           <span class="pk-loc-list-title">Agences en Guadeloupe</span>
           {agences.map((a) => (
-            <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name} data-loc-address={a.address} data-loc-hours={a.hours}>
+            <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name} data-loc-address={a.address} data-loc-hours={a.hours} data-loc-icon={a.id === 'aeroport-pole-caraibes' ? 'plane' : 'pin'}>
               <span class="pk-loc-icon">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                {a.id === 'aeroport-pole-caraibes'
+                  ? <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                  : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
               </span>
               <span class="pk-loc-body">
                 <span class="pk-loc-name">{a.name}</span>
@@ -435,39 +446,6 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
       </div>
     </div>
 
-    <!-- Panneau détail véhicule -->
-    <div class="veh-panel" id="veh-panel" hidden>
-      <div class="veh-panel-card" role="dialog" aria-label="Détails du véhicule">
-        <button type="button" class="pk-close veh-panel-close" id="veh-panel-close" aria-label="Fermer">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-        <div class="veh-panel-media">
-          <img id="veh-panel-img" src="" alt="" />
-          <div class="veh-panel-name">
-            <strong id="veh-panel-title"></strong>
-            <span id="veh-panel-sub"></span>
-          </div>
-        </div>
-        <ul class="veh-panel-specs" id="veh-panel-specs"></ul>
-        <div class="veh-panel-includes">
-          <strong>Inclus dans le prix :</strong>
-          <ul>
-            <li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Kilométrage illimité</li>
-            <li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Assurance au tiers, vol & incendie</li>
-            <li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Annulation gratuite jusqu'à 48h</li>
-            <li><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Aucun débit sans votre confirmation</li>
-          </ul>
-        </div>
-        <div class="veh-panel-foot">
-          <div class="veh-panel-price" id="veh-panel-price"></div>
-          <button type="button" class="btn btn-primary" id="veh-panel-next">
-            Suivant
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div class="pk-popup pk-popup-range" data-pk-popup="range" role="dialog" aria-label="Choisir vos dates" hidden>
       <div class="pk-popup-head">
         <span>Sélectionnez vos dates</span>
@@ -477,14 +455,81 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
       </div>
       <div class="pk-range-wrap">
         <button type="button" class="pk-nav" data-pk-prev aria-label="Mois précédent">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div class="pk-months" data-pk-cal></div>
         <button type="button" class="pk-nav" data-pk-next aria-label="Mois suivant">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-      <p class="pk-range-hint">Choisissez d'abord la date de départ, puis la date de retour.</p>
+    </div>
+
+    <!-- Panneau détail véhicule (façon Sixt) -->
+    <div class="veh-panel" id="veh-panel" hidden>
+      <div class="veh-panel-card" role="dialog" aria-label="Détails du véhicule">
+        <button type="button" class="veh-panel-close" id="veh-panel-close" aria-label="Fermer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+        <div class="veh-panel-media">
+          <div class="veh-panel-name">
+            <strong id="veh-panel-title"></strong>
+            <span id="veh-panel-sub"></span>
+          </div>
+          <img id="veh-panel-img" src="" alt="" />
+          <div class="veh-panel-media-foot">
+            <span class="veh-panel-similar">Ou modèle similaire
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            </span>
+            <ul class="veh-panel-specs" id="veh-panel-specs"></ul>
+            <span class="veh-panel-age">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg>
+              Âge minimum du conducteur : 21 ans
+            </span>
+          </div>
+        </div>
+        <div class="veh-panel-side">
+          <div class="veh-panel-section">
+            <h4 class="veh-panel-heading">Options de paiement</h4>
+            <label class="veh-pay is-selected" data-pay="best">
+              <input type="radio" name="pay-option" value="best" checked />
+              <span class="veh-pay-radio"></span>
+              <span class="veh-pay-body">
+                <span class="veh-pay-name">Meilleur prix</span>
+                <span class="veh-pay-desc">Payez maintenant, annulez et modifiez moyennant des frais</span>
+              </span>
+              <span class="veh-pay-price">Inclus</span>
+            </label>
+            <label class="veh-pay" data-pay="flex">
+              <input type="radio" name="pay-option" value="flex" />
+              <span class="veh-pay-radio"></span>
+              <span class="veh-pay-body">
+                <span class="veh-pay-name">Restez flexible <em class="veh-pay-pop">Populaire</em></span>
+                <span class="veh-pay-desc">Payez à la prise en charge, annulez et modifiez gratuitement avant l'heure de prise en charge</span>
+              </span>
+              <span class="veh-pay-price">+ 4€ <small>/ jour</small></span>
+            </label>
+          </div>
+          <div class="veh-panel-section">
+            <h4 class="veh-panel-heading">Kilométrage</h4>
+            <label class="veh-pay is-selected">
+              <input type="radio" name="km-option" checked />
+              <span class="veh-pay-radio"></span>
+              <span class="veh-pay-body">
+                <span class="veh-pay-name">Kilométrage illimité</span>
+                <span class="veh-pay-desc">Tous les kilomètres sont inclus dans le prix</span>
+              </span>
+              <span class="veh-pay-price">Inclus</span>
+            </label>
+          </div>
+          <div class="veh-panel-foot">
+            <div class="veh-panel-price">
+              <strong id="veh-panel-price"></strong>
+              <button type="button" class="veh-panel-details" id="veh-panel-details">Détails du prix</button>
+            </div>
+            <button type="button" class="res-cta veh-panel-next" id="veh-panel-next">Suivant</button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 </BaseLayout>
@@ -493,116 +538,207 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
 <script type="application/json" id="res-extras-data" set:html={extrasJson}></script>
 <script type="application/json" id="res-agences-data" set:html={agencesJson}></script>
 <script type="application/json" id="res-protections-data" set:html={protectionsJson}></script>
+<script type="application/json" id="res-badges-data" set:html={badgesJson}></script>
+<script type="application/json" id="res-step-titles" set:html={stepTitlesJson}></script>
 
 <style>
-  .res-hero {
-    padding: var(--spacing-2xl) 0 var(--spacing-lg);
-    text-align: center;
-    background: var(--gradient-glow);
+  /* ============ BARRE DE TUNNEL (style Sixt) ============ */
+  .res-bar {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    background: #14171C;
+    color: white;
+    box-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
   }
 
-  .res-hero-title span {
-    color: var(--color-primary);
-  }
-
-  /* Stepper */
-  .res-stepper {
-    position: relative;
-    margin-bottom: var(--spacing-2xl);
-  }
-
-  .res-stepper-line {
-    position: absolute;
-    top: 17px;
-    left: 5%;
-    right: 5%;
-    height: 2px;
-    background: var(--color-border);
-    z-index: 0;
-  }
-
-  .res-stepper-fill {
-    height: 100%;
-    width: 0%;
-    background: var(--gradient-primary);
-    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .res-stepper-items {
-    position: relative;
-    z-index: 1;
+  .res-bar-inner {
     display: flex;
-    justify-content: space-between;
-  }
-
-  .res-stepper-item {
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    min-height: 78px;
+    padding-block: 10px;
   }
 
-  .res-stepper-dot {
+  .res-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  .res-bar-back {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 38px;
+    height: 38px;
+    border: none;
     border-radius: 50%;
-    background: white;
-    border: 2px solid var(--color-border-light);
-    color: var(--color-text-muted);
+    background: transparent;
+    color: white;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background var(--transition-fast);
+  }
+
+  .res-bar-back:hover {
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  .res-bar-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.05rem, 2.2vw, 1.45rem);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    color: white;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .res-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+
+  .res-bar-total-line {
+    font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.75);
+    white-space: nowrap;
+  }
+
+  .res-bar-total-line strong {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    margin-left: 4px;
+  }
+
+  .res-bar-details {
+    display: block;
+    margin-top: 1px;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    text-align: right;
+    width: 100%;
+  }
+
+  .res-bar-details:hover {
+    color: white;
+  }
+
+  .res-bar-next {
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 15px 32px;
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: 0.9rem;
-    transition: all var(--transition-normal);
+    font-size: 0.98rem;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 6px 18px rgba(227, 24, 55, 0.4);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
-  .res-stepper-item.is-active .res-stepper-dot {
-    border-color: var(--color-primary);
-    color: white;
-    background: var(--gradient-primary);
-    box-shadow: 0 0 0 6px rgba(227,24,55,0.12);
+  .res-bar-next:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 24px rgba(227, 24, 55, 0.5);
   }
 
-  .res-stepper-item.is-done .res-stepper-dot {
-    border-color: var(--color-turquoise);
-    background: var(--color-turquoise);
-    color: white;
+  /* Popover détail du prix */
+  .res-price-pop {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: max(24px, calc((100vw - var(--max-width)) / 2 + 24px));
+    z-index: 210;
   }
 
-  .res-stepper-label {
-    font-size: 0.78rem;
-    font-weight: 600;
+  .res-price-pop-card {
+    width: min(360px, calc(100vw - 32px));
+    background: white;
+    color: var(--color-ink);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+    padding: 18px 20px;
+    animation: pk-in 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .res-price-pop-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .res-price-pop-head strong {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+  }
+
+  .res-price-pop-head .pk-close {
+    display: flex;
+    width: 30px;
+    height: 30px;
+  }
+
+  .res-price-pop-body :global(.res-pop-row) {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.85rem;
     color: var(--color-text-muted);
+    padding: 4px 0;
   }
 
-  .res-stepper-item.is-active .res-stepper-label {
+  .res-price-pop-body :global(.res-pop-row span:last-child) {
+    font-weight: 600;
+    color: var(--color-ink);
+    white-space: nowrap;
+  }
+
+  .res-price-pop-body :global(.res-pop-row.is-discount span) {
+    color: var(--color-turquoise);
+  }
+
+  .res-price-pop-body :global(.res-pop-total) {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid var(--color-border);
+    margin-top: 8px;
+    padding-top: 10px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.05rem;
     color: var(--color-ink);
   }
 
-  /* Layout */
-  .res-layout {
-    display: grid;
-    grid-template-columns: 1fr 360px;
-    gap: var(--spacing-xl);
-    align-items: start;
+  /* ============ CORPS DU TUNNEL ============ */
+  .res {
+    background: white;
+    min-height: 70vh;
   }
 
-  .res-main {
-    background: white;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-card);
-    padding: var(--spacing-xl);
-    min-height: 480px;
-    position: relative;
-    overflow: hidden;
+  .res-body {
+    padding-block: 34px 90px;
   }
 
   .res-step {
     display: none;
-    animation: res-step-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: res-step-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .res-step.is-active {
@@ -610,405 +746,293 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
   }
 
   @keyframes res-step-in {
-    from { opacity: 0; transform: translateX(20px); }
-    to { opacity: 1; transform: translateX(0); }
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .res-step-title {
-    font-size: 1.45rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: -0.01em;
-    margin-bottom: 6px;
+  .is-hidden {
+    display: none !important;
   }
 
-  /* Barre sticky total */
-  .res-topbar {
-    position: sticky;
-    top: 0;
-    z-index: 60;
+  /* ============ ÉTAPE 1 : trajet ============ */
+  .res-panel {
+    max-width: 720px;
+    margin: 0 auto;
     background: white;
-    border-bottom: 1px solid var(--color-border);
-    box-shadow: 0 2px 12px rgba(22, 32, 46, 0.06);
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .res-topbar-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-md);
-    padding-block: 10px;
-  }
-
-  .res-topbar-total span {
-    font-size: 0.95rem;
-    color: var(--color-text-muted);
-  }
-
-  .res-topbar-total strong {
-    font-family: var(--font-display);
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--color-ink);
-  }
-
-  .res-topbar-total small {
-    display: block;
-    font-size: 0.72rem;
-    color: var(--color-text-subtle);
-  }
-
-  .res-topbar-next {
-    padding: 12px 28px;
-  }
-
-  /* Aperçu de la réservation */
-  .res-apercu {
-    margin-top: var(--spacing-lg);
-    background: var(--color-bg-soft);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-md);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
+    padding: var(--spacing-xl);
   }
 
-  .res-apercu > strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: 0.92rem;
-    color: var(--color-ink);
-    margin-bottom: 10px;
-  }
-
-  .res-apercu ul {
-    display: flex;
-    flex-direction: column;
-    gap: 7px;
-  }
-
-  .res-apercu li {
-    position: relative;
-    padding-left: 24px;
-    font-size: 0.86rem;
-    color: var(--color-text-body);
-  }
-
-  .res-apercu li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--color-turquoise);
-    font-weight: 800;
-  }
-
-  /* Panneau détail véhicule */
-  .veh-panel {
-    position: fixed;
-    inset: 0;
-    z-index: 1400;
-    background: rgba(16, 22, 32, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-  }
-
-  .veh-panel-card {
-    position: relative;
-    width: min(520px, 100%);
-    max-height: calc(100vh - 32px);
-    overflow-y: auto;
-    background: white;
-    border-radius: var(--radius-lg);
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
-    animation: pk-in-sheet-like 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  @keyframes pk-in-sheet-like {
-    from { opacity: 0; transform: translateY(14px) scale(0.98); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .veh-panel-close {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 2;
-    display: flex;
-    background: white;
-  }
-
-  .veh-panel-media {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    background: radial-gradient(ellipse 90% 68% at 50% 74%, #D7DBE1 0%, #A9AFB8 42%, #4A515B 78%, #262B33 100%);
-    overflow: hidden;
-  }
-
-  .veh-panel-media img {
-    position: absolute;
-    left: 8%;
-    top: 24%;
-    width: 84%;
-    height: 71%;
-    object-fit: contain;
-    object-position: center bottom;
-    filter: drop-shadow(0 14px 18px rgba(0, 0, 0, 0.4));
-  }
-
-  .veh-panel-media::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(180deg, rgba(10, 14, 22, 0.8) 0%, rgba(10, 14, 22, 0.15) 40%, transparent 60%);
-    pointer-events: none;
-  }
-
-  .veh-panel-name {
-    position: absolute;
-    top: 16px;
-    left: 18px;
-    z-index: 2;
-  }
-
-  .veh-panel-name strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: 1.3rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    color: white;
-  }
-
-  .veh-panel-name span {
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.8);
-  }
-
-  .veh-panel-specs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    padding: 16px 18px 0;
-  }
-
-  .veh-panel-specs li {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    background: var(--color-bg-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    padding: 5px 12px;
-  }
-
-  .veh-panel-includes {
-    padding: 16px 18px;
-  }
-
-  .veh-panel-includes > strong {
-    display: block;
-    font-family: var(--font-display);
-    font-size: 0.88rem;
-    color: var(--color-ink);
-    margin-bottom: 8px;
-  }
-
-  .veh-panel-includes ul {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .veh-panel-includes li {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.84rem;
-    color: var(--color-text-body);
-  }
-
-  .veh-panel-includes svg {
-    color: var(--color-turquoise);
-    flex-shrink: 0;
-  }
-
-  .veh-panel-foot {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--spacing-sm);
-    padding: 14px 18px;
-    border-top: 1px solid var(--color-border);
-  }
-
-  .veh-panel-price {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.15rem;
-    color: var(--color-ink);
-  }
-
-  .veh-panel-price small {
-    display: block;
-    font-family: var(--font-body);
-    font-weight: 500;
-    font-size: 0.75rem;
-    color: var(--color-text-muted);
-  }
-
-  .res-step-desc {
-    margin-bottom: var(--spacing-lg);
-  }
-
-  /* Étape 1 */
   .res-fields {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
-  }
-
-  .res-dt-group {
-    display: grid;
-    grid-template-columns: 1.5fr 1fr;
-    gap: 10px;
-  }
-
-  .res-field {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    background: var(--color-bg-soft);
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    transition: border-color var(--transition-fast);
-    min-width: 0;
-  }
-
-  .res-field:focus-within,
-  .res-field:hover {
-    border-color: var(--color-primary);
+    gap: 14px;
   }
 
   .res-field label {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.7rem;
+    display: block;
+    font-size: 0.82rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+  }
+
+  .res-field label small {
+    font-weight: 500;
     color: var(--color-text-subtle);
   }
 
-  .res-field label svg {
+  .res-loc {
+    width: 100%;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.94rem;
+    font-weight: 500;
+    transition: border-color var(--transition-fast);
+  }
+
+  .res-loc:hover,
+  .res-loc:focus-visible {
+    border-color: var(--color-primary);
+  }
+
+  .res-loc-icon {
     color: var(--color-primary);
     flex-shrink: 0;
   }
 
-  .res-field select,
-  .res-field input {
-    background: transparent;
-    border: none;
-    color: var(--color-ink);
-    font-family: var(--font-body);
-    font-size: 0.95rem;
-    font-weight: 600;
-    outline: none;
-    width: 100%;
+  .res-loc [data-pk-label] {
+    flex: 1;
+    text-align: left;
+  }
+
+  .res-check {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
     cursor: pointer;
   }
 
-  .res-field input[type="text"],
-  .res-field input[type="email"],
-  .res-field input[type="tel"] {
-    cursor: text;
+  .res-check input,
+  .res-terms input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .res-check-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: 1.5px solid var(--color-border-light);
+    border-radius: 5px;
+    color: transparent;
+    flex-shrink: 0;
+    transition: all var(--transition-fast);
+  }
+
+  .res-check input:checked + .res-check-box,
+  .res-terms input:checked + .res-check-box {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+  }
+
+  .res-dt-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .res-dt {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 8px;
+  }
+
+  .res-dt-date,
+  .res-dt-time {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    padding: 13px 12px;
+    font-size: 0.92rem;
+    transition: border-color var(--transition-fast);
+  }
+
+  .res-dt-date {
+    cursor: pointer;
+  }
+
+  .res-dt-date:hover {
+    border-color: var(--color-primary);
+  }
+
+  .res-dt-date svg {
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .res-dt-date [data-pk-label] {
+    flex: 1;
+    text-align: left;
+  }
+
+  .res-dt-date:not(.has-value) [data-pk-label] {
+    color: var(--color-text-subtle);
+  }
+
+  .res-dt-time select {
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-size: 0.92rem;
     font-weight: 500;
+    color: var(--color-ink);
+    outline: none;
+    cursor: pointer;
+    width: 100%;
   }
 
-  #res-dropoff-field {
-    transition: opacity 0.3s ease;
+  .res-step-actions {
+    margin-top: 20px;
   }
 
-  #res-dropoff-field.is-hidden {
-    display: none;
+  .res-cta {
+    width: 100%;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 16px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: var(--shadow-primary);
+    transition: transform var(--transition-fast), box-shadow var(--transition-fast);
   }
 
-  /* Étape 2 : véhicules */
-  .res-veh-filters {
+  .res-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(227, 24, 55, 0.4);
+  }
+
+  /* ============ ÉTAPE 2 : toolbar ============ */
+  .res-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .res-sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1.5px solid var(--color-border-light);
+    border-radius: var(--radius-full);
+    padding: 9px 16px;
+    color: var(--color-ink);
+  }
+
+  .res-sort select {
+    border: none;
+    background: transparent;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.86rem;
+    color: var(--color-ink);
+    outline: none;
+    cursor: pointer;
+  }
+
+  .res-filters {
     display: flex;
     gap: 8px;
-    margin-bottom: var(--spacing-md);
+    flex-wrap: wrap;
   }
 
-  .res-veh-filter {
-    padding: 8px 18px;
+  .res-filter {
+    border: 1.5px solid var(--color-border-light);
     border-radius: var(--radius-full);
-    border: 1.5px solid var(--color-border);
     background: white;
-    font-family: var(--font-display);
-    font-size: 0.82rem;
+    padding: 9px 18px;
+    font-family: var(--font-body);
     font-weight: 600;
-    color: var(--color-text-muted);
+    font-size: 0.86rem;
+    color: var(--color-ink);
     cursor: pointer;
     transition: all var(--transition-fast);
   }
 
-  .res-veh-filter:hover {
-    border-color: var(--color-primary);
-    color: var(--color-primary);
+  .res-filter:hover:not(.is-active) {
+    border-color: var(--color-ink);
   }
 
-  .res-veh-filter[aria-pressed="true"] {
-    background: var(--gradient-primary);
-    border-color: transparent;
+  .res-filter.is-active {
+    background: #171B22;
+    border-color: #171B22;
     color: white;
   }
 
+  /* Grille véhicules : 3 colonnes façon Sixt */
   .res-veh-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--spacing-sm);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
   }
 
-  /* Bandeau info (permis) */
+  /* ============ ÉTAPE 3 : protections ============ */
   .res-info-banner {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 12px;
     background: var(--color-bg-soft);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 12px 16px;
-    font-size: 0.85rem;
+    border-radius: 12px;
+    padding: 14px 18px;
+    font-size: 0.88rem;
     color: var(--color-text-body);
-    margin-bottom: var(--spacing-lg);
+    margin-bottom: 24px;
   }
 
   .res-info-banner svg {
-    color: var(--color-primary);
+    color: var(--color-ink);
     flex-shrink: 0;
   }
 
-  /* Étape 3 : protections (4 formules, matrice ✓/✗) */
   .res-protections {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-    align-items: stretch;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
   }
 
   .res-protection {
-    position: relative;
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-md) var(--spacing-md) var(--spacing-lg);
-    background: white;
     border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    border-radius: 16px;
+    padding: 20px;
     cursor: pointer;
-    transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+    background: white;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   }
 
   .res-protection:hover {
@@ -1016,352 +1040,452 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
   }
 
   .res-protection.is-selected {
-    border-color: var(--color-ink);
-    box-shadow: 0 0 0 1.5px var(--color-ink);
-  }
-
-  .res-protection-radio {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+    border-color: #171B22;
+    box-shadow: 0 0 0 1px #171B22;
   }
 
   .res-protection-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: 8px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 10px;
   }
 
   .res-protection-name {
     font-family: var(--font-display);
-    font-weight: 800;
+    font-weight: 700;
     font-size: 1rem;
-    line-height: 1.2;
     color: var(--color-ink);
+    line-height: 1.25;
   }
 
-  .res-protection-radio-dot {
-    flex-shrink: 0;
-    width: 20px;
-    height: 20px;
+  .res-protection-radio {
+    width: 22px;
+    height: 22px;
     border-radius: 50%;
-    border: 2px solid var(--color-border-light);
+    border: 2px solid #C9CDD4;
+    flex-shrink: 0;
     transition: all var(--transition-fast);
-    margin-top: 2px;
   }
 
-  .res-protection.is-selected .res-protection-radio-dot {
-    border-color: var(--color-ink);
-    background: radial-gradient(circle, var(--color-ink) 0 44%, transparent 48%);
+  .res-protection.is-selected .res-protection-radio {
+    border-color: #171B22;
+    background: radial-gradient(circle at center, white 0 3px, #171B22 4px);
   }
 
   .res-protection-stars {
     display: flex;
     align-items: center;
     gap: 3px;
+    color: #D5D9E0;
     margin-bottom: 10px;
-    min-height: 20px;
-    flex-wrap: wrap;
+    min-height: 22px;
   }
 
-  .res-protection-stars svg {
-    color: var(--color-border-light);
+  .res-protection-stars .is-on {
+    color: #171B22;
   }
 
-  .res-protection-stars svg.is-on {
-    color: var(--color-gold);
-  }
-
-  .res-protection-badge {
+  .res-protection-remise {
     font-style: normal;
-    font-family: var(--font-display);
-    font-size: 0.62rem;
+    border: 1.5px solid var(--color-coral);
+    color: var(--color-coral);
+    font-size: 0.66rem;
     font-weight: 700;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    color: var(--color-primary);
-    border: 1px solid rgba(227, 24, 55, 0.3);
+    padding: 3px 9px;
     border-radius: var(--radius-full);
-    padding: 2px 8px;
-    margin-left: 4px;
+    margin-left: 8px;
+    white-space: nowrap;
   }
 
   .res-protection-franchise {
-    font-family: var(--font-display);
+    font-size: 0.84rem;
     font-weight: 700;
-    font-size: 0.82rem;
-    color: var(--color-primary);
-    margin-bottom: 12px;
+    color: #D92D20;
+    margin-bottom: 14px;
   }
 
   .res-protection-franchise.is-ok {
-    color: var(--color-turquoise);
+    color: #079455;
   }
 
   .res-protection-lines {
     display: flex;
     flex-direction: column;
-    gap: 9px;
-    padding-top: 12px;
-    border-top: 1px solid var(--color-border);
+    gap: 10px;
+    margin-bottom: 18px;
     flex: 1;
   }
 
   .res-protection-lines li {
     display: flex;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 8px;
     font-size: 0.78rem;
-    line-height: 1.3;
-    color: var(--color-text-body);
+    line-height: 1.35;
   }
 
-  .res-protection-lines li svg {
+  .res-protection-line-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .res-protection-line-left svg {
     flex-shrink: 0;
     margin-top: 1px;
   }
 
-  .res-protection-lines li.is-yes svg {
-    color: var(--color-turquoise);
-  }
-
-  .res-protection-lines li.is-no {
-    color: var(--color-text-subtle);
-  }
-
-  .res-protection-lines li.is-no svg {
-    color: var(--color-border-light);
-  }
-
-  .res-protection-price {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.15rem;
+  .res-protection-lines .is-yes {
     color: var(--color-ink);
-    margin-top: 14px;
+  }
+
+  .res-protection-lines .is-yes .res-protection-line-left svg {
+    color: #079455;
+  }
+
+  .res-protection-lines .is-no {
+    color: #98A2B3;
+  }
+
+  .res-protection-info {
+    color: #C9CDD4;
+    flex-shrink: 0;
+  }
+
+  .res-protection-price strong {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-ink);
   }
 
   .res-protection-price small {
+    font-size: 0.78rem;
     font-weight: 500;
-    font-size: 0.8rem;
-    color: var(--color-text-muted);
+    color: var(--color-text-subtle);
   }
 
-  /* Étape 4 : options */
+  .res-protection-price s {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--color-text-subtle);
+  }
+
+  /* ============ ÉTAPE 4 : options ============ */
+  .res-options-layout {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 26px;
+    align-items: start;
+  }
+
   .res-extras {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 14px;
   }
 
   .res-extra {
-    position: relative;
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 14px 16px;
-    background: white;
+    gap: 16px;
     border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    transition: all var(--transition-normal);
+    border-radius: 14px;
+    padding: 18px 20px;
+    background: white;
+    transition: border-color var(--transition-fast);
   }
 
-  .res-extra:hover {
-    border-color: var(--color-border-light);
-  }
-
-  .res-extra:has(.res-extra-checkbox:checked) {
-    border-color: var(--color-turquoise);
-    background: rgba(0,169,143,0.05);
-  }
-
-  .res-extra-checkbox {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
+  .res-extra.is-on {
+    border-color: #171B22;
+    box-shadow: 0 0 0 1px #171B22;
   }
 
   .res-extra-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-soft);
-    color: var(--color-text-muted);
+    color: var(--color-ink);
     flex-shrink: 0;
-    transition: all var(--transition-normal);
-  }
-
-  .res-extra:has(.res-extra-checkbox:checked) .res-extra-icon {
-    background: var(--color-turquoise);
-    color: white;
   }
 
   .res-extra-body {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     gap: 2px;
   }
 
   .res-extra-label {
-    font-weight: 600;
-    font-size: 0.92rem;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.94rem;
     color: var(--color-ink);
+  }
+
+  .res-extra-price {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+  }
+
+  .res-extra-details {
+    align-self: flex-start;
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
   }
 
   .res-extra-desc {
     font-size: 0.78rem;
-    color: var(--color-text-subtle);
+    color: var(--color-text-muted);
+    line-height: 1.45;
+    padding-top: 4px;
   }
 
-  .res-extra-price {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--color-ink);
-    white-space: nowrap;
-  }
-
-  .res-extra-price small {
-    font-weight: 400;
-    color: var(--color-text-subtle);
-  }
-
-  /* Interrupteur */
-  .res-extra-check {
+  /* Interrupteur façon Sixt */
+  .res-toggle {
     position: relative;
-    width: 44px;
-    height: 24px;
+    width: 46px;
+    height: 26px;
+    border: none;
     border-radius: var(--radius-full);
-    background: #D5DAE3;
+    background: #E4E7EC;
+    cursor: pointer;
     flex-shrink: 0;
-    transition: background var(--transition-normal);
+    transition: background var(--transition-fast);
   }
 
-  .res-extra-check svg {
-    display: none;
-  }
-
-  .res-extra-check::after {
-    content: '';
+  .res-toggle-knob {
     position: absolute;
     top: 3px;
     left: 3px;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     background: white;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-    transition: left 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: transform var(--transition-fast);
   }
 
-  .res-extra:has(.res-extra-checkbox:checked) .res-extra-check {
-    background: var(--color-turquoise);
+  .res-toggle[aria-checked="true"] {
+    background: #171B22;
   }
 
-  .res-extra:has(.res-extra-checkbox:checked) .res-extra-check::after {
-    left: 23px;
+  .res-toggle[aria-checked="true"] .res-toggle-knob {
+    transform: translateX(20px);
   }
 
-  /* Étape 5 : vérification */
-  .res-recap {
-    background: var(--color-bg-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    padding: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
-  }
-
-  .res-recap :global(.res-recap-veh) {
+  /* Stepper façon Sixt */
+  .res-stepper-ctrl {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding-bottom: var(--spacing-sm);
-    margin-bottom: var(--spacing-sm);
-    border-bottom: 1px solid var(--color-border);
+    gap: 4px;
+    background: #171B22;
+    border-radius: var(--radius-full);
+    padding: 4px;
+    flex-shrink: 0;
   }
 
-  .res-recap :global(.res-recap-veh img) {
-    width: 84px;
-    height: 62px;
-    object-fit: cover;
-    border-radius: var(--radius-sm);
-  }
-
-  .res-recap :global(.res-recap-veh strong) {
-    font-family: var(--font-display);
-    color: var(--color-ink);
-  }
-
-  .res-recap :global(.res-recap-veh small) {
-    display: block;
-    color: var(--color-text-muted);
-    font-size: 0.78rem;
-  }
-
-  .res-recap :global(.res-recap-row) {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    font-size: 0.87rem;
-    color: var(--color-text-body);
-    padding: 3px 0;
-  }
-
-  .res-recap :global(.res-recap-row span:last-child) {
+  .res-stepper-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    font-size: 1.15rem;
     font-weight: 600;
-    color: var(--color-ink);
-    text-align: right;
-  }
-
-  .res-recap :global(.res-recap-total) {
+    cursor: pointer;
     display: flex;
-    justify-content: space-between;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--transition-fast);
+  }
+
+  .res-stepper-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .res-stepper-btn:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .res-stepper-count {
+    min-width: 22px;
+    text-align: center;
+    color: white;
+    font-weight: 700;
+    font-size: 0.92rem;
+  }
+
+  /* Aperçu de la réservation */
+  .res-apercu {
+    border: 1.5px solid var(--color-border);
+    border-radius: 16px;
+    padding: 22px;
+    background: white;
+    position: sticky;
+    top: 100px;
+  }
+
+  .res-apercu-title {
+    display: block;
     font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--color-ink);
-    padding-top: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
-    border-top: 1px solid var(--color-border);
+    margin-bottom: 14px;
   }
 
-  .res-recap :global(.res-recap-total span:last-child) {
-    color: var(--color-primary);
+  .res-apercu-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .res-contact-title {
-    font-size: 1.05rem;
-    margin-bottom: var(--spacing-sm);
+  .res-apercu-list :global(.res-apercu-item) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.86rem;
+    color: var(--color-ink);
+  }
+
+  .res-apercu-list :global(.res-apercu-item-left) {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+  }
+
+  .res-apercu-list :global(.res-apercu-item-left svg) {
+    color: #079455;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .res-apercu-list :global(.res-apercu-item-info) {
+    color: #C9CDD4;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ============ ÉTAPE 5 : revoir ============ */
+  .res-review-layout {
+    display: grid;
+    grid-template-columns: 1fr 430px;
+    gap: 30px;
+    align-items: start;
+  }
+
+  .res-review-subtitle {
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-bottom: 18px;
   }
 
   .res-contact-fields {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--spacing-md);
-    margin-bottom: var(--spacing-lg);
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 
-  .res-contact-fields .res-field-full {
+  .res-field-full {
     grid-column: 1 / -1;
   }
 
-  .res-contact-fields .res-field label {
-    text-transform: none;
-    font-size: 0.78rem;
+  .res-contact-fields input,
+  .res-country select {
+    width: 100%;
+    background: white;
+    border: 1.5px solid var(--color-border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-family: var(--font-body);
+    font-size: 0.94rem;
+    color: var(--color-ink);
+    outline: none;
+    transition: border-color var(--transition-fast);
+  }
+
+  .res-contact-fields input:focus,
+  .res-country select:focus {
+    border-color: var(--color-primary);
+  }
+
+  .res-country {
+    position: relative;
+  }
+
+  .res-country select {
+    appearance: none;
+    cursor: pointer;
+    padding-right: 34px;
+  }
+
+  .res-country .pk-chevron {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-text-subtle);
+  }
+
+  .res-whatsapp {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 26px;
+  }
+
+  .res-radio {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.9rem;
+    color: var(--color-ink);
+    cursor: pointer;
+    line-height: 1.45;
+  }
+
+  .res-radio input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .res-radio-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #C9CDD4;
+    flex-shrink: 0;
+    margin-top: 1px;
+    transition: all var(--transition-fast);
+  }
+
+  .res-radio input:checked + .res-radio-dot {
+    border-color: #171B22;
+    background: radial-gradient(circle at center, white 0 3px, #171B22 4px);
   }
 
   .res-terms {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
+    gap: 9px;
+    margin-top: 26px;
+    font-size: 0.84rem;
     color: var(--color-text-muted);
     cursor: pointer;
   }
@@ -1369,21 +1493,23 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
   .res-terms a {
     color: var(--color-primary);
     text-decoration: underline;
+    text-underline-offset: 2px;
   }
 
-  /* Navigation */
-  .res-nav {
-    display: flex;
-    justify-content: space-between;
-    margin-top: var(--spacing-xl);
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--color-border);
+  /* Carte récapitulative (droite) */
+  .res-review-card {
+    border: 1.5px solid var(--color-border);
+    border-radius: 16px;
+    padding: 22px;
+    background: white;
+    position: sticky;
+    top: 100px;
   }
 
-  /* Succès */
+  /* ============ SUCCÈS ============ */
   .res-success {
     text-align: center;
-    padding: var(--spacing-xl) 0;
+    padding: var(--spacing-2xl) 0;
     position: relative;
   }
 
@@ -1395,7 +1521,7 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
 
   .res-success-circle {
     stroke: var(--color-turquoise);
-    stroke-width: 2;
+    stroke-width: 2.5;
     stroke-dasharray: 166;
     stroke-dashoffset: 166;
     animation: res-circle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
@@ -1447,374 +1573,662 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
     to { transform: translateY(420px) rotate(400deg); opacity: 0; }
   }
 
-  /* Récapitulatif latéral */
-  .res-summary-card {
-    position: sticky;
-    top: var(--spacing-lg);
-    background: white;
-    border: 1px solid var(--color-border-light);
-    border-radius: var(--radius-xl);
-    box-shadow: var(--shadow-card);
-    padding: var(--spacing-lg);
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1100px) {
+    .res-veh-grid { grid-template-columns: repeat(2, 1fr); }
+    .res-protections { grid-template-columns: repeat(2, 1fr); }
+    .res-options-layout,
+    .res-review-layout { grid-template-columns: 1fr; }
+    .res-apercu,
+    .res-review-card { position: static; }
   }
 
-  .res-summary-title {
-    font-size: 1.05rem;
-    margin-bottom: var(--spacing-md);
-  }
+  @media (max-width: 720px) {
+    .res-bar-inner {
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-block: 10px;
+    }
 
-  .res-summary-vehicle {
-    margin-bottom: var(--spacing-md);
-    padding-bottom: var(--spacing-md);
-    border-bottom: 1px solid var(--color-border);
-    min-height: 40px;
-  }
+    .res-bar-title {
+      font-size: 0.98rem;
+      white-space: normal;
+    }
 
-  .res-summary-vehicle-placeholder {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: var(--color-text-subtle);
-    font-size: 0.82rem;
-  }
+    .res-bar-right {
+      width: 100%;
+      justify-content: space-between;
+      gap: 12px;
+    }
 
-  .res-summary-vehicle :global(.res-summary-vehicle-selected) {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    animation: fadeIn 0.4s ease;
-  }
+    .res-bar-next {
+      padding: 12px 22px;
+      font-size: 0.9rem;
+    }
 
-  .res-summary-vehicle :global(.res-summary-vehicle-selected img) {
-    width: 64px;
-    height: 48px;
-    object-fit: contain;
-    border-radius: var(--radius-sm);
-    background: radial-gradient(ellipse 90% 75% at 50% 70%, #E4E7EC 0%, #C2C7CF 100%);
-    padding: 3px;
-  }
+    .res-bar-total-line strong {
+      font-size: 1.2rem;
+    }
 
-  .res-summary-vehicle :global(.res-summary-vehicle-selected-name) {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.9rem;
-    color: var(--color-ink);
-  }
+    .res-veh-grid,
+    .res-protections,
+    .res-dt-row,
+    .res-contact-fields {
+      grid-template-columns: 1fr;
+    }
 
-  .res-summary-vehicle :global(.res-summary-vehicle-selected-meta) {
-    font-size: 0.75rem;
-    color: var(--color-text-subtle);
-  }
-
-  .res-summary-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-    font-size: 0.88rem;
-    color: var(--color-text-muted);
-    margin-bottom: 8px;
-  }
-
-  .res-summary-row span:last-child {
-    text-align: right;
-    font-weight: 600;
-    color: var(--color-ink);
-  }
-
-  .res-summary-row em {
-    font-style: normal;
-    color: var(--color-primary);
-    font-weight: 600;
-  }
-
-  .res-summary-discount span {
-    color: var(--color-turquoise) !important;
-    font-weight: 600;
-  }
-
-  .res-summary-extras :global(.res-summary-row) {
-    font-size: 0.8rem;
-  }
-
-  .res-summary-total {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    padding-top: var(--spacing-sm);
-    margin-top: var(--spacing-sm);
-    border-top: 1px solid var(--color-border);
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.4rem;
-    color: var(--color-ink);
-  }
-
-  .res-summary-total span:last-child {
-    color: var(--color-primary);
-    transition: transform 0.3s ease;
-  }
-
-  .res-summary-trust {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: var(--spacing-md);
-    padding-top: var(--spacing-md);
-    border-top: 1px solid var(--color-border);
-  }
-
-  .res-summary-trust span {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.76rem;
-    color: var(--color-text-subtle);
-  }
-
-  .res-summary-trust svg {
-    color: var(--color-turquoise);
-    flex-shrink: 0;
-  }
-
-  @media (max-width: 1024px) {
-    .res-layout { grid-template-columns: 1fr; }
-    .res-summary-card { position: static; }
-    .res-protections { grid-template-columns: 1fr; }
-    .res-protection-badge { left: auto; right: 14px; transform: none; }
-  }
-
-  @media (max-width: 640px) {
-    .res-fields, .res-contact-fields { grid-template-columns: 1fr; }
-    .res-stepper-label { display: none; }
-    .res-main { padding: var(--spacing-md); }
-    .res-veh-card { flex-wrap: wrap; }
+    .res-panel {
+      padding: var(--spacing-md);
+    }
   }
 </style>
 
 <!-- Styles des éléments injectés en JavaScript (hors scoping Astro) -->
 <style is:global>
-  .res-veh-card {
+  /* ============ CARTES VÉHICULES SOMBRES (style Sixt) ============ */
+  .vc {
     position: relative;
-    display: grid;
-    grid-template-columns: 170px 1fr auto;
-    gap: 18px;
-    align-items: center;
-    padding: 14px;
-    background: white;
-    border: 1.5px solid var(--color-border);
-    border-radius: var(--radius-lg);
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(ellipse 130% 95% at 50% 108%, #454C56 0%, #262B33 52%, #14161A 100%);
+    border: 1.5px solid transparent;
+    border-radius: 18px;
+    padding: 20px 20px 0;
+    color: white;
     cursor: pointer;
-    transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
-  }
-
-  .res-veh-card:hover {
-    border-color: var(--color-border-light);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .res-veh-card.is-selected {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(227, 24, 55, 0.15);
-  }
-
-  /* Média : voiture détourée sur dégradé studio */
-  .res-veh-card-media {
-    position: relative;
-    aspect-ratio: 16 / 11;
-    border-radius: var(--radius-md);
     overflow: hidden;
-    background: radial-gradient(ellipse 90% 70% at 50% 72%, #D7DBE1 0%, #A9AFB8 45%, #454C56 82%, #262B33 100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s, border-color 0.25s;
   }
 
-  .res-veh-card-media img {
-    position: absolute;
-    left: 6%;
-    right: 6%;
-    bottom: 6%;
-    top: 24%;
-    width: 88%;
-    height: 70%;
+  .vc:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 50px rgba(10, 14, 20, 0.45);
+  }
+
+  .vc.is-selected {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 1px var(--color-primary), 0 18px 44px rgba(227, 24, 55, 0.25);
+  }
+
+  .vc-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.12rem;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    color: white;
+    line-height: 1.15;
+  }
+
+  .vc-sub {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.62);
+    margin-top: 2px;
+  }
+
+  .vc-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 12px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.78);
+  }
+
+  .vc-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .vc-similar {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .vc-media {
+    position: relative;
+    margin: 10px 0 0;
+    min-height: 150px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+
+  .vc-media img {
+    width: 92%;
+    max-height: 190px;
     object-fit: contain;
     object-position: center bottom;
-    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.4));
+    filter: drop-shadow(0 14px 16px rgba(0, 0, 0, 0.45));
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
-  .res-veh-card-badge {
+  .vc:hover .vc-media img {
+    transform: scale(1.03);
+  }
+
+  .vc-badge {
     position: absolute;
-    top: 8px;
-    left: 8px;
-    z-index: 2;
+    top: 42%;
+    left: 50%;
+    transform: translate(-50%, -50%) skew(-8deg);
+    border: 2.5px solid rgba(255, 255, 255, 0.92);
+    background: rgba(10, 12, 16, 0.18);
+    padding: 5px 14px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: white;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.55);
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  .vc-deal {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
     background: var(--gradient-primary);
     color: white;
-    font-family: var(--font-display);
-    font-size: 0.6rem;
+    font-size: 0.7rem;
     font-weight: 700;
-    letter-spacing: 0.04em;
+    padding: 4px 11px;
+    border-radius: var(--radius-full);
+    margin-top: 14px;
+  }
+
+  .vc-deal::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: white;
+  }
+
+  .vc-incl {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.78);
+    margin-top: 10px;
+  }
+
+  .vc-incl svg {
+    color: #2ED3A3;
+    flex-shrink: 0;
+  }
+
+  .vc-price {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-top: 12px;
+    padding-bottom: 16px;
+  }
+
+  .vc-price strong {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.4rem;
+    color: var(--color-coral);
+    white-space: nowrap;
+  }
+
+  .vc-price strong small {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .vc-price span {
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.6);
+    white-space: nowrap;
+  }
+
+  .vc-foot {
+    margin: 0 -20px;
+    background: rgba(8, 10, 13, 0.5);
+    padding: 11px 20px;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.74rem;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .vc-foot strong {
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: white;
+    letter-spacing: 0.02em;
+  }
+
+  /* ============ PANNEAU DÉTAIL VÉHICULE (style Sixt) ============ */
+  .veh-panel {
+    position: fixed;
+    inset: 0;
+    z-index: 1400;
+    background: rgba(10, 13, 18, 0.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+
+  .veh-panel-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1.05fr 1fr;
+    width: min(1060px, 100%);
+    max-height: calc(100vh - 40px);
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+    animation: pk-in-sheet 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .veh-panel-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: white;
+    color: var(--color-ink);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .veh-panel-close:hover {
+    border-color: var(--color-ink);
+  }
+
+  .veh-panel-media {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: radial-gradient(ellipse 125% 90% at 50% 105%, #454C56 0%, #262B33 55%, #14161A 100%);
+    padding: 26px;
+    color: white;
+    min-height: 480px;
+  }
+
+  .veh-panel-name strong {
+    display: block;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.35rem;
     text-transform: uppercase;
+    color: white;
+  }
+
+  .veh-panel-name span {
+    font-size: 0.86rem;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .veh-panel-media img {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    object-fit: contain;
+    object-position: center;
+    filter: drop-shadow(0 18px 22px rgba(0, 0, 0, 0.5));
+    margin: 18px 0;
+  }
+
+  .veh-panel-media-foot {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .veh-panel-similar {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .veh-panel-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+  }
+
+  .veh-panel-specs li {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: var(--radius-full);
+    padding: 5px 12px;
+    font-size: 0.76rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+  }
+
+  .veh-panel-age {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 0.78rem;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .veh-panel-side {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 28px;
+    overflow-y: auto;
+  }
+
+  .veh-panel-heading {
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    font-weight: 800;
+    color: var(--color-ink);
+    margin-bottom: 12px;
+  }
+
+  .veh-panel-section {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .veh-panel-section .veh-pay + .veh-pay {
+    margin-top: 10px;
+  }
+
+  .veh-pay {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border: 1.5px solid var(--color-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  }
+
+  .veh-pay.is-selected {
+    border-color: #171B22;
+    box-shadow: 0 0 0 1px #171B22;
+  }
+
+  .veh-pay input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .veh-pay-radio {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid #C9CDD4;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .veh-pay.is-selected .veh-pay-radio {
+    border-color: #171B22;
+    background: radial-gradient(circle at center, white 0 3px, #171B22 4px);
+  }
+
+  .veh-pay-body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .veh-pay-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+
+  .veh-pay-pop {
+    font-style: normal;
+    background: var(--color-coral);
+    color: white;
+    font-size: 0.64rem;
+    font-weight: 700;
     padding: 3px 9px;
     border-radius: var(--radius-full);
   }
 
-  .res-veh-card-info {
-    min-width: 0;
-  }
-
-  .res-veh-card-name {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-    color: var(--color-ink);
-    line-height: 1.1;
-  }
-
-  .res-veh-card-sub {
-    font-size: 0.78rem;
+  .veh-pay-desc {
+    display: block;
+    font-size: 0.76rem;
     color: var(--color-text-muted);
-    margin-bottom: 8px;
+    line-height: 1.4;
+    margin-top: 3px;
   }
 
-  .res-veh-card-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-bottom: 8px;
+  .veh-pay-price {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--color-ink);
+    white-space: nowrap;
   }
 
-  .res-veh-card-chips span {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--color-text-body);
-    background: var(--color-bg-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    padding: 3px 10px;
+  .veh-pay-price small {
+    font-weight: 500;
+    color: var(--color-text-subtle);
   }
 
-  .res-veh-card-incl {
+  .veh-panel-foot {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.78rem;
-    color: var(--color-text-muted);
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--color-border);
   }
 
-  .res-veh-card-incl svg {
-    color: var(--color-turquoise);
-    flex-shrink: 0;
-  }
-
-  .res-veh-card-pricecol {
-    text-align: right;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 3px;
-    padding-right: 4px;
-  }
-
-  .res-veh-card-price {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    line-height: 1.15;
-  }
-
-  .res-veh-card-price strong {
+  .veh-panel-price strong {
+    display: block;
     font-family: var(--font-display);
     font-weight: 800;
     font-size: 1.3rem;
-    color: var(--color-ink);
+    color: var(--color-coral);
+    white-space: nowrap;
   }
 
-  .res-veh-card-price s {
+  .veh-panel-price strong small {
     font-size: 0.78rem;
     font-weight: 500;
     color: var(--color-text-subtle);
   }
 
-  .res-veh-card-price small {
-    font-size: 0.7rem;
+  .veh-panel-details {
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: 0.76rem;
+    color: var(--color-text-muted);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+  }
+
+  .veh-panel-next {
+    width: auto;
+    min-width: 190px;
+    padding: 15px 30px;
+  }
+
+  @media (max-width: 900px) {
+    .veh-panel-card {
+      grid-template-columns: 1fr;
+      overflow-y: auto;
+    }
+
+    .veh-panel-media {
+      min-height: 320px;
+    }
+
+    .veh-panel-media img {
+      max-height: 200px;
+    }
+  }
+
+  /* ============ CARTE RÉCAPITULATIVE (étape 5, style Sixt) ============ */
+  .rv-veh {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .rv-veh img {
+    width: 96px;
+    height: 64px;
+    object-fit: contain;
+    border-radius: 10px;
+    background: radial-gradient(ellipse 90% 75% at 50% 70%, #E4E7EC 0%, #C2C7CF 100%);
+    padding: 4px;
+  }
+
+  .rv-veh-name {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.02rem;
+    color: var(--color-ink);
+  }
+
+  .rv-veh-meta {
+    font-size: 0.78rem;
     color: var(--color-text-subtle);
   }
 
-  .res-veh-card-deal {
-    font-size: 0.74rem;
-    color: var(--color-turquoise);
-    font-weight: 600;
+  .rv-section {
+    padding: 14px 0;
   }
 
-  .res-veh-card-select {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    margin-top: 6px;
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 0.82rem;
-    color: var(--color-primary);
-    white-space: nowrap;
+  .rv-section + .rv-section {
+    border-top: 1px solid var(--color-border);
   }
 
-  .res-veh-card.is-selected .res-veh-card-select {
-    color: var(--color-turquoise);
-  }
-
-  .veh-panel-specs li {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--color-ink);
-    background: var(--color-bg-soft);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-full);
-    padding: 5px 12px;
-  }
-
-  /* Lignes d'options injectées dans le récap (hors scope Astro) */
-  .res-summary-extras .res-summary-row {
+  .rv-section-title {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 10px;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: var(--color-ink);
+    margin-bottom: 12px;
+  }
+
+  .rv-pay-tag {
+    font-style: normal;
+    color: var(--color-coral);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+  }
+
+  .rv-point {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .rv-point svg {
+    color: var(--color-ink);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .rv-point small {
+    display: block;
+    font-size: 0.74rem;
+    color: var(--color-text-subtle);
+  }
+
+  .rv-point strong {
+    display: block;
+    font-size: 0.92rem;
+    color: var(--color-ink);
+  }
+
+  .rv-point span {
     font-size: 0.8rem;
     color: var(--color-text-muted);
-    margin-bottom: 6px;
   }
 
-  .res-summary-extras .res-summary-row span:last-child {
-    font-weight: 600;
+  .rv-connector {
+    width: 2px;
+    height: 16px;
+    background: var(--color-border-light);
+    margin: 4px 0 4px 11px;
+  }
+
+  .rv-check {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 0.85rem;
     color: var(--color-ink);
-    white-space: nowrap;
+    padding: 4px 0;
   }
 
-  @media (max-width: 680px) {
-    .res-veh-card {
-      grid-template-columns: 1fr;
-      text-align: center;
-    }
-    .res-veh-card-media {
-      max-width: 220px;
-      margin: 0 auto;
-      width: 100%;
-    }
-    .res-veh-card-chips,
-    .res-veh-card-incl {
-      justify-content: center;
-    }
-    .res-veh-card-pricecol {
-      text-align: center;
-      align-items: center;
-    }
-    .res-veh-card-price {
-      align-items: center;
-    }
+  .rv-check-left {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    line-height: 1.4;
   }
+
+  .rv-check-left svg {
+    color: #079455;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .rv-check > svg {
+    color: #C9CDD4;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Lignes du récap dans le popover (injecté) — déjà couvert par .res-pop-row */
 </style>
 
 <script>
   import { setupPickers } from '../scripts/pickers';
 
-  // Pré-remplissage depuis le contexte de recherche (accueil / liste véhicules)
+  /* ── Pré-remplissage depuis le contexte de recherche (accueil / liste véhicules) ── */
   const urlParams = new URLSearchParams(window.location.search);
   const paramToInput: Record<string, string> = {
     'pickup': 'res-pickup',
@@ -1834,8 +2248,8 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
 
   setupPickers('res-app');
 
-  type SimpleVehicle = { id: string; name: string; image: string; priceLow: number; priceHigh: number; category: string; categorySlug: string; seats: number; transmission: string; doors: number };
-  type SimpleExtra = { id: string; label: string; price: number; per: string };
+  type SimpleVehicle = { id: string; name: string; image: string; priceLow: number; priceHigh: number; category: string; categorySlug: string; seats: number; bags: number; transmission: string; doors: number };
+  type SimpleExtra = { id: string; label: string; price: number; per: string; stepper: boolean; max: number };
   type SimpleAgence = { id: string; name: string };
   type SimpleProtection = { id: string; name: string; price: number };
 
@@ -1843,8 +2257,11 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
   const extrasData: SimpleExtra[] = JSON.parse(document.getElementById('res-extras-data')?.textContent || '[]');
   const agencesData: SimpleAgence[] = JSON.parse(document.getElementById('res-agences-data')?.textContent || '[]');
   const protectionsData: SimpleProtection[] = JSON.parse(document.getElementById('res-protections-data')?.textContent || '[]');
+  const badgesData: Record<string, string> = JSON.parse(document.getElementById('res-badges-data')?.textContent || '{}');
+  const stepTitles: Record<string, string> = JSON.parse(document.getElementById('res-step-titles')?.textContent || '{}');
 
-  // Libellés des agences pré-sélectionnées
+  const FLEX_PRICE_PER_DAY = 4; // Option « Restez flexible » (+4€/jour, façon Sixt)
+
   function syncLocLabel(inputId: string): void {
     const input = document.getElementById(inputId) as HTMLInputElement | null;
     const label = document.querySelector(`#res-app [data-pk-input="${inputId}"] [data-pk-label]`);
@@ -1854,18 +2271,22 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
   syncLocLabel('res-pickup');
   syncLocLabel('res-dropoff');
 
+  /* ── État ── */
   let currentStep = 1;
   const totalSteps = 5;
   let selectedVehicleId: string | null = urlParams.get('vehicule');
   let selectedProtection = 'essentielle';
   let vehFilter = 'all';
+  let sortMode = 'reco';
+  let paymentOption: 'best' | 'flex' = 'best';
+  const extraQty: Record<string, number> = {};
+  extrasData.forEach((e) => { extraQty[e.id] = 0; });
 
   const stepEls = Array.from(document.querySelectorAll('.res-step')) as HTMLElement[];
-  const stepperItems = Array.from(document.querySelectorAll('.res-stepper-item')) as HTMLElement[];
-  const stepperFill = document.getElementById('res-stepper-fill');
-  const prevBtn = document.getElementById('res-prev') as HTMLButtonElement | null;
-  const nextBtn = document.getElementById('res-next') as HTMLButtonElement | null;
-  const resMain = document.querySelector('.res-main');
+  const barTitle = document.getElementById('res-bar-title');
+  const backBtn = document.getElementById('res-back') as HTMLButtonElement | null;
+  const nextTopBtn = document.getElementById('res-next-top') as HTMLButtonElement | null;
+  const resBar = document.getElementById('res-bar');
   const successEl = document.getElementById('res-success');
 
   const fmtEUR = (n: number) =>
@@ -1901,101 +2322,206 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
     return total;
   }
 
-  /* ── Étape 2 : grille véhicules + filtres ── */
+  function agenceLine(): string {
+    const puVal = (document.getElementById('res-pickup') as HTMLInputElement | null)?.value;
+    const doInput = document.getElementById('res-dropoff') as HTMLInputElement | null;
+    const sameChecked = (document.getElementById('res-same-location') as HTMLInputElement | null)?.checked;
+    const doVal = sameChecked && doInput ? doInput.value : puVal;
+    const puName = agencesData.find((a) => a.id === puVal)?.name || '—';
+    const doName = agencesData.find((a) => a.id === doVal)?.name || puName;
+    return doName !== puName ? `${puName} → ${doName}` : puName;
+  }
 
+  /* ── Totaux ── */
+  function computeTotals() {
+    const duration = getDuration();
+    const vehicle = vehiclesData.find((v) => v.id === selectedVehicleId) || null;
+    const gross = vehicle ? vehicleGross(vehicle, duration) : 0;
+    const discount = duration >= 7 && gross > 0 ? Math.round(gross * 0.2 * 100) / 100 : 0;
+    const protection = protectionsData.find((p) => p.id === selectedProtection) || protectionsData[0];
+    const protectionTotal = protection ? protection.price * duration : 0;
+    const flexTotal = paymentOption === 'flex' ? FLEX_PRICE_PER_DAY * duration : 0;
+
+    let extrasTotal = 0;
+    const chosenExtras: { label: string; total: number }[] = [];
+    extrasData.forEach((e) => {
+      const qty = extraQty[e.id] || 0;
+      if (qty > 0) {
+        const lineTotal = e.per === 'jour' ? e.price * qty * duration : e.price * qty;
+        extrasTotal += lineTotal;
+        chosenExtras.push({ label: qty > 1 ? `${qty} × ${e.label}` : e.label, total: lineTotal });
+      }
+    });
+
+    const grand = Math.round((gross - discount + protectionTotal + extrasTotal + flexTotal) * 100) / 100;
+    return { duration, vehicle, gross, discount, protection, protectionTotal, chosenExtras, extrasTotal, flexTotal, grand };
+  }
+
+  function updateSummary() {
+    const t = computeTotals();
+    const totalEl = document.getElementById('res-bar-total');
+    if (totalEl) {
+      totalEl.textContent = fmtEUR(t.grand);
+      totalEl.animate([{ transform: 'scale(1.06)' }, { transform: 'scale(1)' }], { duration: 250, easing: 'ease-out' });
+    }
+  }
+
+  /* ── Popover détail du prix ── */
+  const pricePop = document.getElementById('res-price-pop');
+  const priceDetailsBtn = document.getElementById('res-price-details');
+
+  function fillPricePop() {
+    const body = document.getElementById('res-price-pop-body');
+    if (!body) return;
+    const t = computeTotals();
+    const rows: string[] = [];
+    if (t.vehicle) rows.push(`<div class="res-pop-row"><span>Véhicule (${t.duration} jour${t.duration > 1 ? 's' : ''})</span><span>${fmtEUR(t.gross)}</span></div>`);
+    if (t.discount > 0) rows.push(`<div class="res-pop-row is-discount"><span>Remise −20% (7 jours et +)</span><span>−${fmtEUR(t.discount)}</span></div>`);
+    if (t.flexTotal > 0) rows.push(`<div class="res-pop-row"><span>Option Restez flexible</span><span>+${fmtEUR(t.flexTotal)}</span></div>`);
+    if (t.protection) rows.push(`<div class="res-pop-row"><span>${t.protection.name}</span><span>${t.protection.price === 0 ? 'Incluse' : '+' + fmtEUR(t.protectionTotal)}</span></div>`);
+    t.chosenExtras.forEach((e) => rows.push(`<div class="res-pop-row"><span>${e.label}</span><span>+${fmtEUR(e.total)}</span></div>`));
+    rows.push(`<div class="res-pop-total"><span>Total</span><span>${fmtEUR(t.grand)}</span></div>`);
+    body.innerHTML = rows.join('');
+  }
+
+  function togglePricePop(force?: boolean) {
+    if (!pricePop) return;
+    const show = force ?? pricePop.hidden;
+    if (show) fillPricePop();
+    pricePop.hidden = !show;
+    priceDetailsBtn?.setAttribute('aria-expanded', show ? 'true' : 'false');
+  }
+
+  priceDetailsBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePricePop();
+  });
+  document.getElementById('res-price-pop-close')?.addEventListener('click', () => togglePricePop(false));
+  document.addEventListener('click', (e) => {
+    if (pricePop && !pricePop.hidden && !(e.target as HTMLElement).closest('.res-price-pop') && !(e.target as HTMLElement).closest('#res-price-details')) {
+      togglePricePop(false);
+    }
+  });
+
+  /* ── Étape 2 : grille véhicules ── */
   function renderVehicleGrid() {
     const grid = document.getElementById('res-veh-grid');
     if (!grid) return;
     const duration = getDuration();
-    const list = vehiclesData.filter((v) => vehFilter === 'all' || v.categorySlug === vehFilter);
+    let list = vehiclesData.filter((v) => vehFilter === 'all' || v.categorySlug === vehFilter);
 
-    const badges: Record<string, string> = {
-      'suzuki-swift-gl-plus': 'Populaire',
-      'fiat-500-lounge': 'Meilleur prix',
-      'kia-stonic': 'Confort',
-    };
-
-    grid.innerHTML = list.map((v) => {
+    const priced = list.map((v) => {
       const gross = vehicleGross(v, duration);
       const discounted = duration >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
       const perDay = Math.round((discounted / duration) * 100) / 100;
-      const dealLine = duration >= 7
-        ? `<span class="res-veh-card-deal">soit ${fmtEUR(perDay)}/jour · −20% appliqué</span>`
-        : `<span class="res-veh-card-deal">soit ${fmtEUR(perDay)}/jour</span>`;
-      const priceBlock = duration >= 7
-        ? `<s>${fmtEUR(gross)}</s><strong>${fmtEUR(discounted)}</strong><small>total ${duration} j</small>`
-        : `<strong>${fmtEUR(discounted)}</strong><small>total ${duration} j</small>`;
-      const badge = badges[v.id] ? `<span class="res-veh-card-badge">${badges[v.id]}</span>` : '';
+      return { v, gross, discounted, perDay };
+    });
+    if (sortMode === 'price-asc') priced.sort((a, b) => a.perDay - b.perDay);
+    if (sortMode === 'price-desc') priced.sort((a, b) => b.perDay - a.perDay);
+
+    // Pré-sélection du véhicule recommandé : le total s'affiche dès l'arrivée (ancrage prix)
+    if (!selectedVehicleId && priced.length > 0) {
+      selectedVehicleId = priced[0].v.id;
+    }
+
+    grid.innerHTML = priced.map(({ v, discounted, perDay }) => {
+      const badge = badgesData[v.id] ? `<span class="vc-badge">${badgesData[v.id]}</span>` : '';
+      const deal = duration >= 7 ? '<span class="vc-deal">Offre exceptionnelle</span>' : '';
       return `
-        <div class="res-veh-card ${v.id === selectedVehicleId ? 'is-selected' : ''}" data-veh-id="${v.id}">
-          <div class="res-veh-card-media">
-            ${badge}
-            <img src="${v.image}" alt="${v.name}" />
-          </div>
-          <div class="res-veh-card-info">
-            <div class="res-veh-card-name">${v.name}</div>
-            <div class="res-veh-card-sub">${v.category} · ${v.transmission}</div>
-            <div class="res-veh-card-chips">
-              <span>${v.seats} sièges</span>
-              <span>${v.doors} portes</span>
-              <span>${v.transmission}</span>
-            </div>
-            <div class="res-veh-card-incl">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
-              Kilométrage illimité et assurance inclus
-            </div>
-          </div>
-          <div class="res-veh-card-pricecol">
-            <div class="res-veh-card-price">${priceBlock}</div>
-            ${dealLine}
-            <span class="res-veh-card-select">
-              ${v.id === selectedVehicleId ? 'Sélectionné' : 'Sélectionner'}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        <article class="vc ${v.id === selectedVehicleId ? 'is-selected' : ''}" data-veh-id="${v.id}" tabindex="0" role="button" aria-label="Choisir ${v.name}">
+          <div class="vc-name">${v.name}</div>
+          <div class="vc-sub">${v.category} · ${v.transmission}</div>
+          <div class="vc-meta">
+            <span class="vc-similar">Ou modèle similaire
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
             </span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/></svg> ${v.seats}</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg> ${v.bags}</span>
+            <span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg> ${v.transmission}</span>
           </div>
-        </div>
+          <div class="vc-media">
+            <img src="${v.image}" alt="${v.name}" loading="lazy" />
+            ${badge}
+          </div>
+          ${deal}
+          <div class="vc-incl">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+            Kilométrage illimité disponible
+          </div>
+          <div class="vc-price">
+            <strong>${fmtEUR(perDay)} <small>/jour</small></strong>
+            <span>${fmtEUR(discounted)} total</span>
+          </div>
+          <div class="vc-foot"><strong>ADVENTURA</strong> −20% dès 7 jours de location, appliqué automatiquement</div>
+        </article>
       `;
     }).join('');
 
-    grid.querySelectorAll('.res-veh-card').forEach((card) => {
-      card.addEventListener('click', () => {
+    grid.querySelectorAll('.vc').forEach((card) => {
+      const select = () => {
         const id = card.getAttribute('data-veh-id');
         selectedVehicleId = id;
-        grid.querySelectorAll('.res-veh-card').forEach((c) => c.classList.remove('is-selected'));
+        grid.querySelectorAll('.vc').forEach((c) => c.classList.remove('is-selected'));
         card.classList.add('is-selected');
         updateSummary();
         openVehPanel(id);
+      };
+      card.addEventListener('click', select);
+      card.addEventListener('keydown', (e) => {
+        if ((e as KeyboardEvent).key === 'Enter') select();
       });
     });
   }
 
-  /* ── Panneau détail véhicule ── */
+  document.querySelectorAll('.res-filter').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.res-filter').forEach((b) => {
+        b.classList.toggle('is-active', b === btn);
+        b.setAttribute('aria-pressed', b === btn ? 'true' : 'false');
+      });
+      vehFilter = btn.getAttribute('data-filter') || 'all';
+      renderVehicleGrid();
+    });
+  });
 
+  document.getElementById('res-sort')?.addEventListener('change', (e) => {
+    sortMode = (e.target as HTMLSelectElement).value;
+    renderVehicleGrid();
+  });
+
+  /* ── Panneau détail véhicule ── */
   const vehPanel = document.getElementById('veh-panel');
 
   function openVehPanel(id: string | null) {
     const v = vehiclesData.find((x) => x.id === id);
     if (!v || !vehPanel) return;
-    const duration = getDuration();
-    const gross = vehicleGross(v, duration);
-    const discounted = duration >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
-    const perDay = Math.round((discounted / duration) * 100) / 100;
+    refreshVehPanelPrice(v);
 
     (document.getElementById('veh-panel-img') as HTMLImageElement).src = v.image;
     (document.getElementById('veh-panel-img') as HTMLImageElement).alt = v.name;
     document.getElementById('veh-panel-title')!.textContent = v.name;
     document.getElementById('veh-panel-sub')!.textContent = `${v.category} · ${v.transmission}`;
     document.getElementById('veh-panel-specs')!.innerHTML = [
-      `${v.seats} sièges`,
-      `${v.doors} portes`,
+      `${v.seats} Sièges`,
+      `${v.bags} Valise(s)`,
+      '1 Bagage(s) à main',
       v.transmission,
-      'Climatisation',
+      `${v.doors} Portes`,
     ].map((s) => `<li>${s}</li>`).join('');
-    document.getElementById('veh-panel-price')!.innerHTML =
-      `${fmtEUR(perDay)} /jour <small>${fmtEUR(discounted)} total pour ${duration} jour${duration > 1 ? 's' : ''}${duration >= 7 ? ' · −20% inclus' : ''}</small>`;
 
     vehPanel.hidden = false;
     document.body.style.overflow = 'hidden';
+  }
+
+  function refreshVehPanelPrice(v: SimpleVehicle) {
+    const duration = getDuration();
+    const gross = vehicleGross(v, duration);
+    const discounted = duration >= 7 ? Math.round(gross * 0.8 * 100) / 100 : gross;
+    const flex = paymentOption === 'flex' ? FLEX_PRICE_PER_DAY * duration : 0;
+    const total = Math.round((discounted + flex) * 100) / 100;
+    const perDay = Math.round((total / duration) * 100) / 100;
+    document.getElementById('veh-panel-price')!.innerHTML =
+      `${fmtEUR(perDay)} <small>/jour</small> <small>· ${fmtEUR(total)} total</small>`;
   }
 
   function closeVehPanel() {
@@ -2014,194 +2540,252 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
     closeVehPanel();
     goToStep(3);
   });
+  document.getElementById('veh-panel-details')?.addEventListener('click', () => {
+    closeVehPanel();
+    togglePricePop(true);
+  });
 
-  document.querySelectorAll('.res-veh-filter').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.res-veh-filter').forEach((b) => b.setAttribute('aria-pressed', 'false'));
-      btn.setAttribute('aria-pressed', 'true');
-      vehFilter = btn.getAttribute('data-filter') || 'all';
-      renderVehicleGrid();
+  // Options de paiement (Meilleur prix / Restez flexible)
+  document.querySelectorAll('.veh-pay[data-pay]').forEach((opt) => {
+    opt.addEventListener('click', () => {
+      paymentOption = (opt.getAttribute('data-pay') as 'best' | 'flex') || 'best';
+      document.querySelectorAll('.veh-pay[data-pay]').forEach((o) => o.classList.toggle('is-selected', o === opt));
+      const radio = opt.querySelector('input[type="radio"]') as HTMLInputElement | null;
+      if (radio) radio.checked = true;
+      const v = vehiclesData.find((x) => x.id === selectedVehicleId);
+      if (v && vehPanel && !vehPanel.hidden) refreshVehPanelPrice(v);
+      updateSummary();
+      if (currentStep === 4) renderApercu();
+      if (currentStep === 5) renderReview();
     });
   });
 
   /* ── Étape 3 : protections ── */
-
   document.querySelectorAll('.res-protection').forEach((card) => {
-    card.addEventListener('click', () => {
+    const select = () => {
       selectedProtection = card.getAttribute('data-protection') || 'essentielle';
       document.querySelectorAll('.res-protection').forEach((c) => c.classList.remove('is-selected'));
       card.classList.add('is-selected');
       updateSummary();
+    };
+    card.addEventListener('click', select);
+    card.addEventListener('keydown', (e) => {
+      if ((e as KeyboardEvent).key === 'Enter') select();
     });
   });
 
-  /* ── Récapitulatif ── */
+  /* ── Étape 4 : options (toggles, steppers, détails) ── */
+  document.querySelectorAll('[data-extra-toggle]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-extra-toggle')!;
+      const on = btn.getAttribute('aria-checked') === 'true';
+      btn.setAttribute('aria-checked', on ? 'false' : 'true');
+      extraQty[id] = on ? 0 : 1;
+      btn.closest('.res-extra')?.classList.toggle('is-on', !on);
+      updateSummary();
+      renderApercu();
+    });
+  });
 
-  function computeTotals() {
-    const duration = getDuration();
-    const vehicle = vehiclesData.find((v) => v.id === selectedVehicleId) || null;
-    const gross = vehicle ? vehicleGross(vehicle, duration) : 0;
-    const discount = duration >= 7 && gross > 0 ? Math.round(gross * 0.2 * 100) / 100 : 0;
-    const protection = protectionsData.find((p) => p.id === selectedProtection) || protectionsData[0];
-    const protectionTotal = protection ? protection.price * duration : 0;
-
-    let extrasTotal = 0;
-    const chosenExtras: { label: string; total: number }[] = [];
-    extrasData.forEach((e) => {
-      const input = document.querySelector(`[data-extra-input="${e.id}"]`) as HTMLInputElement | null;
-      if (input?.checked) {
-        const lineTotal = e.per === 'jour' ? e.price * duration : e.price;
-        extrasTotal += lineTotal;
-        chosenExtras.push({ label: e.label, total: lineTotal });
+  document.querySelectorAll('[data-stepper-plus]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-stepper-plus')!;
+      const extra = extrasData.find((e) => e.id === id);
+      const max = extra?.max ?? 1;
+      if (extraQty[id] < max) {
+        extraQty[id]++;
+        syncStepper(id);
+        updateSummary();
+        renderApercu();
       }
     });
+  });
 
-    const grand = Math.round((gross - discount + protectionTotal + extrasTotal) * 100) / 100;
-    return { duration, vehicle, gross, discount, protection, protectionTotal, chosenExtras, extrasTotal, grand };
+  document.querySelectorAll('[data-stepper-minus]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-stepper-minus')!;
+      if (extraQty[id] > 0) {
+        extraQty[id]--;
+        syncStepper(id);
+        updateSummary();
+        renderApercu();
+      }
+    });
+  });
+
+  function syncStepper(id: string) {
+    const count = document.querySelector(`[data-stepper-count="${id}"]`);
+    if (count) count.textContent = String(extraQty[id]);
+    const minus = document.querySelector(`[data-stepper-minus="${id}"]`) as HTMLButtonElement | null;
+    const plus = document.querySelector(`[data-stepper-plus="${id}"]`) as HTMLButtonElement | null;
+    const extra = extrasData.find((e) => e.id === id);
+    if (minus) minus.disabled = extraQty[id] <= 0;
+    if (plus) plus.disabled = extraQty[id] >= (extra?.max ?? 1);
+    const row = document.querySelector(`[data-extra="${id}"]`);
+    row?.classList.toggle('is-on', extraQty[id] > 0);
   }
 
-  function agenceLine(): string {
-    const puVal = (document.getElementById('res-pickup') as HTMLInputElement | null)?.value;
-    const doInput = document.getElementById('res-dropoff') as HTMLInputElement | null;
-    const doVal = doInput && !doInput.disabled && doInput.value ? doInput.value : puVal;
-    const puName = agencesData.find((a) => a.id === puVal)?.name || '—';
-    const doName = agencesData.find((a) => a.id === doVal)?.name || puName;
-    return doName !== puName ? `${puName} → ${doName}` : puName;
+  document.querySelectorAll('[data-extra-details]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const id = btn.getAttribute('data-extra-details')!;
+      const desc = document.getElementById(`extra-desc-${id}`);
+      if (desc) desc.hidden = !desc.hidden;
+    });
+  });
+
+  extrasData.forEach((e) => syncStepper(e.id));
+
+  /* ── Étape 4 : aperçu de la réservation ── */
+  const checkSvg = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><polyline points="20 6 9 17 4 12"/></svg>';
+  const infoSvg = '<svg class="res-apercu-item-info" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+
+  function apercuItem(text: string): string {
+    return `<li class="res-apercu-item"><span class="res-apercu-item-left">${checkSvg}<span>${text}</span></span>${infoSvg}</li>`;
   }
 
-  function updateSummary() {
+  function renderApercu() {
+    const list = document.getElementById('res-apercu-list');
+    if (!list) return;
     const t = computeTotals();
-
-    const durationEl = document.getElementById('res-summary-duration');
-    if (durationEl) {
-      const timeStart = (document.getElementById('res-time-start') as HTMLSelectElement | null)?.value;
-      const timeEnd = (document.getElementById('res-time-end') as HTMLSelectElement | null)?.value;
-      const times = timeStart && timeEnd ? ` · ${timeStart} → ${timeEnd}` : '';
-      durationEl.textContent = `${t.duration} jour${t.duration > 1 ? 's' : ''}${times}`;
-    }
-
-    const agenceEl = document.getElementById('res-summary-agence');
-    if (agenceEl) agenceEl.textContent = agenceLine();
-
-    const vehContainer = document.getElementById('res-summary-vehicle');
-    if (t.vehicle && vehContainer) {
-      vehContainer.innerHTML = `
-        <div class="res-summary-vehicle-selected">
-          <img src="${t.vehicle.image}" alt="${t.vehicle.name}" />
-          <div>
-            <div class="res-summary-vehicle-selected-name">${t.vehicle.name}</div>
-            <div class="res-summary-vehicle-selected-meta">${t.vehicle.category} · ${t.vehicle.transmission}</div>
-          </div>
-        </div>
-      `;
-    } else if (vehContainer) {
-      vehContainer.innerHTML = `
-        <div class="res-summary-vehicle-placeholder">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
-          <span>Aucun véhicule sélectionné</span>
-        </div>
-      `;
-    }
-
-    const vehPriceEl = document.getElementById('res-summary-veh-price');
-    if (vehPriceEl) vehPriceEl.textContent = fmtEUR(t.gross);
-
-    const discountRow = document.getElementById('res-summary-discount-row');
-    const discountEl = document.getElementById('res-summary-discount');
-    if (discountRow) discountRow.hidden = t.discount === 0;
-    if (discountEl) discountEl.textContent = t.discount > 0 ? `−${fmtEUR(t.discount)}` : '0€';
-
-    const protNameEl = document.getElementById('res-summary-protection-name');
-    const protEl = document.getElementById('res-summary-protection');
-    if (protNameEl && t.protection) protNameEl.textContent = t.protection.name;
-    if (protEl && t.protection) protEl.textContent = t.protection.price === 0 ? 'Incluse' : fmtEUR(t.protectionTotal);
-
-    const extrasContainer = document.getElementById('res-summary-extras');
-    if (extrasContainer) {
-      extrasContainer.innerHTML = t.chosenExtras
-        .map((e) => `<div class="res-summary-row"><span>${e.label}</span><span>${fmtEUR(e.total)}</span></div>`)
-        .join('');
-    }
-
-    const totalEl = document.getElementById('res-summary-total');
-    if (totalEl) {
-      totalEl.textContent = fmtEUR(t.grand);
-      totalEl.animate([{ transform: 'scale(1.08)' }, { transform: 'scale(1)' }], { duration: 300, easing: 'ease-out' });
-    }
-
-    const topbarTotal = document.getElementById('res-topbar-total');
-    if (topbarTotal) topbarTotal.textContent = fmtEUR(t.grand);
+    const items: string[] = [
+      'Assurance au tiers',
+      'Assistance dépannage 24/7',
+      'Kilométrage illimité inclus',
+    ];
+    t.chosenExtras.forEach((e) => items.push(e.label));
+    items.push(paymentOption === 'best'
+      ? 'Option de paiement : Meilleur prix - Payez maintenant, annulation et modification moyennant des frais.'
+      : 'Option de paiement : Restez flexible - Annulation et modification gratuites avant la prise en charge.');
+    list.innerHTML = items.map(apercuItem).join('');
   }
 
-  /* ── Étape 5 : récapitulatif détaillé ── */
-
-  function fmtDateFR(iso: string): string {
+  /* ── Étape 5 : carte récapitulative ── */
+  function fmtReviewDate(iso: string, time: string): string {
     if (!iso) return '—';
-    return new Date(iso + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    const s = new Date(iso + 'T00:00:00').toLocaleDateString('fr-FR', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+    return time ? `${s} | ${time}` : s;
   }
 
-  function buildRecap() {
-    const recap = document.getElementById('res-recap');
-    if (!recap) return;
+  function renderReview() {
+    const card = document.getElementById('res-review-card');
+    if (!card) return;
     const t = computeTotals();
     const ds = (document.getElementById('res-date-start') as HTMLInputElement | null)?.value || '';
     const de = (document.getElementById('res-date-end') as HTMLInputElement | null)?.value || '';
     const ts = (document.getElementById('res-time-start') as HTMLSelectElement | null)?.value || '';
     const te = (document.getElementById('res-time-end') as HTMLSelectElement | null)?.value || '';
+    const puVal = (document.getElementById('res-pickup') as HTMLInputElement | null)?.value;
+    const sameChecked = (document.getElementById('res-same-location') as HTMLInputElement | null)?.checked;
+    const doVal = sameChecked ? (document.getElementById('res-dropoff') as HTMLInputElement | null)?.value : puVal;
+    const puName = agencesData.find((a) => a.id === puVal)?.name || '—';
+    const doName = agencesData.find((a) => a.id === doVal)?.name || puName;
 
-    const vehBlock = t.vehicle
-      ? `<div class="res-recap-veh">
-           <img src="${t.vehicle.image}" alt="${t.vehicle.name}" />
-           <div>
-             <strong>${t.vehicle.name}</strong>
-             <small>${t.vehicle.category} · ${t.vehicle.seats} places · ${t.vehicle.transmission}</small>
-           </div>
-         </div>`
-      : '';
+    const buildingSvg = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="1"/><line x1="9" y1="21" x2="9" y2="17"/><line x1="15" y1="21" x2="15" y2="17"/><line x1="8" y1="7" x2="10" y2="7"/><line x1="14" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="10" y2="11"/><line x1="14" y1="11" x2="16" y2="11"/></svg>';
+    const rvInfo = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="11" x2="12" y2="16"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+    const rvCheck = (text: string) => `<div class="rv-check"><span class="rv-check-left">${checkSvg}<span>${text}</span></span>${rvInfo}</div>`;
 
-    const extraRows = t.chosenExtras
-      .map((e) => `<div class="res-recap-row"><span>${e.label}</span><span>${fmtEUR(e.total)}</span></div>`)
-      .join('');
-
-    recap.innerHTML = `
-      ${vehBlock}
-      <div class="res-recap-row"><span>Départ</span><span>${fmtDateFR(ds)} à ${ts}</span></div>
-      <div class="res-recap-row"><span>Retour</span><span>${fmtDateFR(de)} à ${te}</span></div>
-      <div class="res-recap-row"><span>Agence</span><span>${agenceLine()}</span></div>
-      <div class="res-recap-row"><span>Véhicule (${t.duration} j)</span><span>${fmtEUR(t.gross)}</span></div>
-      ${t.discount > 0 ? `<div class="res-recap-row"><span>Remise −20% (7 j et +)</span><span>−${fmtEUR(t.discount)}</span></div>` : ''}
-      <div class="res-recap-row"><span>Protection ${t.protection?.name || ''}</span><span>${t.protection && t.protection.price > 0 ? fmtEUR(t.protectionTotal) : 'Incluse'}</span></div>
-      ${extraRows}
-      <div class="res-recap-total"><span>Total</span><span>${fmtEUR(t.grand)}</span></div>
+    card.innerHTML = `
+      ${t.vehicle ? `
+      <div class="rv-veh">
+        <img src="${t.vehicle.image}" alt="${t.vehicle.name}" />
+        <div>
+          <div class="rv-veh-name">${t.vehicle.name}</div>
+          <div class="rv-veh-meta">ou similaire | ${t.vehicle.category}</div>
+        </div>
+      </div>` : ''}
+      <div class="rv-section">
+        <div class="rv-section-title">Prise en charge et retour</div>
+        <div class="rv-point">
+          ${buildingSvg}
+          <div>
+            <small>Prise en charge</small>
+            <strong>${puName}</strong>
+            <span>${fmtReviewDate(ds, ts)}</span>
+          </div>
+        </div>
+        <div class="rv-connector"></div>
+        <div class="rv-point">
+          ${buildingSvg}
+          <div>
+            <small>Retour</small>
+            <strong>${doName}</strong>
+            <span>${fmtReviewDate(de, te)}</span>
+          </div>
+        </div>
+      </div>
+      <div class="rv-section">
+        <div class="rv-section-title">Options de paiement <em class="rv-pay-tag">${paymentOption === 'best' ? 'MEILLEUR PRIX' : 'FLEXIBLE'}</em></div>
+        ${rvCheck(paymentOption === 'best' ? 'Meilleur tarif disponible' : 'Annulation et modification gratuites avant la prise en charge')}
+      </div>
+      <div class="rv-section">
+        <div class="rv-section-title">Ce qui est inclus</div>
+        ${rvCheck('Assurance au tiers')}
+        ${rvCheck('Assistance dépannage 24/7')}
+        ${rvCheck('Kilométrage illimité inclus')}
+        ${t.protection && t.protection.price > 0 ? rvCheck(t.protection.name) : ''}
+        ${t.chosenExtras.map((e) => rvCheck(e.label)).join('')}
+      </div>
     `;
   }
 
   /* ── Navigation ── */
-
   function goToStep(step: number) {
     currentStep = Math.max(1, Math.min(totalSteps, step));
 
     stepEls.forEach((el) => el.classList.toggle('is-active', Number(el.getAttribute('data-step')) === currentStep));
-    stepperItems.forEach((item) => {
-      const idx = Number(item.getAttribute('data-step-indicator'));
-      item.classList.toggle('is-active', idx === currentStep);
-      item.classList.toggle('is-done', idx < currentStep);
-    });
-    if (stepperFill) stepperFill.style.width = `${((currentStep - 1) / (totalSteps - 1)) * 100}%`;
-
-    if (prevBtn) prevBtn.hidden = currentStep === 1;
-    const nextLabel = currentStep === totalSteps
-      ? 'Confirmer la réservation <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
-      : 'Continuer <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
-    if (nextBtn) nextBtn.innerHTML = nextLabel;
-    const topbarNext = document.getElementById('res-topbar-next');
-    if (topbarNext) topbarNext.innerHTML = nextLabel;
+    if (barTitle) barTitle.textContent = stepTitles[String(currentStep)] || '';
+    if (backBtn) backBtn.hidden = currentStep === 1;
+    if (nextTopBtn) nextTopBtn.textContent = currentStep === totalSteps ? 'Confirmer la réservation' : 'Continuer';
 
     if (currentStep === 2) renderVehicleGrid();
-    if (currentStep === totalSteps) buildRecap();
+    if (currentStep === 4) renderApercu();
+    if (currentStep === 5) renderReview();
     updateSummary();
-    resMain?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  function shake(el: Element | null) {
+    el?.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 });
+  }
+
+  function handleNext() {
+    if (currentStep === 1) {
+      const endDate = document.getElementById('res-date-end') as HTMLInputElement | null;
+      if (endDate && !endDate.value) {
+        document.querySelector<HTMLElement>('#res-app [data-pk-open="range"]')?.click();
+        return;
+      }
+      goToStep(2);
+      return;
+    }
+    if (currentStep === 2 && !selectedVehicleId) {
+      shake(document.getElementById('res-veh-grid'));
+      return;
+    }
+    if (currentStep === totalSteps) {
+      const termsCheck = document.getElementById('res-terms-check') as HTMLInputElement | null;
+      if (!termsCheck?.checked) {
+        shake(termsCheck?.closest('.res-terms') || null);
+        return;
+      }
+      const ref = 'ADV-' + Math.random().toString(36).slice(2, 8).toUpperCase();
+      const refEl = document.getElementById('res-ref');
+      if (refEl) refEl.textContent = ref;
+      stepEls.forEach((el) => el.classList.remove('is-active'));
+      if (resBar) resBar.style.display = 'none';
+      if (successEl) {
+        successEl.hidden = false;
+        spawnConfetti();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    goToStep(currentStep + 1);
+  }
+
+  nextTopBtn?.addEventListener('click', handleNext);
+  backBtn?.addEventListener('click', () => goToStep(currentStep - 1));
+  document.getElementById('res-go-2')?.addEventListener('click', handleNext);
 
   function spawnConfetti() {
     const container = document.querySelector('.res-confetti');
@@ -2217,77 +2801,25 @@ const stepLabels = ['Trajet', 'Véhicule', 'Protection', 'Options', 'Vérificati
     }
   }
 
-  nextBtn?.addEventListener('click', () => {
-    if (currentStep === 1) {
-      const endDate = document.getElementById('res-date-end') as HTMLInputElement | null;
-      if (endDate && !endDate.value) {
-        document.querySelector<HTMLElement>('#res-app [data-pk-open="range"]')?.click();
-        return;
-      }
-    }
-    if (currentStep === 2 && !selectedVehicleId) {
-      const grid = document.getElementById('res-veh-grid');
-      grid?.animate([{ transform: 'translateX(-6px)' }, { transform: 'translateX(6px)' }, { transform: 'translateX(0)' }], { duration: 300 });
-      return;
-    }
-    if (currentStep === totalSteps) {
-      const termsCheck = document.getElementById('res-terms-check') as HTMLInputElement | null;
-      if (!termsCheck?.checked) {
-        termsCheck?.parentElement?.animate([{ transform: 'translateX(-4px)' }, { transform: 'translateX(4px)' }, { transform: 'translateX(0)' }], { duration: 250 });
-        return;
-      }
-      const ref = 'ADV-' + Math.random().toString(36).slice(2, 8).toUpperCase();
-      const refEl = document.getElementById('res-ref');
-      if (refEl) refEl.textContent = ref;
-      if (resMain) (resMain.querySelector('.res-step.is-active') as HTMLElement).style.display = 'none';
-      document.querySelector('.res-stepper')?.setAttribute('hidden', 'true');
-      document.querySelector('.res-nav')?.setAttribute('hidden', 'true');
-      document.querySelector('.res-summary')?.setAttribute('hidden', 'true');
-      if (successEl) {
-        successEl.hidden = false;
-        spawnConfetti();
-      }
-      return;
-    }
-    goToStep(currentStep + 1);
+  /* ── Lieu de retour différent ── */
+  const resSwitch = document.getElementById('res-same-location') as HTMLInputElement | null;
+  const dropoffField = document.getElementById('res-dropoff-field');
+  resSwitch?.addEventListener('change', () => {
+    dropoffField?.classList.toggle('is-hidden', !resSwitch.checked);
+    updateSummary();
   });
 
-  prevBtn?.addEventListener('click', () => goToStep(currentStep - 1));
-  document.getElementById('res-topbar-next')?.addEventListener('click', () => nextBtn?.click());
-
-  document.querySelectorAll('.res-extra-checkbox').forEach((input) => {
-    input.addEventListener('change', updateSummary);
-  });
-
+  /* ── Recalculs sur changement de contexte ── */
   ['res-date-start', 'res-date-end', 'res-time-start', 'res-time-end', 'res-pickup', 'res-dropoff'].forEach((id) => {
     document.getElementById(id)?.addEventListener('change', () => {
       if (currentStep === 2) renderVehicleGrid();
+      if (currentStep === 4) renderApercu();
+      if (currentStep === 5) renderReview();
       updateSummary();
     });
   });
 
-  /* ── Lieu de retour identique / différent ── */
-
-  const resSwitch = document.getElementById('res-same-location');
-  const dropoffField = document.getElementById('res-dropoff-field');
-  const dropoffInput = document.getElementById('res-dropoff') as HTMLInputElement | null;
-
-  // Le champ retour est visible par défaut ; on le synchronise si identique.
-  function toggleSameLocation() {
-    dropoffField?.classList.toggle('is-hidden');
-    if (dropoffInput) dropoffInput.disabled = dropoffField?.classList.contains('is-hidden') ?? false;
-    updateSummary();
-  }
-  resSwitch?.addEventListener('click', toggleSameLocation);
-
   /* ── Démarrage : entonnoir rapide ── */
-
-  const pParamPickup = urlParams.get('pickup');
-  const pParamDrop = urlParams.get('dropoff');
-  if (pParamPickup && pParamDrop && pParamDrop === pParamPickup && dropoffInput) {
-    // même agence : rien à faire, le champ reste visible et synchronisé
-  }
-
   const hasDatesFromSearch = Boolean(urlParams.get('date-start') && urlParams.get('date-end'));
   let initialStep = 1;
   if (hasDatesFromSearch && selectedVehicleId) initialStep = 3;

@@ -37,19 +37,40 @@ const args = [
 
 <section class="hero" id="hero-booking">
   <div class="hero-bg" aria-hidden="true">
-    <img src="/images/hero-plage.jpg" alt="" fetchpriority="high" />
+    <img src="/images/hero-plage.webp" alt="" fetchpriority="high" width="1920" height="1276" />
     <div class="hero-bg-overlay"></div>
   </div>
 
   <div class="container hero-inner">
     <!-- Carte de réservation (gauche) -->
     <form class="hero-card hb-form" action="/reservation" method="get">
+      <div class="hb-tabs" role="tablist" aria-label="Type de véhicule">
+        <button type="button" class="hb-tab is-active" role="tab" aria-selected="true" data-hb-tab="voitures">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3H5L3 10v9h2v2h2v-2h10v2h2v-2h2v-9z"/><circle cx="7" cy="15" r="1.5"/><circle cx="17" cy="15" r="1.5"/></svg>
+          Voitures
+        </button>
+        <button type="button" class="hb-tab" role="tab" aria-selected="false" data-hb-tab="utilitaires">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 8h13v9H1z"/><path d="M14 11h4l3 3v3h-7z"/><circle cx="5.5" cy="17.5" r="1.5"/><circle cx="17.5" cy="17.5" r="1.5"/></svg>
+          Utilitaires
+        </button>
+      </div>
+
+      <div class="hb-utilitaires" id="hb-utilitaires-note" hidden>
+        <strong>Utilitaires sur demande</strong>
+        <p>Nous proposons des utilitaires à la location sur devis. Appelez-nous ou écrivez-nous, réponse dans l'heure aux horaires d'ouverture.</p>
+        <a href="tel:+590690484776" class="hb-utilitaires-cta">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.4 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.54a16 16 0 0 0 6.29 6.29l.92-.92a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          06 90 48 47 76
+        </a>
+      </div>
+
+      <div class="hb-fields" id="hb-fields">
       <h1 class="hero-card-title">Location de voiture en Guadeloupe</h1>
 
       <div class="hb-field">
-        <label>Lieu de départ</label>
+        <label>Retrait et retour</label>
         <button type="button" class="pk-trigger has-value hb-loc" data-pk-open="loc" data-pk-input="pickup" aria-haspopup="dialog">
-          <svg class="hb-loc-pin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <svg class="hb-loc-pin" data-pk-icon width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
           <span data-pk-label>{agences[0].name}</span>
           <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -67,7 +88,7 @@ const args = [
       <div class="hb-field hb-field-dropoff is-hidden" id="hb-dropoff-field">
         <label>Lieu de retour</label>
         <button type="button" class="pk-trigger has-value hb-loc" data-pk-open="loc" data-pk-input="dropoff" aria-haspopup="dialog">
-          <svg class="hb-loc-pin" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <svg class="hb-loc-pin" data-pk-icon width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
           <span data-pk-label>{agences[0].name}</span>
           <svg class="pk-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </button>
@@ -126,6 +147,7 @@ const args = [
       <input type="hidden" id="date-end" name="date-end" value="" />
 
       <button type="submit" class="hb-submit">Voir les véhicules</button>
+      </div>
     </form>
 
     <!-- Arguments (droite) -->
@@ -158,9 +180,11 @@ const args = [
       <div class="pk-loc-list">
         <span class="pk-loc-list-title">Agences en Guadeloupe</span>
         {agences.map((a) => (
-          <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name} data-loc-address={a.address} data-loc-hours={a.hours}>
+          <button type="button" class="pk-loc-item" data-loc-id={a.id} data-loc-name={a.name} data-loc-address={a.address} data-loc-hours={a.hours} data-loc-icon={a.id === 'aeroport-pole-caraibes' ? 'plane' : 'pin'}>
             <span class="pk-loc-icon">
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {a.id === 'aeroport-pole-caraibes'
+                ? <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>
+                : <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
             </span>
             <span class="pk-loc-body">
               <span class="pk-loc-name">{a.name}</span>
@@ -239,10 +263,94 @@ const args = [
     border-radius: var(--radius-lg);
     box-shadow: 0 24px 70px rgba(0, 0, 0, 0.3);
     padding: var(--spacing-lg);
+    animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .hb-fields {
     display: flex;
     flex-direction: column;
     gap: 12px;
-    animation: fadeInUp 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Onglets type de véhicule (style Sixt) */
+  .hb-tabs {
+    display: flex;
+    gap: 6px;
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    padding: 5px;
+    margin-bottom: 14px;
+  }
+
+  .hb-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: none;
+    border-radius: var(--radius-full);
+    background: transparent;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+  }
+
+  .hb-tab:hover:not(.is-active) {
+    color: var(--color-ink);
+  }
+
+  .hb-tab.is-active {
+    background: var(--color-ink);
+    color: white;
+    box-shadow: 0 4px 12px rgba(22, 32, 46, 0.25);
+  }
+
+  /* Panneau utilitaires */
+  .hb-utilitaires {
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .hb-utilitaires strong {
+    display: block;
+    font-family: var(--font-display);
+    font-size: 1.02rem;
+    color: var(--color-ink);
+    margin-bottom: 6px;
+  }
+
+  .hb-utilitaires p {
+    font-size: 0.86rem;
+    margin-bottom: 14px;
+  }
+
+  .hb-utilitaires-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gradient-primary);
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 12px 26px;
+    border-radius: var(--radius-full);
+    box-shadow: var(--shadow-primary);
+    transition: transform var(--transition-fast);
+  }
+
+  .hb-utilitaires-cta:hover {
+    transform: translateY(-2px);
   }
 
   .hero-card-title {
@@ -559,6 +667,22 @@ const args = [
   import { setupPickers } from '../scripts/pickers';
 
   setupPickers('hero-booking');
+
+  // Onglets Voitures / Utilitaires
+  const hbTabs = document.querySelectorAll('#hero-booking .hb-tab');
+  const hbFields = document.getElementById('hb-fields');
+  const hbNote = document.getElementById('hb-utilitaires-note');
+  hbTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      hbTabs.forEach((t) => {
+        t.classList.toggle('is-active', t === tab);
+        t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+      });
+      const isUtil = tab.getAttribute('data-hb-tab') === 'utilitaires';
+      if (hbFields) hbFields.hidden = isUtil;
+      if (hbNote) hbNote.hidden = !isUtil;
+    });
+  });
 
   // Lieu de retour différent
   const toggleBox = document.getElementById('hb-toggle-dropoff') as HTMLInputElement | null;

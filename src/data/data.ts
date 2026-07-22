@@ -16,6 +16,8 @@ export interface Vehicle {
   transmission: 'Automatique' | 'Manuelle';
   fuel: string;
   doors: number;
+  /** Nombre de valises (estimation coffre), affiché sur les cartes */
+  bags: number;
   ac: boolean;
   description: string;
   /** Description longue orientée SEO, affichée sur la fiche */
@@ -63,13 +65,14 @@ export const vehicles: Vehicle[] = [
     category: 'Citadine',
     categorySlug: 'citadine',
     image: '/images/vehicles/suzuki-swift.jpg',
-    imageCutout: '/images/vehicles/cutout-suzuki-swift.png',
+    imageCutout: '/images/vehicles/cutout-suzuki-swift.webp',
     priceLow: 32,
     priceHigh: 48,
     seats: 5,
     transmission: 'Manuelle',
     fuel: 'Essence',
     doors: 5,
+    bags: 2,
     ac: true,
     description: 'Citadine récente (2026) en finition GL Plus, agile et économe. Parfaite pour circuler en ville comme sur les routes côtières de l\'île.',
     seoDescription: 'La Suzuki Swift GL Plus 2026 est la citadine idéale pour un séjour en Guadeloupe : compacte pour se garer facilement à Pointe-à-Pitre ou au Gosier, sobre en carburant pour les allers-retours entre Grande-Terre et Basse-Terre, et suffisamment vive pour les montées vers la route de la Traversée. Sa motorisation hybride légère consomme environ 4,4 l/100 km : sur une semaine de location, la différence se sent à la pompe. À bord : climatisation, caméra de recul et compatibilité Apple CarPlay / Android Auto pour suivre votre itinéraire sans data supplémentaire.',
@@ -94,13 +97,14 @@ export const vehicles: Vehicle[] = [
     category: 'Citadine',
     categorySlug: 'citadine',
     image: '/images/vehicles/fiat-500.jpg',
-    imageCutout: '/images/vehicles/cutout-fiat-500.png',
+    imageCutout: '/images/vehicles/cutout-fiat-500.webp',
     priceLow: 28,
     priceHigh: 42,
     seats: 4,
     transmission: 'Manuelle',
     fuel: 'Essence',
     doors: 3,
+    bags: 1,
     ac: true,
     description: 'L\'iconique citadine italienne en finition Lounge, coloris noir. Compacte, stylée et facile à garer partout en Guadeloupe.',
     seoDescription: 'Notre Fiat 500 Lounge noire (2018) est le meilleur prix de la flotte — et sûrement la voiture la plus facile à vivre de l\'île. Avec ses 3,57 m, elle se gare dans les ruelles de Saint-François ou sur les parkings bondés de la plage de la Caravelle quand les autres renoncent. Son toit panoramique en verre fait entrer la lumière des Antilles à bord, et sa boîte 5 souple pardonne tout dans les embouteillages de Pointe-à-Pitre. Idéale pour un couple qui voyage léger, moins adaptée si vous partez à 4 avec les valises.',
@@ -125,13 +129,14 @@ export const vehicles: Vehicle[] = [
     category: 'SUV urbain',
     categorySlug: 'suv',
     image: '/images/vehicles/kia-stonic.jpg',
-    imageCutout: '/images/vehicles/cutout-kia-stonic.png',
+    imageCutout: '/images/vehicles/cutout-kia-stonic.webp',
     priceLow: 39,
     priceHigh: 58,
     seats: 5,
     transmission: 'Manuelle',
     fuel: 'Essence',
     doors: 5,
+    bags: 3,
     ac: true,
     description: 'SUV urbain coloris blanc, position de conduite surélevée et grand coffre. Le bon compromis confort / budget pour les familles.',
     seoDescription: 'Le Kia Stonic blanc est le choix des familles et des voyageurs chargés : 352 litres de coffre — deux grosses valises plus les sacs de plage —, une garde au sol surélevée appréciable sur les routes dégradées de la côte sous le vent, et une position de conduite haute qui rassure sur les ronds-points guadeloupéens. Son moteur 1.0 turbo de 100 ch emmène 5 personnes sans forcer, y compris dans les lacets qui montent vers les Chutes du Carbet. Climatisation efficace, CarPlay et régulateur de série.',
